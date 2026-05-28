@@ -1,0 +1,75 @@
+/* ── 联系方式 ─────────────────────────────────── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 80px;
+  padding: 80px 0;
+}
+
+.contact-left {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-right {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-row {
+  padding: 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hover-row:hover {
+  transform: translateY(-2px);
+}
+
+.hover-row:hover .contact-arrow {
+  transform: translateX(4px);
+  color: #8e8e8e;
+}
+
+.hover-row:hover h3 {
+  color: #fff;
+}
+
+.contact-row h3 {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.contact-row p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.contact-arrow {
+  color: var(--muted-2);
+  font-size: 17px;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.contact-cards-fallback {
+  display: none;
+}
+
+/* 响应式 */
+@media (max-width: 900px) {
+  .contact-grid {
+    display: none;
+  }
+
+  .contact-cards-fallback {
+    display: grid;
+    margin-top: 32px;
+  }
+}

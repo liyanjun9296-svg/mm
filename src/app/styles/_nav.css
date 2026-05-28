@@ -1,0 +1,127 @@
+/* ── 导航栏 ─────────────────────────────────── */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  transition:
+    top 400ms var(--motion-ease),
+    left 400ms var(--motion-ease),
+    right 400ms var(--motion-ease),
+    border-radius 400ms var(--motion-ease),
+    box-shadow 400ms var(--motion-ease),
+    border-color 400ms var(--motion-ease),
+    padding 400ms var(--motion-ease);
+}
+
+/* 胶囊态：从两侧向内收缩 */
+.nav--capsule {
+  top: 16px;
+  left: 5%;
+  right: 5%;
+  border-radius: 999px;
+  border-color: rgba(255, 255, 255, 0.1);
+  padding: 0 8px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65);
+}
+
+.nav--capsule .nav-inner {
+  min-height: 52px;
+  padding: 0 16px;
+}
+
+.glass {
+  background: rgba(10, 10, 10, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 64px;
+  padding: 0;
+  gap: 16px;
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.menu {
+  display: flex;
+  gap: 40px;
+  color: var(--muted);
+}
+
+.menu a:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lang-btn {
+  color: var(--muted-2);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.lang-btn.active,
+.lang-btn:hover {
+  color: #fff;
+}
+
+.lang-divider {
+  color: var(--muted-2);
+}
+
+.nav-cta {
+  border: 1px solid #333;
+  border-radius: 2px;
+  padding: 10px 20px;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.nav-cta:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-soft);
+}
+
+@media (max-width: 900px) {
+  .nav-inner {
+    min-height: 56px;
+  }
+
+  .nav--capsule {
+    min-width: 0;
+    width: calc(100vw - 32px);
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .nav-cta {
+    display: none;
+  }
+}

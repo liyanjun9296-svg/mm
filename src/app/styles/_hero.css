@@ -1,0 +1,179 @@
+/* ── Hero 全屏区 ─────────────────────────────── */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* 文字层：居中对齐，人物后面 */
+.hero-text-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.hero-text-layer .container {
+  text-align: center;
+  pointer-events: auto;
+}
+
+/* 人物层：底部对齐居中，压在文字前面 */
+.hero-portrait-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* 图片 + 按钮容器（按钮定位参照父级）*/
+/* pointer-events: none 确保宽图不拦截文字层点击 */
+.hero-portrait-wrap {
+  position: relative;
+  pointer-events: none;
+}
+
+/* 人物图：透明 PNG，高度驱动尺寸 */
+.hero-portrait-img {
+  height: 80vh;
+  width: auto;
+  display: block;
+}
+
+/* 按钮：单独恢复可点击 */
+.hero-cta {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+  white-space: nowrap;
+  pointer-events: auto;
+  z-index: 4;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+}
+
+/* 第一行：实心白字 */
+.hero-line1 {
+  margin: 0;
+  font-size: clamp(56px, 9.5vw, 130px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* 第二行：描边空心字 + bgTextSweep 扫光动画 */
+.hero-line2 {
+  margin: 0;
+  font-size: clamp(56px, 9.5vw, 130px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 25%,
+    rgba(255, 255, 255, 0.22) 43%,
+    rgba(74, 159, 216, 0.35) 50%,
+    rgba(255, 255, 255, 0.22) 57%,
+    transparent 75%,
+    transparent 100%
+  );
+  background-size: 300% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: bgTextSweep 3s var(--motion-ease) 0.8s both;
+}
+
+@keyframes bgTextSweep {
+  from {
+    background-position: 150% center;
+    -webkit-text-stroke-color: rgba(255, 255, 255, 0.08);
+  }
+  to {
+    background-position: -50% center;
+    -webkit-text-stroke-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* 辅助说明文字 */
+.hero-desc {
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 13px;
+  text-align: left;
+}
+
+/* Hero 入场动画 */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-anim {
+  animation: heroFadeUp 0.75s var(--motion-ease) both;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  color: var(--muted-2);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.38em;
+}
+
+/* Hero 响应式 */
+@media (max-width: 1100px) {
+  .hero-line1,
+  .hero-line2 {
+    font-size: clamp(40px, 8vw, 80px);
+  }
+
+  .hero-portrait-img {
+    height: 70vh;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-line1,
+  .hero-line2 {
+    font-size: clamp(32px, 10vw, 56px);
+    white-space: normal;
+  }
+
+  .hero-portrait-img {
+    height: 52vh;
+  }
+}
