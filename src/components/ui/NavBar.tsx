@@ -25,7 +25,7 @@ export default function NavBar({ messages, locale }: NavBarProps) {
     <header className={`nav glass${scrolled ? " nav--capsule" : ""}`}>
       <div className="container nav-inner">
         <Link className="brand" href={`/${locale}`}>
-          ZIJIE
+          XINMING
         </Link>
         <nav className="menu">
           <a href="#works">{messages.nav.works}</a>

@@ -13,7 +13,10 @@ export default function ContactSection({ messages }: ContactSectionProps) {
       <div className="container">
         <RevealOnScroll className="section-head section-head-row">
           <span className="section-index">03</span>
-          <h2 className="section-title">{messages.contact.sectionTitle}</h2>
+          <h2 className="section-title">
+            <span className="section-title-main">{messages.contact.sectionTitle}</span>
+            <span className="section-title-en"> / CONTACT</span>
+          </h2>
           <span className="section-spacer" />
         </RevealOnScroll>
         <div className="section-divider" />

@@ -2,6 +2,17 @@
 
 个人自媒体作品集主站，Next.js App Router 构建，支持中英双语、作品筛选与详情页。
 
+## 环境依赖（新电脑必装）
+
+- Git（用于拉取与提交代码）
+- Node.js `>=20`（推荐 20 LTS 或 22 LTS）
+- npm `>=10`（随 Node 安装）
+
+可选但推荐：
+
+- nvm（用于切换 Node 版本）
+- VS Code / Cursor（编辑器）
+
 ## 快速启动
 
 ```bash
@@ -13,6 +24,38 @@ npm run dev
 访问 [http://localhost:3000](http://localhost:3000)，自动跳转到 `/zh`。
 
 > 端口被占用时：`npm run dev -- --port 3001`，访问 `http://localhost:3001/zh`
+
+---
+
+## 在其他电脑继续开发
+
+### 1) 克隆项目
+
+```bash
+git clone <你的仓库地址>
+cd portfolio-site
+```
+
+### 2) 安装依赖
+
+```bash
+npm install
+```
+
+### 3) 启动开发环境
+
+```bash
+npm run dev
+```
+
+默认访问 [http://localhost:3000/zh](http://localhost:3000/zh)。
+
+### 4) 构建与检查（建议提交前执行）
+
+```bash
+npm run lint
+npm run build
+```
 
 ---
 
@@ -64,7 +107,7 @@ src/
 ```
 
 ### 替换人物照片
-将新图片覆盖 `public/images/portrait.png`：
+将新图片覆盖 `public/images/portrait-v5.png`：
 - 必须是 **RGBA 透明背景 PNG**
 - 替换后同步修改 `src/components/sections/HeroSection.tsx` 中的 `width` 和 `height` 为实际像素尺寸
 
@@ -99,3 +142,15 @@ npm run build    # 构建（检查是否有错误）
 npm run lint     # ESLint 检查
 npm run start    # 预览生产构建
 ```
+
+---
+
+## 常见问题
+
+### 图片替换后页面没变化
+
+如果替换了人物图但页面看起来没更新，优先检查：
+
+- `HeroSection.tsx` 中引用的文件名是否和你替换的文件一致
+- 是否用了新文件名（可规避图片缓存）
+- 浏览器是否强刷（`Cmd/Ctrl + Shift + R`）

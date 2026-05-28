@@ -5,6 +5,7 @@
   min-height: 700px;
   overflow: hidden;
   background: var(--bg);
+  --hero-offset-y: -140px;
 }
 
 /* 文字层：居中对齐，人物后面 */
@@ -15,6 +16,7 @@
   display: flex;
   align-items: center;
   pointer-events: none;
+  transform: translateY(var(--hero-offset-y));
 }
 
 .hero-text-layer .container {
@@ -31,6 +33,7 @@
   align-items: flex-end;
   justify-content: center;
   pointer-events: none;
+  transform: translateY(calc(var(--hero-offset-y) + 16px));
 }
 
 /* 图片 + 按钮容器（按钮定位参照父级）*/
@@ -42,17 +45,22 @@
 
 /* 人物图：透明 PNG，高度驱动尺寸 */
 .hero-portrait-img {
-  height: 80vh;
-  width: auto;
+  width: min(71.1vw, 916px);
+  height: auto;
+  max-height: 67.3vh;
   display: block;
+  /* 修复透明 PNG 在缩放时底部出现的 1-2px 亮边 */
+  clip-path: inset(0 0 2px 0);
 }
 
 /* 按钮：单独恢复可点击 */
 .hero-cta {
   position: absolute;
-  bottom: 0;
+  bottom: 50px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0) scale(var(--hero-anim-scale, 1));
+  --hero-anim-x: -50%;
+  --hero-anim-scale: 1.1;
   display: flex;
   gap: 16px;
   white-space: nowrap;
@@ -80,40 +88,73 @@
   white-space: nowrap;
 }
 
-/* 第二行：描边空心字 + bgTextSweep 扫光动画 */
+/* 第二行：描边空心字 + 从左到右填充动画 */
 .hero-line2 {
   margin: 0;
   font-size: clamp(56px, 9.5vw, 130px);
   font-weight: 900;
   letter-spacing: -0.03em;
   line-height: 1;
-  color: transparent;
-  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+  position: relative;
+  display: inline-block;
   white-space: nowrap;
-  background: linear-gradient(
-    105deg,
-    transparent 0%,
-    transparent 25%,
-    rgba(255, 255, 255, 0.22) 43%,
-    rgba(74, 159, 216, 0.35) 50%,
-    rgba(255, 255, 255, 0.22) 57%,
-    transparent 75%,
-    transparent 100%
-  );
-  background-size: 300% 100%;
-  background-clip: text;
-  -webkit-background-clip: text;
-  animation: bgTextSweep 3s var(--motion-ease) 0.8s both;
+  animation: heroFadeUp 0.75s var(--motion-ease) 160ms both;
 }
 
-@keyframes bgTextSweep {
-  from {
-    background-position: 150% center;
-    -webkit-text-stroke-color: rgba(255, 255, 255, 0.08);
+.hero-line2-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-line2-outline,
+.hero-line2-fill {
+  display: block;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  white-space: inherit;
+}
+
+.hero-line2-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.3);
+}
+
+.hero-line2-fill {
+  position: absolute;
+  inset: 0;
+  color: transparent;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.35) 55%,
+    rgba(42, 241, 168, 0.95) 100%
+  );
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: bgTextFillLtrWipeOut 1.35s var(--motion-ease) 0.8s 1 both;
+}
+
+@keyframes bgTextFillLtrWipeOut {
+  0% {
+    background-size: 0% 100%;
+    background-position: left center;
   }
-  to {
-    background-position: -50% center;
-    -webkit-text-stroke-color: rgba(255, 255, 255, 0.3);
+  70% {
+    background-size: 100% 100%;
+    background-position: left center;
+  }
+  71% {
+    background-size: 100% 100%;
+    background-position: right center;
+  }
+  100% {
+    background-size: 0% 100%;
+    background-position: right center;
   }
 }
 
@@ -124,17 +165,18 @@
   line-height: 1.6;
   font-size: 13px;
   text-align: left;
+  width: 100%;
 }
 
 /* Hero 入场动画 */
 @keyframes heroFadeUp {
   from {
     opacity: 0;
-    transform: translateY(28px);
+    transform: translate(var(--hero-anim-x, 0), 28px) scale(var(--hero-anim-scale, 1));
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(var(--hero-anim-x, 0), 0) scale(var(--hero-anim-scale, 1));
   }
 }
 
@@ -144,9 +186,10 @@
 
 .scroll-hint {
   position: absolute;
-  bottom: 24px;
+  bottom: 4px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, 0);
+  --hero-anim-x: -50%;
   z-index: 4;
   color: var(--muted-2);
   font-family: var(--font-geist-mono), monospace;
@@ -162,7 +205,8 @@
   }
 
   .hero-portrait-img {
-    height: 70vh;
+    width: min(76.7vw, 711px);
+    max-height: 58vh;
   }
 }
 
@@ -174,6 +218,7 @@
   }
 
   .hero-portrait-img {
-    height: 52vh;
+    width: min(86vw, 524px);
+    max-height: 46.8vh;
   }
 }

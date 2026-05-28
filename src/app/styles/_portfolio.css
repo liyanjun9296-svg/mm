@@ -6,12 +6,14 @@
 .section-head-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 20px;
   padding: 0 0 40px;
 }
 
 .section-index {
+  order: 2;
+  margin-left: auto;
   color: var(--muted-2);
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
@@ -19,15 +21,29 @@
 }
 
 .section-spacer {
-  width: 20px;
-  height: 1px;
+  display: none;
 }
 
 .section-title {
+  order: 1;
   margin: 0;
-  font-size: clamp(34px, 4.6vw, 52px);
+  font-size: clamp(24px, 3.2vw, 34px);
   font-weight: 500;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  text-align: left;
+}
+
+.section-title-main {
+  display: inline;
+}
+
+.section-title-en {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.58em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .section-divider {
@@ -418,6 +434,6 @@
   }
 
   .section-title {
-    font-size: 34px;
+    font-size: 28px;
   }
 }

@@ -14,7 +14,10 @@ export default function AboutSection({ messages, locale }: AboutSectionProps) {
       <div className="container">
         <RevealOnScroll className="section-head section-head-row">
           <span className="section-index">02</span>
-          <h2 className="section-title">{messages.about.sectionTitle}</h2>
+          <h2 className="section-title">
+            <span className="section-title-main">{messages.about.sectionTitle}</span>
+            <span className="section-title-en"> / ABOUT</span>
+          </h2>
           <span className="section-spacer" />
         </RevealOnScroll>
         <div className="section-divider" />

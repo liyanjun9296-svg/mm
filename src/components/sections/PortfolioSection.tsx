@@ -37,7 +37,10 @@ export default function PortfolioSection({ works, messages, locale }: PortfolioS
       <div className="container">
         <RevealOnScroll className="section-head section-head-row">
           <span className="section-index">01</span>
-          <h2 className="section-title">{messages.works.sectionTitle}</h2>
+          <h2 className="section-title">
+            <span className="section-title-main">{messages.works.sectionTitle}</span>
+            <span className="section-title-en"> / WORKS</span>
+          </h2>
           <span className="section-spacer" />
         </RevealOnScroll>
         <div className="section-divider" />

@@ -19,16 +19,18 @@ export default function HeroSection({ messages }: HeroSectionProps) {
           <h1 className="hero-line1 hero-anim" style={{ animationDelay: "80ms" }}>
             VIDEO CREATOR
           </h1>
-          <h1
-            className="hero-line2 hero-anim"
-            style={{ animationDelay: "160ms" }}
-            aria-hidden="true"
-          >
-            &amp; FILMMAKER
-          </h1>
-          <p className="hero-desc hero-anim" style={{ animationDelay: "300ms" }}>
-            {messages.hero.description}
-          </p>
+          <div className="hero-line2-group">
+            <h1
+              className="hero-line2"
+              aria-hidden="true"
+            >
+              <span className="hero-line2-outline">&amp; FILMMAKERER</span>
+              <span className="hero-line2-fill">&amp; FILMMAKERER</span>
+            </h1>
+            <p className="hero-desc hero-anim" style={{ animationDelay: "300ms" }}>
+              {messages.hero.description}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -37,7 +39,7 @@ export default function HeroSection({ messages }: HeroSectionProps) {
       <div className="hero-portrait-layer">
         <div className="hero-portrait-wrap">
           <Image
-            src="/images/portrait.png"
+            src="/images/portrait-v5.png"
             alt="portrait"
             width={1056}
             height={594}
