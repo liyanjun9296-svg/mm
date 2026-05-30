@@ -44,11 +44,12 @@ export default function HeroSection({ messages, locale, displayFont = "helvetica
       <div className="hero-portrait-layer">
         <div className="hero-portrait-wrap">
           <Image
-            src="/images/portrait-hero.png"
+            src="/images/portrait-v8.png"
             alt="portrait"
             width={2112}
             height={1188}
             priority
+            unoptimized
             className="hero-portrait-img"
           />
           <div className="hero-cta hero-anim" style={{ animationDelay: "500ms" }}>

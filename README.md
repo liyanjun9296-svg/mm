@@ -213,6 +213,19 @@ npm run upload:cos -- ./my-video.mp4 works/videos/brand-campaign.mp4
 
 然后在后台编辑作品时，也可直接在表单里选文件上传（无需此命令）。
 
+### 6) Vercel 部署与自定义域名
+
+详见 [docs/VERCEL_DEPLOY.md](docs/VERCEL_DEPLOY.md)。
+
+快速步骤：
+
+1. [Vercel](https://vercel.com) Import 仓库 `liyanjun9296-svg/mm`（Root Directory 留空）
+2. 配置与 `.env.local` 相同的 7 个环境变量
+3. Deploy 后绑定根域名 + `www`（DNS：`@` → A `76.76.21.21`，`www` → CNAME `cname.vercel-dns.com`）
+4. 更新 COS CORS：`SITE_DOMAIN=yourdomain.com npm run cos:cors`
+
+CLI 可选：`npx vercel login` → `bash scripts/push-vercel-env.sh` → `npm run deploy:vercel`
+
 ### 5) 播放自检
 
 1. 浏览器无痕窗口直接打开 COS 视频 URL → 应能播放、可拖动进度
