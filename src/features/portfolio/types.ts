@@ -1,6 +1,6 @@
-export type WorkCategory = "video" | "photo";
+export type WorkCategory = "video" | "photo" | "article";
 
-export type VideoSubcategory = "产品" | "AI" | "校园";
+export type FeaturedLayout = "large" | "compact";
 
 export type WorkItem = {
   slug: string;
@@ -8,7 +8,7 @@ export type WorkItem = {
   subtitle: string;
   description: string;
   category: WorkCategory;
-  subcategory?: VideoSubcategory;
+  subcategory?: string;
   duration?: string;
   coverImage: string;
   mediaUrl: string;
@@ -16,5 +16,8 @@ export type WorkItem = {
   year: string;
   platform: string;
   externalUrl?: string;
+  detailImages?: string[];
+  featured?: boolean;
+  featuredLayout?: FeaturedLayout;
 };
 

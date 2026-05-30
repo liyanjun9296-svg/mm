@@ -1,5 +1,6 @@
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
 import TiltCard from "@/components/motion/TiltCard";
+import SectionHeader from "@/components/ui/SectionHeader";
 import { socialLinks } from "@/features/profile/data/profile";
 import type { Messages } from "@/i18n/messages";
 
@@ -11,15 +12,7 @@ export default function ContactSection({ messages }: ContactSectionProps) {
   return (
     <section id="contact" className="section">
       <div className="container">
-        <RevealOnScroll className="section-head section-head-row">
-          <span className="section-index">03</span>
-          <h2 className="section-title">
-            <span className="section-title-main">{messages.contact.sectionTitle}</span>
-            <span className="section-title-en"> / CONTACT</span>
-          </h2>
-          <span className="section-spacer" />
-        </RevealOnScroll>
-        <div className="section-divider" />
+        <SectionHeader index="03" title={messages.contact.sectionTitle} />
 
         <div className="contact-grid">
           <div className="contact-left">
@@ -60,4 +53,3 @@ export default function ContactSection({ messages }: ContactSectionProps) {
     </section>
   );
 }
-

@@ -1,0 +1,61 @@
+/* ── 全站大板块标题（对齐 UI参考.pen） ──────── */
+.section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 80px 0 40px;
+}
+
+.section-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.section-header-index {
+  color: #444;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+}
+
+.section-header-title {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.section-header-line {
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: #333;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.section-header-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #555;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  text-decoration: none;
+  margin-bottom: 12px;
+  transition: color var(--motion-fast) var(--motion-ease);
+}
+
+.section-header-link:hover {
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .section-header {
+    padding-top: 56px;
+    padding-bottom: 28px;
+  }
+}

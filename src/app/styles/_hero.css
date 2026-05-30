@@ -33,7 +33,7 @@
   align-items: flex-end;
   justify-content: center;
   pointer-events: none;
-  transform: translateY(calc(var(--hero-offset-y) + 16px));
+  transform: translateY(calc(var(--hero-offset-y) + 36px));
 }
 
 /* 图片 + 按钮容器（按钮定位参照父级）*/
@@ -45,9 +45,9 @@
 
 /* 人物图：透明 PNG，高度驱动尺寸 */
 .hero-portrait-img {
-  width: min(71.1vw, 916px);
+  width: min(78.21vw, 1008px);
   height: auto;
-  max-height: 67.3vh;
+  max-height: 74.03vh;
   display: block;
   /* 修复透明 PNG 在缩放时底部出现的 1-2px 亮边 */
   clip-path: inset(0 0 2px 0);
@@ -56,7 +56,7 @@
 /* 按钮：单独恢复可点击 */
 .hero-cta {
   position: absolute;
-  bottom: 50px;
+  bottom: 35px;
   left: 50%;
   transform: translate(-50%, 0) scale(var(--hero-anim-scale, 1));
   --hero-anim-x: -50%;
@@ -77,11 +77,28 @@
   text-transform: uppercase;
 }
 
+.hero-eyebrow {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: clamp(13px, 1.4vw, 15px);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: none;
+  max-width: 36em;
+  margin-inline: auto;
+}
+
 /* 第一行：实心白字 */
+.hero-line1,
+.hero-line2 {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
 .hero-line1 {
   margin: 0;
   font-size: clamp(56px, 9.5vw, 130px);
-  font-weight: 900;
+  font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--text);
@@ -91,14 +108,174 @@
 /* 第二行：描边空心字 + 从左到右填充动画 */
 .hero-line2 {
   margin: 0;
-  font-size: clamp(56px, 9.5vw, 130px);
-  font-weight: 900;
-  letter-spacing: -0.03em;
+  font-size: clamp(50px, 8.4vw, 114px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
   line-height: 1;
   position: relative;
   display: inline-block;
   white-space: nowrap;
   animation: heroFadeUp 0.75s var(--motion-ease) 160ms both;
+}
+
+/* ── Hero 大字字体预设（仅 line1 / line2） ─── */
+.hero-display--helvetica .hero-line1,
+.hero-display--helvetica .hero-line2 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.hero-display--helvetica .hero-line1 {
+  font-size: clamp(64px, 10.8vw, 148px);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.hero-display--helvetica .hero-line2 {
+  font-weight: 600;
+  font-size: clamp(54px, 9.2vw, 122px);
+  letter-spacing: 0.02em;
+}
+
+.hero-display--helvetica .hero-line2-outline {
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.32);
+}
+
+.hero-display--instrument-serif .hero-line1,
+.hero-display--instrument-serif .hero-line2 {
+  font-family: var(--font-instrument-serif), "Times New Roman", serif;
+}
+
+.hero-display--instrument-serif .hero-line1 {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.hero-display--instrument-serif .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+}
+
+.hero-display--syne .hero-line1,
+.hero-display--syne .hero-line2 {
+  font-family: var(--font-syne), var(--font-geist-sans), sans-serif;
+}
+
+.hero-display--syne .hero-line1 {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.hero-display--syne .hero-line2 {
+  font-weight: 500;
+  font-size: clamp(48px, 8vw, 108px);
+}
+
+.hero-display--space-grotesk .hero-line1,
+.hero-display--space-grotesk .hero-line2 {
+  font-family: var(--font-space-grotesk), var(--font-geist-sans), sans-serif;
+}
+
+.hero-display--space-grotesk .hero-line1 {
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.hero-display--space-grotesk .hero-line2 {
+  font-weight: 500;
+  font-size: clamp(48px, 8vw, 108px);
+}
+
+.hero-display--cormorant .hero-line1,
+.hero-display--cormorant .hero-line2 {
+  font-family: var(--font-cormorant), "Times New Roman", serif;
+}
+
+.hero-display--cormorant .hero-line1 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.hero-display--cormorant .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+  letter-spacing: 0.01em;
+}
+
+.hero-display--geist-refined .hero-line1,
+.hero-display--geist-refined .hero-line2 {
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.hero-display--geist-refined .hero-line1 {
+  font-weight: 700;
+}
+
+.hero-display--geist-refined .hero-line2 {
+  font-weight: 500;
+  font-size: clamp(48px, 8vw, 108px);
+}
+
+.hero-display--fraunces .hero-line1,
+.hero-display--fraunces .hero-line2 {
+  font-family: var(--font-fraunces), "Times New Roman", serif;
+}
+
+.hero-display--fraunces .hero-line1 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.hero-display--fraunces .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+  letter-spacing: -0.01em;
+}
+
+.hero-display--eczar .hero-line1,
+.hero-display--eczar .hero-line2 {
+  font-family: var(--font-eczar), "Times New Roman", serif;
+}
+
+.hero-display--eczar .hero-line1 {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.hero-display--eczar .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+}
+
+.hero-display--playfair-display .hero-line1,
+.hero-display--playfair-display .hero-line2 {
+  font-family: var(--font-playfair-display), "Times New Roman", serif;
+}
+
+.hero-display--playfair-display .hero-line1 {
+  font-weight: 900;
+  letter-spacing: -0.01em;
+}
+
+.hero-display--playfair-display .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+  letter-spacing: 0.01em;
+}
+
+.hero-display--young-serif .hero-line1,
+.hero-display--young-serif .hero-line2 {
+  font-family: var(--font-young-serif), "Times New Roman", serif;
+}
+
+.hero-display--young-serif .hero-line1 {
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.hero-display--young-serif .hero-line2 {
+  font-weight: 400;
+  font-size: clamp(48px, 8vw, 108px);
+  opacity: 0.92;
 }
 
 .hero-line2-group {
@@ -158,14 +335,44 @@
   }
 }
 
-/* 辅助说明文字 */
-.hero-desc {
-  margin: 16px 0 0;
-  color: var(--muted);
-  line-height: 1.6;
-  font-size: 13px;
-  text-align: left;
+/* Hero 标签行 */
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
   width: 100%;
+}
+
+.hero-tags li {
+  display: flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: clamp(13px, 1.35vw, 15px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.hero-tags li + li::before {
+  content: "";
+  flex-shrink: 0;
+  align-self: center;
+  width: 1px;
+  height: 10px;
+  margin: 0 10px;
+  background: var(--muted-2);
+  opacity: 0.55;
+}
+
+@media (max-width: 768px) {
+  .hero-tags li + li::before {
+    height: 9px;
+    margin: 0 8px;
+  }
 }
 
 /* Hero 入场动画 */
@@ -204,9 +411,17 @@
     font-size: clamp(40px, 8vw, 80px);
   }
 
+  .hero-display--helvetica .hero-line1 {
+    font-size: clamp(46px, 8.8vw, 92px);
+  }
+
+  .hero-display--helvetica .hero-line2 {
+    font-size: clamp(40px, 8vw, 84px);
+  }
+
   .hero-portrait-img {
-    width: min(76.7vw, 711px);
-    max-height: 58vh;
+    width: min(84.37vw, 782px);
+    max-height: 63.8vh;
   }
 }
 
@@ -217,8 +432,16 @@
     white-space: normal;
   }
 
+  .hero-display--helvetica .hero-line1 {
+    font-size: clamp(36px, 11vw, 64px);
+  }
+
+  .hero-display--helvetica .hero-line2 {
+    font-size: clamp(32px, 10vw, 58px);
+  }
+
   .hero-portrait-img {
-    width: min(86vw, 524px);
-    max-height: 46.8vh;
+    width: min(94.6vw, 576px);
+    max-height: 51.48vh;
   }
 }

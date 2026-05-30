@@ -1,4 +1,5 @@
-import RevealOnScroll from "@/components/motion/RevealOnScroll";
+import SectionHeader from "@/components/ui/SectionHeader";
+import FaqAccordion from "@/components/ui/FaqAccordion";
 import type { Messages } from "@/i18n/messages";
 import { profile } from "@/features/profile/data/profile";
 import type { Locale } from "@/lib/i18n";
@@ -9,52 +10,58 @@ type AboutSectionProps = {
 };
 
 export default function AboutSection({ messages, locale }: AboutSectionProps) {
+  const bio = locale === "zh" ? profile.bioZh : profile.bioEn;
+
   return (
-    <section id="about" className="section">
+    <section id="about" className="section about-section">
       <div className="container">
-        <RevealOnScroll className="section-head section-head-row">
-          <span className="section-index">02</span>
-          <h2 className="section-title">
-            <span className="section-title-main">{messages.about.sectionTitle}</span>
-            <span className="section-title-en"> / ABOUT</span>
-          </h2>
-          <span className="section-spacer" />
-        </RevealOnScroll>
-        <div className="section-divider" />
+        <SectionHeader index="02" title={messages.about.sectionTitle} />
 
         <div className="about-grid">
-          <article className="info-card about-left">
+          <article className="about-left-card">
             <div className="about-portrait" />
             <h3 className="about-name">{profile.name}</h3>
-            <p className="muted">{profile.title}</p>
-            <p className="about-year">2018 - Present</p>
+            <p className="about-role">{profile.title}</p>
+            <p className="about-location">{profile.location}</p>
           </article>
-          <article className="info-card about-right">
-            <p className="mono-label">{messages.about.sectionDesc}</p>
-            <p>{locale === "zh" ? profile.bioZh : profile.bioEn}</p>
-            <a href={profile.resumeUrl} className="work-link">
-              {messages.about.resume}
-            </a>
-            <h3 className="subhead">{messages.about.skillsTitle}</h3>
-            <div className="tags">
-              {profile.skills.map((item) => (
-                <span key={item} className="tag">
-                  {item}
-                </span>
-              ))}
+
+          <article className="about-right">
+            <div className="about-block">
+              <p className="mono-label">ABOUT</p>
+              <p className="about-bio">{bio}</p>
             </div>
-            <h3 className="subhead">{messages.about.timelineTitle}</h3>
-            <ul className="timeline">
-              {profile.timeline.map((item) => (
-                <li key={item.year}>
-                  <strong>{item.year}</strong> {item.title} - {item.desc}
-                </li>
-              ))}
-            </ul>
+
+            <div className="about-block">
+              <div className="tags">
+                {profile.skills.map((item) => (
+                  <span key={item} className="tag">
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="about-block">
+              <p className="mono-label">EXPERIENCE</p>
+              <ul className="about-exp-list">
+                {profile.timeline.map((item) => (
+                  <li key={item.year} className="about-exp-item">
+                    <span className="about-exp-year">{item.year}</span>
+                    <div className="about-exp-body">
+                      <strong>
+                        {item.title} — {item.role}
+                      </strong>
+                      <p>{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </article>
         </div>
+
+        <FaqAccordion items={profile.faq} />
       </div>
     </section>
   );
 }
-

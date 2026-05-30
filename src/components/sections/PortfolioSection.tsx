@@ -1,9 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import SectionHeader from "@/components/ui/SectionHeader";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
+import { resolveFeaturedWorks } from "@/features/portfolio/utils/resolveFeaturedWorks";
+import { cosOptimizedImageUrl } from "@/lib/cos/image-url";
 import type { WorkItem } from "@/features/portfolio/types";
 import type { Messages } from "@/i18n/messages";
 import type { Locale } from "@/lib/i18n";
@@ -14,107 +14,111 @@ type PortfolioSectionProps = {
   locale: Locale;
 };
 
-const VIDEO_TABS = [
-  { key: "全部", labelKey: "videoTabAll" as const },
-  { key: "产品", labelKey: "videoTabProduct" as const },
-  { key: "AI", labelKey: "videoTabAI" as const },
-  { key: "校园", labelKey: "videoTabCampus" as const },
-];
-
-export default function PortfolioSection({ works, messages, locale }: PortfolioSectionProps) {
-  const [activeTab, setActiveTab] = useState("全部");
-
-  const videos = works.filter((w) => w.category === "video");
-  const photos = works.filter((w) => w.category === "photo");
-
-  const filteredVideos =
-    activeTab === "全部"
-      ? videos
-      : videos.filter((w) => w.subcategory === activeTab);
+function FeaturedCard({
+  work,
+  layout,
+  locale,
+  messages,
+}: {
+  work: WorkItem;
+  layout: "large" | "compact";
+  locale: Locale;
+  messages: Messages;
+}) {
+  const thumbHeight = layout === "large" ? 260 : 200;
 
   return (
-    <section id="works" className="section">
-      <div className="container">
-        <RevealOnScroll className="section-head section-head-row">
-          <span className="section-index">01</span>
-          <h2 className="section-title">
-            <span className="section-title-main">{messages.works.sectionTitle}</span>
-            <span className="section-title-en"> / WORKS</span>
-          </h2>
-          <span className="section-spacer" />
-        </RevealOnScroll>
-        <div className="section-divider" />
-
-        {/* 视频区 */}
-        <div className="portfolio-block">
-          <div className="video-tab-bar">
-            {VIDEO_TABS.map((tab) => (
-              <button
-                key={tab.key}
-                className={`video-tab${activeTab === tab.key ? " video-tab--active" : ""}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                {messages.works[tab.labelKey]}
-              </button>
-            ))}
-          </div>
-          <div className="video-grid">
-            {filteredVideos.map((work, i) => (
-              <RevealOnScroll key={work.slug} delay={i * 60}>
-                <Link href={`/${locale}/works/${work.slug}`} className="video-card">
-                  <div className="video-card-thumb">
-                    <Image
-                      src={work.coverImage}
-                      alt={work.title}
-                      className="video-card-img"
-                      width={800}
-                      height={450}
-                    />
-                    {work.duration && (
-                      <span className="video-card-duration">{work.duration}</span>
-                    )}
-                  </div>
-                  <div className="video-card-info">
-                    <p className="video-card-title">{work.title}</p>
-                    <div className="video-card-meta">
-                      <span className="video-card-platform">{work.platform}</span>
-                      {work.subcategory && (
-                        <span className="video-card-tag">{work.subcategory}</span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              </RevealOnScroll>
-            ))}
-          </div>
+    <RevealOnScroll>
+      <Link
+        href={`/${locale}/works/${work.slug}`}
+        className={`featured-card featured-card--${layout}`}
+      >
+        <div className="featured-card-thumb" style={{ height: thumbHeight }}>
+          <Image
+            src={
+              work.category === "photo"
+                ? cosOptimizedImageUrl(work.coverImage, "card")
+                : work.coverImage
+            }
+            alt={work.title}
+            className="featured-card-img"
+            width={800}
+            height={450}
+          />
         </div>
+        <div className="featured-card-info">
+          <p className="featured-card-title">{work.title}</p>
+          <span className="featured-card-tag">
+            {work.category === "video"
+              ? messages.portfolio.tagVideo
+              : work.category === "photo"
+                ? messages.portfolio.tagPhoto
+                : messages.portfolio.tagArticle}
+          </span>
+        </div>
+      </Link>
+    </RevealOnScroll>
+  );
+}
 
-        {/* 照片区 */}
-        <div className="portfolio-block">
-          <div className="photo-section-header">
-            <h3 className="photo-section-title">{messages.works.photo}</h3>
-            <Link href={`/${locale}/photos`} className="photo-view-all hover-link">
-              {messages.works.photoViewAll}
+export default function PortfolioSection({ works, messages, locale }: PortfolioSectionProps) {
+  const { large, compact, usingFallback } = resolveFeaturedWorks(works);
+  const hasFeaturedCards = large.length > 0 || compact.length > 0;
+
+  return (
+    <section id="works" className="section portfolio-featured-section">
+      <div className="container">
+        <SectionHeader
+          index="01"
+          title={messages.works.sectionTitle}
+          right={
+            <Link href={`/${locale}/portfolio`} className="section-header-link">
+              {messages.portfolio.allProjects} →
             </Link>
-          </div>
-          <div className="photo-grid">
-            {photos.map((work, i) => (
-              <RevealOnScroll key={work.slug} delay={i * 60}>
-                <Link href={`/${locale}/works/${work.slug}`} className="photo-item">
-                  <div className="photo-item-img-wrap">
-                    <Image
-                      src={work.coverImage}
-                      alt={work.title}
-                      className="photo-item-img"
-                      width={400}
-                      height={400}
-                    />
-                  </div>
-                  <p className="photo-item-caption">{work.title}</p>
-                </Link>
-              </RevealOnScroll>
+          }
+        />
+
+        {large.length > 0 ? (
+          <div className="featured-row featured-row--large">
+            {large.map((work) => (
+              <FeaturedCard
+                key={work.slug}
+                work={work}
+                layout="large"
+                locale={locale}
+                messages={messages}
+              />
             ))}
           </div>
+        ) : null}
+
+        {compact.length > 0 ? (
+          <div className="featured-row featured-row--compact">
+            {compact.map((work) => (
+              <FeaturedCard
+                key={work.slug}
+                work={work}
+                layout="compact"
+                locale={locale}
+                messages={messages}
+              />
+            ))}
+          </div>
+        ) : null}
+
+        {!hasFeaturedCards ? (
+          <p className="portfolio-empty-hint">{messages.portfolio.emptyFeatured}</p>
+        ) : null}
+        {usingFallback ? (
+          <p className="portfolio-empty-hint portfolio-empty-hint--muted">
+            {messages.portfolio.featuredFallbackHint}
+          </p>
+        ) : null}
+
+        <div className="portfolio-explore-wrap">
+          <Link href={`/${locale}/portfolio`} className="portfolio-explore-link hover-link">
+            {messages.portfolio.exploreAll}
+          </Link>
         </div>
       </div>
     </section>

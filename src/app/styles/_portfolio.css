@@ -277,33 +277,76 @@
   letter-spacing: -0.02em;
 }
 
-.photos-masonry {
-  columns: 3;
-  column-gap: 16px;
+/* 摄影瀑布流：固定列结构 + 统一卡片比例（非原图高度驱动） */
+.photo-masonry-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 80px;
 }
 
+.photo-masonry-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.photo-masonry-item,
 .photos-masonry-item {
   display: block;
   text-decoration: none;
-  break-inside: avoid;
-  margin-bottom: 16px;
 }
 
-.photos-masonry-img {
+.photo-masonry-frame {
+  position: relative;
   width: 100%;
-  height: auto;
-  display: block;
-  border-radius: 4px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #1c1c1c;
+}
+
+.photo-masonry-frame--portrait {
+  aspect-ratio: 4 / 5;
+}
+
+.photo-masonry-frame--landscape {
+  aspect-ratio: 5 / 4;
+}
+
+.photo-masonry-img,
+.photos-masonry-img {
+  object-fit: cover;
   transition: transform var(--motion-slow) var(--motion-ease);
 }
 
-.photos-masonry-item:hover .photos-masonry-img {
-  transform: scale(1.02);
+.photo-masonry-item:hover .photo-masonry-img,
+.photos-masonry-item:hover .photo-masonry-img {
+  transform: scale(1.03);
 }
 
+.photo-masonry-caption,
 .photos-masonry-caption {
   margin: 8px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.photo-masonry-caption-title,
+.photos-masonry-caption-title {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+.photo-masonry-caption-sub,
+.photos-masonry-caption-sub {
+  margin: 0;
   color: var(--muted);
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
@@ -326,6 +369,14 @@
   letter-spacing: -0.02em;
 }
 
+.detail-subtitle {
+  margin: 0 0 12px;
+  color: var(--accent);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+}
+
 .detail-desc {
   margin: 0 0 24px;
   color: var(--muted);
@@ -334,11 +385,53 @@
   max-width: 72ch;
 }
 
-.detail-media img,
-.detail-media video {
-  width: 100%;
+.detail-media {
   border-radius: 18px;
   border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.detail-media--video {
+  aspect-ratio: 16 / 9;
+  background: #111;
+}
+
+.detail-media--video video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.detail-media--photo {
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.detail-media--photo img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.detail-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 28px 0 8px;
+}
+
+.detail-gallery-item img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  object-fit: cover;
 }
 
 .detail-meta {
@@ -404,6 +497,194 @@
   border-bottom-color: rgba(255, 255, 255, 0.5);
 }
 
+/* ── 首页精品橱窗 ───────────────────────────── */
+.portfolio-featured-section {
+  padding-bottom: 80px;
+}
+
+.portfolio-featured-section .section-divider {
+  display: none;
+}
+
+.section-header-link {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.section-header-link:hover {
+  color: var(--text);
+}
+
+.featured-row {
+  display: grid;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.featured-row--large {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.featured-row--compact {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.featured-card {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.featured-card-thumb {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #111;
+}
+
+.featured-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--motion-base) var(--motion-ease);
+}
+
+.featured-card:hover .featured-card-img {
+  transform: scale(1.03);
+}
+
+.featured-card-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0 0;
+}
+
+.featured-card-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.featured-card-tag {
+  color: var(--accent);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+
+.portfolio-empty-hint {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 24px 0;
+}
+
+.portfolio-empty-hint--muted {
+  padding-top: 0;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.portfolio-explore-wrap {
+  display: flex;
+  justify-content: center;
+  padding-top: 48px;
+}
+
+.portfolio-explore-link {
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+/* ── 作品集内页 Hub ─────────────────────────── */
+.portfolio-hub-page {
+  padding: 120px 0 80px;
+}
+
+.portfolio-hub-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.portfolio-hub-tab {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 10px 22px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition:
+    color var(--motion-base) var(--motion-ease),
+    border-color var(--motion-base) var(--motion-ease),
+    background var(--motion-base) var(--motion-ease);
+}
+
+.portfolio-hub-tab--active {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-top: 8px;
+}
+
+.article-card {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 28px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--line);
+}
+
+.article-card-cover {
+  overflow: hidden;
+  border-radius: 4px;
+  background: #111;
+}
+
+.article-card-cover img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.article-card-body h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.article-card-sub {
+  margin: 0 0 10px;
+  color: var(--muted-2);
+  font-size: 13px;
+}
+
+.article-card-desc {
+  margin: 0 0 14px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.75;
+}
+
 /* 响应式 */
 @media (max-width: 1200px) {
   .photo-grid {
@@ -414,19 +695,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .photos-masonry {
-    columns: 2;
-  }
 }
 
 @media (max-width: 900px) {
   .video-grid,
   .photo-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .photos-masonry {
-    columns: 2;
   }
 
   .section-head-row {
@@ -436,4 +710,14 @@
   .section-title {
     font-size: 28px;
   }
+
+  .featured-row--large,
+  .featured-row--compact {
+    grid-template-columns: 1fr;
+  }
+
+  .article-card {
+    grid-template-columns: 1fr;
+  }
 }
+

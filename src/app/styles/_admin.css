@@ -1,0 +1,440 @@
+/* ── 作品管理后台 ───────────────────────────── */
+.admin-page {
+  padding-top: 120px;
+  padding-bottom: 80px;
+}
+
+.admin-login,
+.admin-panel {
+  max-width: 720px;
+}
+
+.admin-title {
+  margin: 0 0 8px;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.admin-desc {
+  margin: 0 0 24px;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.admin-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admin-field input,
+.admin-field textarea,
+.admin-field select {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #111;
+  color: var(--text);
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.admin-error {
+  color: #e85d5d;
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+
+.admin-status {
+  color: var(--accent);
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+.admin-status--error {
+  color: #e85d5d;
+}
+
+.admin-status--success {
+  color: #6bcf8e;
+}
+
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-toolbar-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.admin-works-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-works-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #111;
+}
+
+.admin-works-meta {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-works-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.admin-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
+}
+
+.admin-field-full {
+  grid-column: 1 / -1;
+}
+
+.admin-upload-section {
+  margin: 32px 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.admin-upload-section h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.admin-preview-cover {
+  margin-bottom: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+}
+
+.admin-preview-video {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  background: #111;
+}
+
+.admin-gallery-edit {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-gallery-edit li {
+  position: relative;
+}
+
+.admin-gallery-edit button {
+  display: block;
+  margin-top: 6px;
+  background: none;
+  border: none;
+  color: #e85d5d;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+
+.admin-form-actions {
+  margin-top: 32px;
+}
+
+.admin-list-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-list-tab {
+  border: 1px solid var(--line);
+  background: #111;
+  color: var(--muted);
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 2px;
+  font-family: inherit;
+}
+
+.admin-list-tab--active {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.admin-categories {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-categories-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admin-categories-body {
+  margin-top: 12px;
+}
+
+.admin-categories-list {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-categories-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #111;
+}
+
+.admin-categories-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-categories-add input {
+  flex: 1;
+  min-width: 160px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #111;
+  color: var(--text);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.admin-batch-preview {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.admin-batch-preview li {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--muted);
+  word-break: break-all;
+}
+
+.admin-batch-preview img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+}
+
+.admin-batch-photo .admin-upload-section:first-of-type {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 旧 COS 上传页（保留类名兼容） ─────────────── */
+.admin-upload-page {
+  padding-top: 120px;
+}
+
+.admin-upload-title {
+  margin: 24px 0 16px;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.admin-upload-warning {
+  margin: 0 0 24px;
+  color: #f5a623;
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.cos-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 640px;
+}
+
+.cos-upload-hint {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.cos-upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cos-upload-field input[type="text"],
+.cos-upload-field input[type="password"] {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: #111;
+  color: var(--text);
+  padding: 12px 14px;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.cos-upload-field input[type="file"] {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.cos-upload-meta,
+.cos-upload-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.cos-upload-result {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #111;
+}
+
+.cos-upload-url {
+  display: block;
+  word-break: break-all;
+  color: var(--accent);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.admin-delete-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.admin-delete-dialog {
+  width: min(100%, 440px);
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #111;
+}
+
+.admin-delete-title {
+  margin: 0 0 12px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.admin-delete-desc {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.admin-delete-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.admin-delete-checkbox input {
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.admin-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.admin-delete-confirm {
+  border-color: #8b3a3a;
+  color: #ffb4b4;
+}

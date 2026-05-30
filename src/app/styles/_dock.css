@@ -1,0 +1,26 @@
+/* ── 右下角管理入口 ───────────────────────────── */
+.site-dock {
+  position: fixed;
+  right: max(20px, env(safe-area-inset-right));
+  bottom: max(20px, env(safe-area-inset-bottom));
+  z-index: 50;
+  pointer-events: none;
+}
+
+.site-dock .btn {
+  pointer-events: auto;
+  font-size: 13px;
+  padding: 10px 18px;
+}
+
+@media (max-width: 640px) {
+  .site-dock {
+    right: max(12px, env(safe-area-inset-right));
+    bottom: max(12px, env(safe-area-inset-bottom));
+  }
+
+  .site-dock .btn {
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+}

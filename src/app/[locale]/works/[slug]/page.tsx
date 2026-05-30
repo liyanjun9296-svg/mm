@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { works } from "@/features/portfolio/data/works";
+import { getWorks } from "@/features/portfolio/data/works-store";
 import { getWorkBySlug } from "@/features/portfolio/utils/filterWorks";
 import { getMessages } from "@/i18n/messages";
 import { isLocale } from "@/lib/i18n";
@@ -17,6 +17,7 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
   }
 
   const messages = getMessages(locale);
+  const works = await getWorks();
   const work = getWorkBySlug(works, slug);
   if (!work) {
     notFound();
@@ -33,16 +34,63 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
           </Link>
         </div>
         <h1 className="detail-title">{work.title}</h1>
+        {work.category === "photo" && work.subtitle ? (
+          <p className="detail-subtitle">{work.subtitle}</p>
+        ) : null}
+        {work.category === "article" && work.subtitle ? (
+          <p className="detail-subtitle">{work.subtitle}</p>
+        ) : null}
         <p className="detail-desc">{work.description}</p>
         <div className="section-divider" />
 
-        <div className="detail-media">
-          {work.category === "video" ? (
-            <video controls preload="metadata" src={work.mediaUrl} />
-          ) : (
-            <Image src={work.mediaUrl} alt={work.title} width={1400} height={900} />
-          )}
-        </div>
+        {work.category === "article" ? (
+          work.coverImage ? (
+            <div className="detail-media detail-media--photo">
+              <Image
+                src={work.coverImage}
+                alt={work.title}
+                width={800}
+                height={450}
+                sizes="(max-width: 900px) 100vw, 80vw"
+              />
+            </div>
+          ) : null
+        ) : (
+          <div
+            className={
+              work.category === "video"
+                ? "detail-media detail-media--video"
+                : "detail-media detail-media--photo"
+            }
+          >
+            {work.category === "video" ? (
+              <video controls preload="metadata" src={work.mediaUrl} />
+            ) : (
+              <Image
+                src={work.mediaUrl}
+                alt={work.title}
+                width={800}
+                height={1000}
+                sizes="(max-width: 900px) 100vw, 80vw"
+              />
+            )}
+          </div>
+        )}
+
+        {work.category !== "article" && work.detailImages && work.detailImages.length > 0 ? (
+          <div className="detail-gallery">
+            {work.detailImages.map((src, index) => (
+              <div className="detail-gallery-item" key={`${src}-${index}`}>
+                <Image
+                  src={src}
+                  alt={`${work.title} ${index + 1}`}
+                  width={900}
+                  height={600}
+                />
+              </div>
+            ))}
+          </div>
+        ) : null}
 
         <div className="detail-meta">
           <p>

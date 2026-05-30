@@ -13,6 +13,26 @@
   --motion-base: 240ms;
   --motion-slow: 420ms;
   --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* 顶栏胶囊「幅度」——改这里即可调节滚动收缩/位移强度 */
+  --nav-scroll-distance: 200px;
+  --nav-capsule-inset-max: 27.5%;
+  --nav-capsule-top-max: 25px;
+  --nav-edge-padding: 30px;
+  --nav-brand-shift-max: 0px;
+  --nav-right-shift-max: 0px;
+  --nav-capsule-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --nav-capsule-duration: 420ms;
+  --nav-progress: 0;
+
+  /* 胶囊态毛玻璃 */
+  --nav-glass-bg-solid: 0.88;
+  --nav-glass-bg-capsule: 0.78;
+  --nav-glass-blur-min: 12px;
+  --nav-glass-blur-max: 32px;
+  --nav-glass-saturate-max: 1.5;
+  --nav-glass-frost: 0.08;
+  --nav-glass-rim: rgba(255, 255, 255, 0.18);
 }
 
 *,

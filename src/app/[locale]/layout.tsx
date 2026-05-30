@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import NavBar from "@/components/ui/NavBar";
+import SiteActionDock from "@/components/ui/SiteActionDock";
 import { getMessages } from "@/i18n/messages";
 import { isLocale, type Locale } from "@/lib/i18n";
 
@@ -18,6 +19,7 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <>
       <NavBar messages={messages} locale={locale as Locale} />
+      <SiteActionDock messages={messages} locale={locale as Locale} />
       {children}
       <footer className="footer">
         <div className="container footer-bottom">

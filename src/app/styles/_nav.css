@@ -1,50 +1,78 @@
 /* ── 导航栏 ─────────────────────────────────── */
 .nav {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: calc(var(--nav-progress, 0) * var(--nav-capsule-top-max));
+  left: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
+  right: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
   z-index: 100;
+  overflow: hidden;
+  background: transparent;
   border-bottom: 1px solid var(--line);
-  border-radius: 0;
-  transition:
-    top 400ms var(--motion-ease),
-    left 400ms var(--motion-ease),
-    right 400ms var(--motion-ease),
-    border-radius 400ms var(--motion-ease),
-    box-shadow 400ms var(--motion-ease),
-    border-color 400ms var(--motion-ease),
-    padding 400ms var(--motion-ease);
-}
-
-/* 胶囊态：从两侧向内收缩 */
-.nav--capsule {
-  top: 16px;
-  left: 5%;
-  right: 5%;
-  border-radius: 999px;
-  border-color: rgba(255, 255, 255, 0.1);
-  padding: 0 8px;
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65);
-}
-
-.nav--capsule .nav-inner {
-  min-height: 52px;
-  padding: 0 16px;
+  border-radius: calc(var(--nav-progress, 0) * 999px);
+  border-color: color-mix(
+    in srgb,
+    var(--line) calc((1 - var(--nav-progress, 0)) * 100%),
+    var(--nav-glass-rim)
+  );
+  box-shadow: 0 calc(var(--nav-progress, 0) * 8px) calc(var(--nav-progress, 0) * 40px)
+    rgba(0, 0, 0, calc(var(--nav-progress, 0) * 0.65));
 }
 
 .glass {
-  background: rgba(10, 10, 10, 0.88);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  --nav-glass-alpha: calc(
+    var(--nav-glass-bg-solid) - var(--nav-progress, 0) *
+      (var(--nav-glass-bg-solid) - var(--nav-glass-bg-capsule))
+  );
+  --nav-glass-blur: calc(
+    var(--nav-glass-blur-min) + var(--nav-progress, 0) *
+      (var(--nav-glass-blur-max) - var(--nav-glass-blur-min))
+  );
+  --nav-glass-frost-alpha: calc(var(--nav-progress, 0) * var(--nav-glass-frost));
+}
+
+.nav.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, var(--nav-glass-frost-alpha)),
+      rgba(255, 255, 255, calc(var(--nav-glass-frost-alpha) * 0.35))
+    ),
+    rgba(10, 10, 10, var(--nav-glass-alpha));
+  backdrop-filter: blur(var(--nav-glass-blur))
+    saturate(calc(1 + var(--nav-progress, 0) * (var(--nav-glass-saturate-max) - 1)));
+  -webkit-backdrop-filter: blur(var(--nav-glass-blur))
+    saturate(calc(1 + var(--nav-progress, 0) * (var(--nav-glass-saturate-max) - 1)));
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .nav.glass::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(10, 10, 10, 0.92);
+  }
+}
+
+.nav .nav-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 var(--nav-edge-padding);
+  box-sizing: border-box;
 }
 
 .nav-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 64px;
-  padding: 0;
+  min-height: calc(64px - var(--nav-progress, 0) * 12px);
   gap: 16px;
 }
 
@@ -108,13 +136,12 @@
 }
 
 @media (max-width: 900px) {
-  .nav-inner {
-    min-height: 56px;
+  :root {
+    --nav-capsule-inset-max: 12%;
   }
 
-  .nav--capsule {
-    min-width: 0;
-    width: calc(100vw - 32px);
+  .nav-inner {
+    min-height: calc(56px - var(--nav-progress, 0) * 4px);
   }
 
   .menu {
@@ -123,5 +150,21 @@
 
   .nav-cta {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    transition:
+      top var(--nav-capsule-duration) var(--nav-capsule-ease),
+      left var(--nav-capsule-duration) var(--nav-capsule-ease),
+      right var(--nav-capsule-duration) var(--nav-capsule-ease),
+      border-radius var(--nav-capsule-duration) var(--nav-capsule-ease),
+      box-shadow var(--nav-capsule-duration) var(--nav-capsule-ease),
+      border-color var(--nav-capsule-duration) var(--nav-capsule-ease);
+  }
+
+  .nav-inner {
+    transition: min-height var(--nav-capsule-duration) var(--nav-capsule-ease);
   }
 }

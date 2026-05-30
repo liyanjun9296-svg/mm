@@ -2,7 +2,11 @@
 @import "./styles/_tokens.css";   /* 设计令牌、重置、通用按钮、reveal动画 */
 @import "./styles/_nav.css";      /* 导航栏 + 胶囊效果 */
 @import "./styles/_hero.css";     /* Hero 首屏 */
+@import "./styles/_section-header.css"; /* 全站大板块标题 */
+@import "./styles/_capabilities.css"; /* 我能做什么 */
 @import "./styles/_portfolio.css"; /* 作品集：视频区、照片区、详情页 */
 @import "./styles/_about.css";    /* 关于我 */
 @import "./styles/_contact.css";  /* 联系方式 */
 @import "./styles/_footer.css";   /* 页脚 */
+@import "./styles/_dock.css";     /* 左下角操作栏 */
+@import "./styles/_admin.css";    /* COS 管理上传 */
