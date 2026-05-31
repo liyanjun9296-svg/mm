@@ -29,11 +29,24 @@ npm run dev
 
 ## 在其他电脑继续开发
 
+> **协作者**：公开 Git **不含** `.env.local`、Skill zip、`.dev-data/`。负责人私发 **`portfolio-collaborator-setup.zip`** + **`.env.local`**。  
+> 完整步骤见 [**docs/COLLABORATOR_ONBOARDING.md**](docs/COLLABORATOR_ONBOARDING.md)。  
+> 终端：`ENV_LOCAL_SRC=/path/to/.env.local bash scripts/setup-collaborator-env.sh`  
+> 负责人打 Skill 包：`bash scripts/pack-collaborator-skill.sh` → `dist/portfolio-collaborator-setup.zip`
+
+### 不在 Git 上的内容
+
+| 项 | 说明 |
+|----|------|
+| `.env.local` | COS 密钥、`ADMIN_UPLOAD_TOKEN` 等 |
+| `.dev-data/` | `dev:sync --media` 本地快照（~1.4GB） |
+| `node_modules/`、`.next/` | 本地安装/构建产物 |
+
 ### 1) 克隆项目
 
 ```bash
-git clone <你的仓库地址>
-cd portfolio-site
+git clone https://github.com/liyanjun9296-svg/mm.git
+cd mm
 ```
 
 ### 2) 安装依赖
