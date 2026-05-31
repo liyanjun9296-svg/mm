@@ -63,18 +63,23 @@ npm run build
 
 ## 架构与运维要点（2026-05）
 
-完整规范见仓库 [`.cursor/rules/cos-traffic-dev.mdc`](../.cursor/rules/cos-traffic-dev.mdc) 与 [`.cursor/rules/portfolio-project.mdc`](../.cursor/rules/portfolio-project.mdc)。
+| 文档 | 内容 |
+|------|------|
+| [**docs/STORAGE_STRATEGY.md**](docs/STORAGE_STRATEGY.md) | **COS 存储策略**（对象布局、读写链、计费、安全/丢失/流量风险、后台规范） |
+| [docs/COS_CONSOLE.md](docs/COS_CONSOLE.md) | 控制台 CORS、密钥、生命周期 |
+| [`.cursor/rules/cos-traffic-dev.mdc`](../.cursor/rules/cos-traffic-dev.mdc) | Agent 常载：流量与省流量习惯 |
+| [`.cursor/rules/portfolio-project.mdc`](../.cursor/rules/portfolio-project.mdc) | 站点架构与样式规范 |
 
 | 主题 | 约定 |
 |------|------|
 | **生产域名** | `https://gaoxinming.xyz` |
-| **作品数据** | COS：`site/works/items/{slug}.json` + 索引；媒体在 `works/` |
-| **Hero 人像** | 唯一文件 `public/images/portrait.png`（2112×1188 RGBA） |
+| **作品元数据** | `site/works/items/{slug}.json` + 索引；镜像 `site/works.json`、备份 `.bak` |
+| **作品媒体** | `works/videos|covers|gallery/{slug}.*`（`workMediaKey`，覆盖前 confirm） |
 | **管理后台** | 仅本机 dev：`/zh/admin` + `ADMIN_UPLOAD_TOKEN`；**线上无「管理」按钮** |
-| **本地零流量** | `DEV_USE_LOCAL_SNAPSHOT=1` + `npm run dev:sync -- --media` → 读 `.dev-data/` |
-| **上传路径** | `works/videos/{slug}.*`、`works/covers/{slug}.*`、`works/gallery/{slug}.*`；覆盖前 confirm |
-| **万象缩图** | 列表用 `imageView2`；详情页原图/原视频 |
-| **危险命令** | 勿随意 `seed:works`、`restore:videos` |
+| **本地零流量** | `DEV_USE_LOCAL_SNAPSHOT=1` + `dev:sync --media` → 读 `.dev-data/`；**写仍走 COS** |
+| **数据安全** | 单条保存不覆盖全库（409）；删除默认只删 JSON；勿随意 `seed`/`prune --apply` |
+| **流量安全** | 公有读会计下行；口令/密钥勿泄露；建议余额告警 |
+| **万象缩图** | 列表 `imageView2`；详情原图/原视频 |
 
 ### 本地 dev 工作流
 
