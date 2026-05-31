@@ -19,13 +19,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   return (
     <>
       <NavBar messages={messages} locale={locale as Locale} />
-      <SiteActionDock messages={messages} locale={locale as Locale} />
+      {process.env.NODE_ENV === "development" ? (
+        <SiteActionDock messages={messages} locale={locale as Locale} />
+      ) : null}
       {children}
-      <footer className="footer">
-        <div className="container footer-bottom">
-          <p>{messages.footer.copyright}</p>
-        </div>
-      </footer>
     </>
   );
 }

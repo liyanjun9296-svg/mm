@@ -99,6 +99,41 @@
   background: #111;
 }
 
+.admin-works-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-featured-summary {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.admin-featured-badge {
+  border: 1px solid rgba(74, 159, 216, 0.45);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--accent);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.admin-featured-badge--large {
+  border-color: rgba(74, 159, 216, 0.55);
+}
+
+.admin-featured-badge--compact {
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #b794f4;
+}
+
 .admin-works-meta {
   display: block;
   margin-top: 4px;

@@ -18,7 +18,12 @@
     "seed:works": "tsx scripts/seed-works-json.ts",
     "migrate:works": "tsx scripts/migrate-works-to-per-slug.ts",
     "restore:videos": "tsx scripts/restore-orphan-videos.ts",
-    "upload:pick-photos": "tsx scripts/upload-pick-photos.ts"
+    "upload:pick-photos": "tsx scripts/upload-pick-photos.ts",
+    "cos:report": "tsx scripts/cos-storage-report.ts",
+    "cos:prune-orphans": "tsx scripts/cos-prune-orphans.ts",
+    "cos:prune-versions": "tsx scripts/cos-prune-versions.ts",
+    "cos:cleanup": "tsx scripts/cos-cleanup.ts",
+    "dev:sync": "tsx scripts/dev-sync.ts"
   },
   "dependencies": {
     "cos-nodejs-sdk-v5": "^2.15.4",

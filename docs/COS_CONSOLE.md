@@ -9,6 +9,7 @@
    - **地域**：选择离访客近的 region（如 `ap-guangzhou`），创建后不可修改
    - **访问权限**：**公有读私有写**
    - **版本控制**：**建议开启**（误覆盖 `site/works.json` 或作品条目时可还原历史版本）
+   - **必须配合生命周期**：非当前版本 7 天后自动删除（见下文 §6），否则重复上传会堆叠存储
 
 记录：
 
@@ -72,4 +73,42 @@ npm run dev
 npm run upload:cos -- ./demo.mp4 works/videos/demo.mp4
 ```
 
-将输出的 URL 填入 `src/features/portfolio/data/works.ts`。
+将输出的 URL 填入后台作品表单，或 `/zh/admin/works` 直接上传。
+
+## 6. 存储与流量（作品集 10G 预算）
+
+| 项目 | 说明 |
+|------|------|
+| **20G 存储包** | 只抵扣**标准存储容量**，不含外网下行流量 |
+| **外网流量** | 访客播放视频、加载图片按 GB 另计；开发期反复试播也会消耗 |
+| **作品集目标** | 有效内容 ≤ **10 GB**（视频 ≤4G · 摄影 ≤5G · 余量 1G） |
+
+### 6.1 生命周期（必配）
+
+Bucket → **基础配置 → 生命周期**，新增规则：
+
+- 前缀 `works/`、`site/` → **非当前版本** → **7 天后删除**
+
+### 6.2 视频压缩（上传前）
+
+```bash
+# 30s 展示片，目标 30–50 MB
+ffmpeg -i input.mp4 -c:v libx264 -crf 23 -preset medium -c:a aac -b:a 128k -movflags +faststart output.mp4
+
+# 较长作品：720p
+ffmpeg -i input.mp4 -vf scale=-2:720 -c:v libx264 -b:v 5M -c:a aac -b:a 128k -movflags +faststart output.mp4
+```
+
+### 6.3 运维命令
+
+```bash
+npm run cos:report              # 用量与孤儿统计
+npm run cos:prune-orphans       # 预览删除未引用媒体（dry-run）
+npm run cos:prune-orphans -- --apply
+npm run cos:prune-versions      # 预览删除历史版本
+npm run cos:cleanup             # 一键预览；加 -- --apply 执行
+```
+
+### 6.4 费用告警
+
+[费用中心](https://console.cloud.tencent.com/expense/overview) 开启余额短信提醒，避免欠费 451 停服。

@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem } from "@/features/portfolio/types";
 import {
-  defaultMediaKey,
   fetchWorksAdmin,
   formatUploadFailure,
   getStoredAdminToken,
@@ -14,6 +13,7 @@ import {
   slugify,
   titleFromFilename,
   uploadFileAdmin,
+  workMediaKey,
 } from "@/lib/admin/api";
 
 type PhotoBatchUploadFormProps = {
@@ -99,15 +99,16 @@ export default function PhotoBatchUploadForm({ locale }: PhotoBatchUploadFormPro
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         setStatus(`正在上传 ${i + 1} / ${files.length}：${file.name}`);
+        const title = titleFromFilename(file.name);
+        const slug = uniquePhotoSlug(title, i);
         const url = await uploadFileAdmin(
           token,
           file,
-          defaultMediaKey(file, "works/gallery"),
+          workMediaKey(slug, "gallery", file),
         );
-        const title = titleFromFilename(file.name);
 
         newItems.push({
-          slug: uniquePhotoSlug(title, i),
+          slug,
           title,
           subtitle: meta.subtitle,
           description: meta.description,

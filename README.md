@@ -45,10 +45,12 @@ npm install
 ### 3) 启动开发环境
 
 ```bash
+cp .env.local.example .env.local   # 首次：填写 COS_* 与 ADMIN_UPLOAD_TOKEN
+npm run dev:sync -- --media        # 首次：同步 COS 到 .dev-data/（约 1.4GB 一次性下行）
 npm run dev
 ```
 
-默认访问 [http://localhost:3000/zh](http://localhost:3000/zh)。
+默认访问 [http://localhost:3000/zh](http://localhost:3000/zh)。右下角「管理」按钮**仅本地 dev 显示**。
 
 ### 4) 构建与检查（建议提交前执行）
 
@@ -59,43 +61,81 @@ npm run build
 
 ---
 
+## 架构与运维要点（2026-05）
+
+完整规范见仓库 [`.cursor/rules/cos-traffic-dev.mdc`](../.cursor/rules/cos-traffic-dev.mdc) 与 [`.cursor/rules/portfolio-project.mdc`](../.cursor/rules/portfolio-project.mdc)。
+
+| 主题 | 约定 |
+|------|------|
+| **生产域名** | `https://gaoxinming.xyz` |
+| **作品数据** | COS：`site/works/items/{slug}.json` + 索引；媒体在 `works/` |
+| **Hero 人像** | 唯一文件 `public/images/portrait.png`（2112×1188 RGBA） |
+| **管理后台** | 仅本机 dev：`/zh/admin` + `ADMIN_UPLOAD_TOKEN`；**线上无「管理」按钮** |
+| **本地零流量** | `DEV_USE_LOCAL_SNAPSHOT=1` + `npm run dev:sync -- --media` → 读 `.dev-data/` |
+| **上传路径** | `works/videos/{slug}.*`、`works/covers/{slug}.*`、`works/gallery/{slug}.*`；覆盖前 confirm |
+| **万象缩图** | 列表用 `imageView2`；详情页原图/原视频 |
+| **危险命令** | 勿随意 `seed:works`、`restore:videos` |
+
+### 本地 dev 工作流
+
+```bash
+# 1. 环境（首次）
+cp .env.local.example .env.local
+# 填写 COS_*、ADMIN_UPLOAD_TOKEN；DEV_USE_LOCAL_SNAPSHOT=1
+
+# 2. 同步快照（首次或 COS 大更新后）
+npm run dev:sync -- --media
+
+# 3. 日常
+npm run dev
+# → 浏览/改 UI/后台管理，媒体从 .dev-data 读，不反复扣 50GB 流量包
+
+# 4. 上传新视频后（可选，更新本地副本）
+npm run dev:sync -- --media --keys works/videos/your-slug.mp4
+```
+
+---
+
 ## 项目结构
 
 ```
 src/
 ├── app/
-│   ├── globals.css          ← 只有 @import，不要在这里写样式
-│   ├── styles/              ← CSS 模块（改样式只动对应文件）
-│   │   ├── _tokens.css      ← 设计变量 + 重置
-│   │   ├── _nav.css         ← 导航栏
-│   │   ├── _hero.css        ← Hero 首屏
-│   │   ├── _portfolio.css   ← 作品集区域
-│   │   ├── _about.css       ← 关于我
-│   │   ├── _contact.css     ← 联系方式
-│   │   └── _footer.css      ← 页脚
-│   └── [locale]/            ← 页面路由（zh / en）
+│   ├── api/                 ← admin、cos/upload、dev/media（本地快照代理）
+│   ├── globals.css
+│   ├── styles/
+│   └── [locale]/            ← 页面 + admin/
 ├── components/
-│   ├── motion/              ← 交互动效（MagneticButton、TiltCard 等）
-│   ├── sections/            ← 页面板块（Hero、Portfolio、About、Contact）
-│   └── ui/                  ← NavBar、LanguageSwitch
-├── features/
-│   ├── portfolio/data/works.ts    ← 种子数据（COS 无 JSON 时回退）
-│   └── profile/data/profile.ts   ← 个人信息 + 社交链接
-└── i18n/messages/           ← 中英文文案（zh.ts / en.ts）
+│   ├── admin/               ← WorkEditForm、WorksListClient 等
+│   ├── motion/
+│   ├── sections/            ← Hero、Capabilities、Portfolio、About、Contact（含页脚）
+│   └── ui/                  ← NavBar、ContactModal、FaqAccordion、SiteActionDock（仅 dev）
+├── features/portfolio/        ← works-store.ts、types、utils
+├── lib/
+│   ├── admin/api.ts         ← workMediaKey、上传/保存 API
+│   ├── cos/                 ← env、upload-keys、image-url（万象）
+│   └── dev/local-snapshot.ts
+└── i18n/messages/
+scripts/                       ← dev:sync、cos:report、upload:cos 等
+public/images/portrait.png       ← Hero 桌面人像（RGBA）
+public/images/hero-avatar-375.png ← Hero 移动端圆头像
+public/images/about-portrait.png ← 关于我左栏人像
+public/logo.svg                ← 导航 Logo
+.dev-data/                     ← 本地 COS 快照（gitignore，dev:sync 生成）
 ```
 
 ---
 
 ## 常见修改指南
 
-### 替换作品内容（推荐：可视化后台）
+### 替换作品内容（推荐：本机后台）
 
-日常只需三步，**不用改代码、不用复制 URL**：
+日常在本机 dev 管理，**不要在生产站反复试播大视频**：
 
-1. 打开 [http://localhost:3000/zh/admin](http://localhost:3000/zh/admin)，输入 `.env.local` 中的 `ADMIN_UPLOAD_TOKEN`
-2. 新建或编辑作品：上传封面、视频、详情图，填写标题与简介，点 **保存**
-3. 删除作品时可选：**仅删记录**（默认，COS 文件保留）或 **勾选后连同 COS 媒体一起删**
-4. 刷新前台首页 / 详情页即可看到更新（数据保存在 COS：`site/works/items/{slug}.json` + 索引；`site/works.json` 为兼容镜像）
+1. `npm run dev` → [http://localhost:3000/zh/admin](http://localhost:3000/zh/admin)，输入 `ADMIN_UPLOAD_TOKEN`
+2. 新建或编辑作品：**先填标题/slug**，再上传封面、视频、详情图，点 **保存**
+3. 媒体路径固定为 `works/.../{slug}.*`，覆盖已有文件前会弹 confirm
+4. 删除作品时可选：**仅删记录**（默认）或 **勾选后连同 COS 媒体一起删**
 
 **数据防丢失：**
 
@@ -116,22 +156,38 @@ npm run seed:works -- --force
 高级用户仍可编辑 `src/features/portfolio/data/works.ts` 作为本地种子，或通过 `npm run upload:cos` 单独上传大文件。
 
 ### 替换人物照片
-将新图片覆盖 `public/images/portrait-v5.png`：
-- 必须是 **RGBA 透明背景 PNG**
-- 替换后同步修改 `src/components/sections/HeroSection.tsx` 中的 `width` 和 `height` 为实际像素尺寸
+- **桌面**：覆盖 `public/images/portrait.png`（RGBA 透明 PNG），同步 `HeroSection.tsx` 里 `portrait` 的 `width` / `height`
+- **移动端圆头像**：覆盖 `public/images/hero-avatar-375.png`，同步 `hero-avatar` 的 `width` / `height`
 
 ### 修改文案
 `src/i18n/messages/zh.ts` 和 `en.ts` 两个文件都要改。
 
-### 修改个人信息 / 社交链接
-编辑 `src/features/profile/data/profile.ts`。
+### 修改个人信息 / 经历 / FAQ
+编辑 `src/features/profile/data/profile.ts`：
+- `name` / `title` / `location` / `bioZh` / `bioEn` / `skills`
+- `timeline[]`：含 `year`、`company`（可选）、`title`、`role`、`desc`
+- `faq[]`：FAQ 问答对
+
+### 修改联系方式与平台链接
+- 弹窗手机/邮箱 → `profile.ts` 的 `contactInfo`（`phone`、`email`）
+- 右侧平台列表 → `profile.ts` 的 `contactPlatforms`（抖音、视频号、小红书等）
+- Contact 区块标题、CTA 按钮、弹窗文案 → `i18n/messages/zh.ts` 和 `en.ts` 的 `contact.*`
+- 页脚版权 → 同上文件的 `footer.copyright` / `footer.brand`
+
+### 替换关于我左栏人像
+将新图片覆盖 `public/images/about-portrait.png`，并同步修改 `AboutSection.tsx` 中的 `width` 和 `height`。
+
+### 页脚说明
+全站页脚嵌在 Contact 区块末尾（`ContactSectionClient` → `.contact-site-footer`），**无**独立 Footer 组件；样式在 `_contact.css`。
 
 ### 修改颜色 / 字号
-编辑 `src/app/styles/_tokens.css` 顶部的 `:root` 变量。
+编辑 `src/app/styles/_tokens.css` 顶部的 `:root` 变量（板块间距 `--section-padding-y: 64px`）。
 
 ---
 
 ## Hero 首屏层次说明
+
+### 桌面（≥901px）
 
 人物图压在文字前面，依赖透明 PNG 实现人物浮层效果：
 
@@ -140,6 +196,25 @@ z-1  文字层（LINE1 实心 + LINE2 空心描边扫光）
 z-3  人物图层（透明 PNG，底部居中对齐）
 z-4  CTA 按钮（人物图片底边居中）
 ```
+
+资源：`public/images/portrait.png`（2112×1188 RGBA）
+
+### 移动端（≤900px）
+
+- 顶部圆头像：`public/images/hero-avatar-375.png`（`.hero-avatar`）
+- 隐藏 eyebrow、大 PNG、`scroll-hint`
+- 文案左对齐；双 CTA 横排、`flex:1` 占满内容列（随屏宽拉伸，左右各 16px 边距）
+- 样式：`_hero.css` 内 `@media (max-width: 900px)`
+
+### 响应式分界
+
+| 视口 | 布局 |
+|------|------|
+| ≤900px | 375 定稿族（`--content-mobile-pad: 16px`，板块间距见 `_tokens.css`） |
+| 901–1100px | 略窄桌面（Hero 字号 clamp、能力卡高等） |
+| ≥901px | 1440 默认层 |
+
+首页勿再使用已废弃的 `390px` / `640px` Hero 断点；`640px` 仅后台 `_admin`、`_dock`。
 
 ---
 
@@ -152,6 +227,9 @@ npm run lint     # ESLint 检查
 npm run start    # 预览生产构建
 npm run migrate:works          # 将 works.json 拆分为 site/works/items/*.json
 npm run restore:videos         # 扫描 COS 孤儿视频并生成草稿作品
+npm run cos:report             # COS 用量与孤儿统计
+npm run cos:cleanup              # 预览清理；npm run cos:cleanup -- --apply 执行
+npm run dev:sync -- --media      # 同步 COS 到 .dev-data/（本地 dev 零外网下行，见 .env.local.example）
 npm run upload:pick-photos -- --dry-run   # 预览 pick 摄影批量上传
 npm run upload:pick-photos                  # 按 pick 子文件夹上传摄影到 COS
 npm run upload:cos -- <本地文件> <COS对象键>   # 高级：单独上传媒体文件
@@ -162,6 +240,8 @@ npm run upload:cos -- <本地文件> <COS对象键>   # 高级：单独上传媒
 ## 腾讯云 COS 配置与上传
 
 视频/大图建议放在 COS，详情页通过 `mediaUrl` 直链播放（`<video src="...">`）。
+
+**存储预算**：作品集有效内容建议 ≤ **10 GB**；20G COS 套餐为**存储容量包**，**外网流量另计**。详见 [docs/COS_CONSOLE.md](docs/COS_CONSOLE.md) §6。
 
 ### 1) 控制台（首次必做）
 
@@ -189,21 +269,28 @@ cp .env.local.example .env.local
 | `COS_PUBLIC_BASE_URL` | 公有读根地址，如 `https://<bucket>.cos.<region>.myqcloud.com` |
 | `NEXT_PUBLIC_COS_PUBLIC_BASE_URL` | 与上一项相同（封面图 `next/image` 域名白名单用） |
 | `ADMIN_UPLOAD_TOKEN` | 管理后台口令（`/zh/admin` 登录用） |
+| `DEV_USE_LOCAL_SNAPSHOT` | 设为 `1` 时本地 dev 读 `.dev-data/` 快照，避免反复 COS 下行（需先 `npm run dev:sync -- --media`） |
 
 配置后重启 `npm run dev`。
 
-### 3) 作品管理后台
+**本地零流量**：首次 `npm run dev:sync -- --media`（约 1.4GB 一次性下行），之后日常 `npm run dev` 浏览/改 UI 基本不扣 COS 流量包。
+
+**管理入口**：线上不显示「管理」按钮；请在本机 dev 打开 `/zh/admin`。
+
+**上传路径**：后台媒体固定为 `works/videos/{slug}.mp4`、`works/covers/{slug}.jpg` 等，覆盖前会 confirm；勿用时间戳路径重复上传。
+
+**万象缩图**：首页卡片与摄影列表 URL 带 `imageView2` 压缩参数；详情页仍为 COS 原图/原视频。
+
+### 3) 作品管理后台（仅本机 dev）
 
 | 路径 | 功能 |
 |------|------|
-| `/zh/admin` | 口令登录 |
+| `/zh/admin` | 口令登录（线上无入口按钮，但 URL 仍可访问） |
 | `/zh/admin/works` | 作品列表（新建 / 编辑 / 删除） |
-| `/zh/admin/works/new` | 新建作品表单 |
+| `/zh/admin/works/new` | 新建作品（须先填 slug 再上传） |
 | `/zh/admin/works/<slug>` | 编辑单条作品 |
 
-表单内上传封面、视频、详情多图后会自动写入 COS，保存时更新 `site/works.json`。
-
-旧地址 `/zh/admin/upload` 会自动跳转到 `/zh/admin`。
+保存后写入 COS `site/works/items/{slug}.json` 并更新索引。旧地址 `/zh/admin/upload` 跳转到 `/zh/admin`。
 
 ### 4) 可选：命令行单独上传大文件
 

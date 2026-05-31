@@ -1,12 +1,20 @@
 import {
+  FEATURED_COMPACT_MAX,
+  FEATURED_LARGE_MAX,
   WORKS_CACHE_TAG,
   WORKS_INDEX_KEY,
   WORKS_JSON_BACKUP_KEY,
   WORKS_JSON_KEY,
   workItemCosKey,
 } from "../constants";
-import type { WorkItem } from "../types";
+import type { FeaturedLayout, WorkItem } from "../types";
 import { works as seedWorks } from "./works";
+import {
+  applyDevMediaUrlsToWorks,
+  isDevLocalSnapshotEnabled,
+  readLocalWorksSnapshot,
+  writeLocalWorksSnapshot,
+} from "@/lib/dev/local-snapshot";
 import { getCosEnv, getCosPublicUrl } from "@/lib/cos/env";
 import { resolveDeletableMediaKeys } from "@/lib/cos/media-keys";
 import { createCosClient } from "@/lib/cos/server";
@@ -114,6 +122,18 @@ export async function fetchWorksFromCos(): Promise<WorkItem[] | null> {
 }
 
 export async function getWorks(): Promise<WorkItem[]> {
+  const raw = await getWorksRaw();
+  return applyDevMediaUrlsToWorks(raw);
+}
+
+async function getWorksRaw(): Promise<WorkItem[]> {
+  if (isDevLocalSnapshotEnabled()) {
+    const local = await readLocalWorksSnapshot();
+    if (local !== null && local.length > 0) {
+      return local;
+    }
+  }
+
   const remote = await fetchWorksFromCos();
   if (remote !== null) {
     return remote;
@@ -207,18 +227,74 @@ async function syncLegacyMirror(works: WorkItem[]): Promise<void> {
   await putCosJson(WORKS_JSON_KEY, JSON.stringify(works, null, 2));
 }
 
+function featuredSlot(work: WorkItem): FeaturedLayout {
+  return work.featuredLayout === "compact" ? "compact" : "large";
+}
+
+function clearFeatured(work: WorkItem): WorkItem {
+  return { ...work, featured: false, featuredLayout: undefined };
+}
+
+async function persistWorkItem(item: WorkItem): Promise<void> {
+  await putCosJson(workItemCosKey(item.slug), JSON.stringify(item, null, 2));
+}
+
+/** 保存 featured 时挤占同槽位（大卡 2 / 小卡 4），按 works 顺序取消最早的超额精品 */
+async function enforceFeaturedSlots(
+  incoming: WorkItem,
+  works: WorkItem[],
+): Promise<WorkItem[]> {
+  let updated = works.map((w) => (w.slug === incoming.slug ? incoming : w));
+  if (!works.some((w) => w.slug === incoming.slug)) {
+    updated.push(incoming);
+  }
+
+  if (!incoming.featured) {
+    return updated;
+  }
+
+  const slot = featuredSlot(incoming);
+  const max = slot === "compact" ? FEATURED_COMPACT_MAX : FEATURED_LARGE_MAX;
+  const slotPeers = updated.filter(
+    (w) => w.featured && w.slug !== incoming.slug && featuredSlot(w) === slot,
+  );
+  const overflow = slotPeers.length - max + 1;
+  if (overflow <= 0) {
+    return updated;
+  }
+
+  const toClear = slotPeers.slice(0, overflow);
+  for (const peer of toClear) {
+    const cleared = clearFeatured(peer);
+    await persistWorkItem(cleared);
+    updated = updated.map((w) => (w.slug === cleared.slug ? cleared : w));
+  }
+
+  return updated;
+}
+
+async function persistWorksLocalSnapshot(works: WorkItem[]): Promise<void> {
+  if (isDevLocalSnapshotEnabled()) {
+    await writeLocalWorksSnapshot(works);
+  }
+}
+
 export async function saveWorkItemToCos(
   item: WorkItem,
   options?: { previousSlug?: string },
 ): Promise<void> {
   const previousSlug = options?.previousSlug?.trim();
-  const current = await getWorks();
+  const current = await getWorksRaw();
 
   if (previousSlug && previousSlug !== item.slug) {
     await deleteWorkItemFromCos(previousSlug, { skipIndexUpdate: true });
   }
 
-  await putCosJson(workItemCosKey(item.slug), JSON.stringify(item, null, 2));
+  let merged = current.filter((w) => w.slug !== previousSlug && w.slug !== item.slug);
+  merged.push(item);
+  merged = await enforceFeaturedSlots(item, merged);
+
+  await persistWorkItem(item);
 
   const index = await getOrCreateIndex();
   const slugs = index.slugs.filter((s) => s !== previousSlug);
@@ -231,9 +307,8 @@ export async function saveWorkItemToCos(
   }
   await putCosJson(WORKS_INDEX_KEY, JSON.stringify(buildIndex(slugs), null, 2));
 
-  const merged = current.filter((w) => w.slug !== previousSlug && w.slug !== item.slug);
-  merged.push(item);
   await syncLegacyMirror(merged);
+  await persistWorksLocalSnapshot(merged);
 }
 
 export type DeleteWorkResult = {
@@ -249,7 +324,7 @@ export async function deleteWorkItemFromCos(
   const mediaSkipped: string[] = [];
 
   if (options?.deleteMedia) {
-    const allWorks = await getWorks();
+    const allWorks = await getWorksRaw();
     const work = allWorks.find((w) => w.slug === slug);
     if (work) {
       const { keys, skippedKeys } = resolveDeletableMediaKeys(work, allWorks);
@@ -274,15 +349,18 @@ export async function deleteWorkItemFromCos(
   const index = await fetchWorksIndexFromCos();
   if (!index) {
     const legacy = await fetchLegacyWorksFromCos();
-    await syncLegacyMirror((legacy ?? []).filter((w) => w.slug !== slug));
+    const remaining = (legacy ?? (await getWorksRaw())).filter((w) => w.slug !== slug);
+    await syncLegacyMirror(remaining);
+    await persistWorksLocalSnapshot(remaining);
     return { mediaDeleted, mediaSkipped };
   }
 
   const slugs = index.slugs.filter((s) => s !== slug);
   await putCosJson(WORKS_INDEX_KEY, JSON.stringify(buildIndex(slugs), null, 2));
 
-  const all = (await fetchWorksFromCosPerSlug()) ?? [];
-  await syncLegacyMirror(all.filter((w) => w.slug !== slug));
+  const remaining = (await getWorksRaw()).filter((w) => w.slug !== slug);
+  await syncLegacyMirror(remaining);
+  await persistWorksLocalSnapshot(remaining);
 
   return { mediaDeleted, mediaSkipped };
 }
@@ -300,6 +378,7 @@ export async function saveAllWorkItemsToCos(works: WorkItem[]): Promise<void> {
 
   await putCosJson(WORKS_INDEX_KEY, JSON.stringify(buildIndex(slugs), null, 2));
   await syncLegacyMirror(works);
+  await persistWorksLocalSnapshot(works);
 
   if (oldIndex) {
     for (const oldSlug of oldIndex.slugs) {

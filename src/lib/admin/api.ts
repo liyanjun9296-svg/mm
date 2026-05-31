@@ -7,6 +7,8 @@ const SERVER_UPLOAD_MAX = 50 * 1024 * 1024;
 const PRESIGN_PUT_TIMEOUT_MS = 120_000;
 
 export const SERVER_UPLOAD_MAX_BYTES = SERVER_UPLOAD_MAX;
+export const VIDEO_UPLOAD_WARN_BYTES = 80 * 1024 * 1024;
+export const VIDEO_UPLOAD_CONFIRM_BYTES = 200 * 1024 * 1024;
 
 export function getStoredAdminToken(): string {
   if (typeof window === "undefined") {
@@ -290,4 +292,82 @@ export function titleFromFilename(filename: string): string {
 export function defaultMediaKey(file: File, folder: string): string {
   const safeName = file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "");
   return `${folder}/${Date.now()}-${safeName || "file"}`;
+}
+
+export type WorkMediaKind = "video" | "cover" | "gallery" | "gallery-detail";
+
+function fileExtension(file: File): string {
+  const fromName = file.name.match(/\.([a-zA-Z0-9]+)$/)?.[1]?.toLowerCase();
+  if (fromName) {
+    return fromName;
+  }
+  if (file.type === "image/jpeg") return "jpg";
+  if (file.type === "image/png") return "png";
+  if (file.type === "image/webp") return "webp";
+  if (file.type === "video/mp4") return "mp4";
+  if (file.type === "video/webm") return "webm";
+  if (file.type === "video/quicktime") return "mov";
+  return "bin";
+}
+
+/** 按作品 slug 固定 COS 路径，避免时间戳 key 产生孤儿文件 */
+export function workMediaKey(
+  slug: string,
+  kind: WorkMediaKind,
+  file: File,
+  detailIndex?: number,
+): string {
+  const safe = slug.trim().replace(/[^a-zA-Z0-9-_]/g, "-").replace(/-+/g, "-");
+  const ext = fileExtension(file);
+  switch (kind) {
+    case "video":
+      return `works/videos/${safe}.${ext}`;
+    case "cover":
+      return `works/covers/${safe}.${ext}`;
+    case "gallery":
+      return `works/gallery/${safe}.${ext}`;
+    case "gallery-detail":
+      return `works/gallery/${safe}-${detailIndex ?? 0}.${ext}`;
+  }
+}
+
+/** 替换已有媒体前确认 */
+export function confirmMediaOverwrite(
+  fieldLabel: string,
+  existingUrl: string | undefined,
+): boolean {
+  if (!existingUrl?.trim()) {
+    return true;
+  }
+  return window.confirm(
+    `该作品已有${fieldLabel}，上传将覆盖 COS 中的原文件（不可恢复）。\n\n仍要上传吗？`,
+  );
+}
+
+export function resolveUploadSlug(slug: string, title: string): string | null {
+  const resolved = slug.trim() || slugify(title);
+  return resolved || null;
+}
+
+function isVideoFile(file: File): boolean {
+  return file.type.startsWith("video/") || /\.(mp4|webm|mov|m4v)$/i.test(file.name);
+}
+
+/** 上传前确认大视频；返回 false 表示用户取消 */
+export function confirmVideoUpload(file: File): boolean {
+  if (!isVideoFile(file)) {
+    return true;
+  }
+  const mb = (file.size / 1024 / 1024).toFixed(1);
+  if (file.size >= VIDEO_UPLOAD_CONFIRM_BYTES) {
+    return window.confirm(
+      `视频约 ${mb} MB，体积较大：\n· 每次播放都会消耗 COS 外网流量\n· 建议用 ffmpeg 压缩到 80 MB 以下再上传\n\n仍要上传吗？`,
+    );
+  }
+  if (file.size >= VIDEO_UPLOAD_WARN_BYTES) {
+    return window.confirm(
+      `视频约 ${mb} MB，建议压缩后再传（目标：30s 片 30–50 MB）。仍要上传吗？`,
+    );
+  }
+  return true;
 }

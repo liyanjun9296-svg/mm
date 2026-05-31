@@ -2,18 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem, WorkCategory } from "@/features/portfolio/types";
 import {
-  defaultMediaKey,
+  confirmMediaOverwrite,
+  confirmVideoUpload,
   fetchCategoriesAdmin,
   fetchWorksAdmin,
+  formatUploadFailure,
   getStoredAdminToken,
+  resolveUploadSlug,
   saveWorkItemAdmin,
   slugify,
-  formatUploadFailure,
   uploadFileAdmin,
+  workMediaKey,
+  type WorkMediaKind,
 } from "@/lib/admin/api";
 
 const emptyWork = (category: WorkCategory): WorkItem => ({
@@ -55,6 +59,36 @@ export default function WorkEditForm({
   const [statusTone, setStatusTone] = useState<"info" | "success" | "error">("info");
   const [uploading, setUploading] = useState("");
   const [saving, setSaving] = useState(false);
+  const [coverPreviewBlob, setCoverPreviewBlob] = useState<string | null>(null);
+  const [mediaPreviewBlob, setMediaPreviewBlob] = useState<string | null>(null);
+  const [loadedVideoUrl, setLoadedVideoUrl] = useState<string | null>(null);
+  const coverPreviewBlobRef = useRef<string | null>(null);
+  const mediaPreviewBlobRef = useRef<string | null>(null);
+
+  function revokeBlobUrl(url: string | null) {
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  function setCoverBlob(url: string | null) {
+    revokeBlobUrl(coverPreviewBlobRef.current);
+    coverPreviewBlobRef.current = url;
+    setCoverPreviewBlob(url);
+  }
+
+  function setMediaBlob(url: string | null) {
+    revokeBlobUrl(mediaPreviewBlobRef.current);
+    mediaPreviewBlobRef.current = url;
+    setMediaPreviewBlob(url);
+  }
+
+  useEffect(() => {
+    return () => {
+      revokeBlobUrl(coverPreviewBlobRef.current);
+      revokeBlobUrl(mediaPreviewBlobRef.current);
+    };
+  }, []);
 
   function setStatusMessage(message: string, tone: "info" | "success" | "error" = "info") {
     setStatus(message);
@@ -109,13 +143,26 @@ export default function WorkEditForm({
 
   async function handleUpload(
     file: File,
-    folder: string,
+    kind: WorkMediaKind,
     onDone: (url: string) => void,
+    options?: { existingUrl?: string; fieldLabel?: string; detailIndex?: number },
   ) {
+    const slug = resolveUploadSlug(work.slug, work.title);
+    if (!slug) {
+      setStatusMessage("请先填写标题或 slug 后再上传", "error");
+      return;
+    }
+    if (!confirmVideoUpload(file)) {
+      return;
+    }
+    if (!confirmMediaOverwrite(options?.fieldLabel ?? "媒体", options?.existingUrl)) {
+      return;
+    }
     setUploading(file.name);
     setStatusMessage("正在上传…");
     try {
-      const url = await uploadFileAdmin(token, file, defaultMediaKey(file, folder));
+      const key = workMediaKey(slug, kind, file, options?.detailIndex);
+      const url = await uploadFileAdmin(token, file, key);
       onDone(url);
       setStatusMessage("上传成功", "success");
     } catch (err) {
@@ -330,9 +377,15 @@ export default function WorkEditForm({
 
       <section className="admin-upload-section">
         <h2>{isVideoWork ? "封面（建议 16:9）" : isArticleWork ? "文章封面" : "列表封面"}</h2>
-        {work.coverImage ? (
+        {coverPreviewBlob || work.coverImage ? (
           <div className="admin-preview admin-preview-cover">
-            <Image src={work.coverImage} alt="" width={320} height={180} unoptimized />
+            <Image
+              src={coverPreviewBlob ?? work.coverImage}
+              alt=""
+              width={320}
+              height={180}
+              unoptimized
+            />
           </div>
         ) : null}
         <input
@@ -341,7 +394,11 @@ export default function WorkEditForm({
           onChange={(e) => {
             const f = e.target.files?.[0];
             if (f) {
-              void handleUpload(f, "works/covers", (url) => updateField("coverImage", url));
+              setCoverBlob(URL.createObjectURL(f));
+              void handleUpload(f, "cover", (url) => {
+                setCoverBlob(null);
+                updateField("coverImage", url);
+              }, { existingUrl: work.coverImage, fieldLabel: "封面" });
             }
           }}
         />
@@ -350,12 +407,33 @@ export default function WorkEditForm({
       {!isArticleWork ? (
         <section className="admin-upload-section">
           <h2>{isVideoWork ? "主视频" : "主图（详情页大图）"}</h2>
-          {work.mediaUrl ? (
+          {mediaPreviewBlob || work.mediaUrl ? (
             isVideoWork ? (
-              <video className="admin-preview-video" src={work.mediaUrl} controls />
+              mediaPreviewBlob || loadedVideoUrl === work.mediaUrl ? (
+                <video
+                  className="admin-preview-video"
+                  src={mediaPreviewBlob ?? work.mediaUrl}
+                  controls
+                  preload="none"
+                />
+              ) : (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setLoadedVideoUrl(work.mediaUrl)}
+                >
+                  点击加载视频预览（避免自动消耗 COS 流量）
+                </button>
+              )
             ) : (
               <div className="admin-preview admin-preview-cover">
-                <Image src={work.mediaUrl} alt="" width={320} height={320} unoptimized />
+                <Image
+                  src={mediaPreviewBlob ?? work.mediaUrl}
+                  alt=""
+                  width={320}
+                  height={320}
+                  unoptimized
+                />
               </div>
             )
           ) : null}
@@ -365,8 +443,19 @@ export default function WorkEditForm({
             onChange={(e) => {
               const f = e.target.files?.[0];
               if (f) {
-                const folder = isVideoWork ? "works/videos" : "works/gallery";
-                void handleUpload(f, folder, (url) => updateField("mediaUrl", url));
+                const blobUrl = URL.createObjectURL(f);
+                setMediaBlob(blobUrl);
+                const kind = isVideoWork ? "video" : "gallery";
+                void handleUpload(
+                  f,
+                  kind,
+                  (url) => {
+                    setMediaBlob(null);
+                    setLoadedVideoUrl(null);
+                    updateField("mediaUrl", url);
+                  },
+                  { existingUrl: work.mediaUrl, fieldLabel: isVideoWork ? "主视频" : "主图" },
+                );
               }
             }}
           />
@@ -393,12 +482,20 @@ export default function WorkEditForm({
             onChange={(e) => {
               const files = Array.from(e.target.files ?? []);
               files.forEach((f) => {
-                void handleUpload(f, "works/gallery", (url) => {
-                  setWork((prev) => ({
-                    ...prev,
-                    detailImages: [...(prev.detailImages ?? []), url],
-                  }));
-                });
+                void handleUpload(
+                  f,
+                  "gallery-detail",
+                  (url) => {
+                    setWork((prev) => ({
+                      ...prev,
+                      detailImages: [...(prev.detailImages ?? []), url],
+                    }));
+                  },
+                  {
+                    detailIndex: (work.detailImages ?? []).length,
+                    fieldLabel: "详情图",
+                  },
+                );
               });
             }}
           />

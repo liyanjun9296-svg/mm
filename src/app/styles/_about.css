@@ -1,9 +1,13 @@
 /* ── 关于我 ──────────────────────────────────── */
+.about-section .section-divider {
+  display: none;
+}
+
 .about-grid {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 80px;
-  padding: 64px 0;
+  padding: 48px 0;
 }
 
 .muted {
@@ -16,17 +20,54 @@
 }
 
 .about-portrait {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  height: 460px;
+  height: 520px;
   background: #1c1c1c;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  border-radius: 8px;
+  margin-bottom: 0;
+}
+
+.about-portrait-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.about-portrait-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.35) 55%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.about-portrait-info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24px;
+  z-index: 2;
 }
 
 .about-name {
   font-size: 30px;
   font-weight: 500;
   margin: 0 0 8px;
+  color: #fff;
 }
 
 .about-year {
@@ -88,13 +129,13 @@
 
 .about-role {
   margin: 0 0 6px;
-  color: var(--muted);
+  color: #71717a;
   font-size: 14px;
 }
 
 .about-location {
   margin: 0;
-  color: var(--muted-2);
+  color: #fff;
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -129,11 +170,27 @@
   border-bottom: 1px solid var(--line);
 }
 
+.about-exp-item:last-child {
+  border-bottom: none;
+}
+
 .about-exp-year {
   color: var(--muted-2);
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
   letter-spacing: 0.06em;
+}
+
+.about-exp-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.about-exp-company {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .about-exp-body strong {
@@ -151,8 +208,7 @@
 }
 
 .faq-accordion {
-  padding: 48px 0 80px;
-  border-top: 1px solid var(--line);
+  padding: 40px 0 64px;
 }
 
 .faq-list {
@@ -179,6 +235,41 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    color var(--motion-base) var(--motion-ease);
+}
+
+.faq-question[aria-expanded="false"] {
+  color: #c8c8c8;
+}
+
+.faq-question:hover {
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+.faq-question:hover .faq-icon {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+.faq-question:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.faq-question[aria-expanded="true"] {
+  color: #fff;
+  transform: none;
+}
+
+.faq-question[aria-expanded="true"]:hover {
+  transform: none;
+}
+
+.faq-question[aria-expanded="true"] .faq-icon {
+  color: var(--text);
 }
 
 .faq-icon {
@@ -186,6 +277,9 @@
   font-family: var(--font-geist-mono), monospace;
   font-size: 18px;
   flex-shrink: 0;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    color var(--motion-base) var(--motion-ease);
 }
 
 .faq-answer {
@@ -198,8 +292,81 @@
 
 /* 响应式 */
 @media (max-width: 900px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+    gap: 48px;
+  }
+
   .about-exp-item {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+}
+
+@media (max-width: 900px) {
+  .about-section .section-header {
+    padding-bottom: 10px;
+  }
+
+  .about-grid {
+    padding: clamp(4px, 1.03vw, 24px) 0 clamp(24px, 6.15vw, 32px);
+    gap: clamp(24px, 8.21vw, 32px);
+  }
+
+  .about-portrait {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+  }
+
+  .about-portrait-img {
+    position: relative;
+    flex: 0 0 80px;
+    width: 80px;
+    height: 104px;
+    inset: auto;
+  }
+
+  .about-portrait-gradient {
+    display: none;
+  }
+
+  .about-portrait-info {
+    position: static;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 8px 12px;
+  }
+
+  .about-name {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .about-role {
+    font-size: 11px;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+
+  .about-block {
+    margin-bottom: 24px;
+  }
+
+  .faq-accordion {
+    padding: 24px 0 clamp(32px, 10.26vw, 40px);
+  }
+
+  .faq-answer {
+    padding-right: 0;
   }
 }

@@ -7,6 +7,7 @@ type MagneticButtonProps = {
   className?: string;
   as?: "button" | "a";
   href?: string;
+  onClick?: () => void;
 };
 
 export default function MagneticButton({
@@ -14,6 +15,7 @@ export default function MagneticButton({
   className,
   as = "button",
   href,
+  onClick,
 }: MagneticButtonProps) {
   const ref = useRef<HTMLElement>(null);
   const canAnimate = () =>
@@ -60,6 +62,7 @@ export default function MagneticButton({
       className={`btn magnetic ${className ?? ""}`.trim()}
       onMouseMove={handleMove}
       onMouseLeave={handleLeave}
+      onClick={onClick}
     >
       {children}
     </button>

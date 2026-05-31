@@ -1,10 +1,15 @@
 /* ── 全站大板块标题（对齐 UI参考.pen） ──────── */
+:root {
+  --section-header-gap: 56px;
+  --section-header-padding-top: 64px;
+}
+
 .section-header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
-  padding: 80px 0 40px;
+  padding: var(--section-header-padding-top) 0 var(--section-header-gap);
 }
 
 .section-header-left {
@@ -53,9 +58,36 @@
   color: var(--text);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 900px) {
   .section-header {
-    padding-top: 56px;
-    padding-bottom: 28px;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: var(--section-header-padding-top);
+    padding-bottom: var(--section-header-gap);
+  }
+
+  .section-header-left {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .section-header-title {
+    font-size: clamp(28px, 7.18vw, 32px);
+    line-height: 1.1;
+  }
+
+  .section-header-line,
+  .section-header-link,
+  .section-header-cta {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .section-header-cta {
+    padding: 10px 14px;
+    font-size: 12px;
+    letter-spacing: 0.06em;
   }
 }

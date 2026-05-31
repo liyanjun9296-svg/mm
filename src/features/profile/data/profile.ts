@@ -5,6 +5,7 @@ export type FaqItem = {
 
 export type TimelineItem = {
   year: string;
+  company?: string;
   title: string;
   role: string;
   desc: string;
@@ -13,7 +14,7 @@ export type TimelineItem = {
 export const profile = {
   name: "高欣明",
   title: "新媒体全链路操盘手 & AIGC专家",
-  location: "武汉 · 中国",
+  location: "北京 · 中国",
   bioZh:
     "7年新媒体全链路操盘经验，深度融合AIGC工作流与商业增长策略。独立完成从内容策划、视觉拍摄到私域变现的完整商业闭环，曾创造单条视频200W+播放、撬动千万级营收。",
   bioEn:
@@ -23,21 +24,24 @@ export const profile = {
   timeline: [
     {
       year: "2023 — 至今",
-      title: "独立创作者 / 品牌顾问",
-      role: "全链路操盘",
-      desc: "服务品牌内容项目，搭建 AIGC 量产与矩阵增长体系。",
+      company: "武汉藏龙高级中学",
+      title: "品牌运营负责人",
+      role: "矩阵体系 / AIGC链路 / 内容生产",
+      desc: "服务品牌搭建，构建社群体系闭环，搭建 AIGC 量产与矩阵同步增长。",
     },
     {
       year: "2021 — 2023",
-      title: "新媒体负责人",
+      company: "煜明科技",
+      title: "运营主管",
       role: "内容策略 / 视觉导演",
       desc: "负责跨平台视觉体系与爆款内容策略落地。",
     },
     {
       year: "2018 — 2021",
-      title: "视频创作者",
+      company: "编学边玩",
+      title: "新媒体运营",
       role: "拍摄 / 剪辑 / 运营",
-      desc: "从 0 到 1 跑通多条百万播放内容线。",
+      desc: "独立运营50万+的主账号，seo相关策略制定",
     },
   ] satisfies TimelineItem[],
   faq: [
@@ -69,9 +73,44 @@ export const profile = {
   ] satisfies FaqItem[],
 };
 
-export const socialLinks = [
-  { name: "公众号", url: "https://mp.weixin.qq.com/", note: "深度内容与案例复盘" },
-  { name: "小红书", url: "https://www.xiaohongshu.com/", note: "日常作品与灵感更新" },
-  { name: "抖音", url: "https://www.douyin.com/", note: "短视频项目展示" },
-  { name: "视频号", url: "https://channels.weixin.qq.com/", note: "品牌内容与采访视频" },
+export type ContactPlatform = {
+  index: string;
+  name: string;
+  note: string;
+  url: string;
+};
+
+export const contactInfo = {
+  phone: "+86 156 0783 5498",
+  phoneTel: "+8615607835498",
+  email: "584917939@qq.com",
+} as const;
+
+export type ContactInfo = typeof contactInfo;
+
+export const contactPlatforms: ContactPlatform[] = [
+  {
+    index: "01",
+    name: "抖音",
+    note: "短视频创作",
+    url: "https://www.douyin.com/",
+  },
+  {
+    index: "02",
+    name: "视频号",
+    note: "微信视频号",
+    url: "https://channels.weixin.qq.com/",
+  },
+  {
+    index: "03",
+    name: "小红书",
+    note: "图文内容创作",
+    url: "https://www.xiaohongshu.com/",
+  },
+  {
+    index: "04",
+    name: "作品集网站",
+    note: "www.gaoxinming.xyz",
+    url: "https://gaoxinming.xyz",
+  },
 ];

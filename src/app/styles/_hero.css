@@ -8,6 +8,14 @@
   --hero-offset-y: -140px;
 }
 
+.hero-avatar {
+  display: none;
+}
+
+.hero-avatar-img {
+  display: none;
+}
+
 /* 文字层：居中对齐，人物后面 */
 .hero-text-layer {
   position: absolute;
@@ -368,12 +376,6 @@
   opacity: 0.55;
 }
 
-@media (max-width: 768px) {
-  .hero-tags li + li::before {
-    height: 9px;
-    margin: 0 8px;
-  }
-}
 
 /* Hero 入场动画 */
 @keyframes heroFadeUp {
@@ -404,8 +406,8 @@
   letter-spacing: 0.38em;
 }
 
-/* Hero 响应式 */
-@media (max-width: 1100px) {
+/* Hero 响应式：桌面窄窗（901–1100），移动端见 ≤900 */
+@media (min-width: 901px) and (max-width: 1100px) {
   .hero-line1,
   .hero-line2 {
     font-size: clamp(40px, 8vw, 80px);
@@ -425,23 +427,194 @@
   }
 }
 
-@media (max-width: 768px) {
-  .hero-line1,
-  .hero-line2 {
-    font-size: clamp(32px, 10vw, 56px);
+/* ≤900 移动端定稿（375/390 锚点 + 320–900 流体缩放） */
+@media (max-width: 900px) {
+  .hero {
+    --hero-offset-y: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    min-height: 0;
+    padding: 8px var(--content-mobile-pad) 20px;
+    overflow: visible;
+  }
+
+  .hero-tags li + li::before {
+    height: 9px;
+    margin: 0 8px;
+  }
+
+  .hero-avatar {
+    display: block;
+    order: 1;
+    flex-shrink: 0;
+    width: clamp(90px, 23.08vw, 120px);
+    height: clamp(90px, 23.08vw, 120px);
+    margin-top: clamp(78px, 20vw, 120px);
+    margin-bottom: 12px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #1c1c1c;
+  }
+
+  .hero-avatar-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-text-layer {
+    position: relative;
+    inset: auto;
+    z-index: 1;
+    order: 2;
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin-top: 0;
+    padding: 0;
+    padding-top: 0;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .hero-text-layer .container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+    padding: 0;
+    text-align: left;
+    pointer-events: auto;
+  }
+
+  .hero-eyebrow {
+    display: none;
+  }
+
+  .hero-line1 {
+    order: 1;
+    margin: 12px 0 0;
+    font-size: clamp(38px, 11vw, 46px);
     white-space: normal;
   }
 
+  .hero-line2-group {
+    order: 2;
+    align-items: flex-start;
+    width: auto;
+    max-width: 100%;
+    margin-top: 0;
+    gap: 12px;
+  }
+
+  .hero-line2 {
+    font-size: clamp(32px, 10.5vw, 40px);
+    white-space: nowrap;
+  }
+
+  .hero-line2-outline {
+    -webkit-text-stroke: 0.75px rgba(255, 255, 255, 0.14);
+  }
+
   .hero-display--helvetica .hero-line1 {
-    font-size: clamp(36px, 11vw, 64px);
+    font-size: clamp(38px, 11vw, 46px);
   }
 
   .hero-display--helvetica .hero-line2 {
-    font-size: clamp(32px, 10vw, 58px);
+    font-size: clamp(32px, 10.5vw, 40px);
+  }
+
+  .hero-display--helvetica .hero-line2-outline {
+    -webkit-text-stroke: 0.75px rgba(255, 255, 255, 0.14);
+  }
+
+  .hero-tags {
+    order: 3;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    row-gap: 8px;
+    margin-top: 12px;
+    max-width: 100%;
+  }
+
+  .hero-tags li {
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .hero-tags li + li::before {
+    margin: 0 8px;
+  }
+
+  .hero-portrait-layer {
+    position: relative;
+    inset: auto;
+    order: 4;
+    z-index: 2;
+    display: flex;
+    width: 100%;
+    max-width: none;
+    margin-top: clamp(40px, 12.82vw, 50px);
+    transform: none;
+    justify-content: center;
+    pointer-events: auto;
+  }
+
+  .hero-portrait-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    pointer-events: auto;
   }
 
   .hero-portrait-img {
-    width: min(94.6vw, 576px);
-    max-height: 51.48vh;
+    display: none;
+  }
+
+  .hero-cta {
+    position: static;
+    left: auto;
+    bottom: auto;
+    transform: none !important;
+    --hero-anim-x: 0;
+    --hero-anim-scale: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    justify-content: center;
+    align-self: stretch;
+    gap: 14px;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    white-space: nowrap;
+    pointer-events: auto;
+  }
+
+  .hero-cta .btn,
+  .hero-cta .btn-primary {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    max-width: none;
+    width: auto;
+    text-align: center;
+    padding: 12px 12px;
+    font-size: 14px;
+    letter-spacing: 0.03em;
+    line-height: 1.2;
+  }
+
+  .scroll-hint {
+    display: none;
   }
 }

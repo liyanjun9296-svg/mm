@@ -7,7 +7,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
-  padding-bottom: 80px;
+  padding-bottom: 64px;
 }
 
 .cap-entrance {
@@ -23,7 +23,7 @@
 .cap-entrance > .cap-gravity-card {
   flex: 1;
   width: 100%;
-  min-height: 383px;
+  height: var(--cap-height, 440px);
 }
 
 .capabilities-grid:not(.is-visible) .cap-entrance-left {
@@ -60,17 +60,37 @@
 }
 
 .cap-card {
+  --cap-height: 440px;
+  --cap-main-height: 266px;
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 383px;
+  height: var(--cap-height);
   padding: 40px 36px 36px;
   border-radius: 8px;
   overflow: hidden;
   background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
   border: 1px solid #2a2a2a;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.cap-card-main {
+  flex: 0 0 var(--cap-main-height, 266px);
+  height: var(--cap-main-height, 266px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.cap-card-footer {
+  flex: 1;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: flex-start;
 }
 
 .cap-card-glow {
@@ -129,19 +149,22 @@
   font-weight: 800;
   line-height: 1.2;
   letter-spacing: -0.01em;
+  min-height: calc(26px * 1.2 * 2);
+  flex-shrink: 0;
 }
 
 .cap-card-body {
-  margin: 0;
+  margin: -30px 0 0;
   color: #777;
   font-size: 14px;
   line-height: 1.8;
+  flex: 1;
+  min-height: 0;
 }
 
 .cap-card-divider {
   height: 1px;
   background: #2a2a2a;
-  margin-top: auto;
 }
 
 .cap-card-mono {
@@ -170,9 +193,112 @@
   font-family: var(--font-geist-mono), monospace;
 }
 
-@media (max-width: 1100px) {
+@media (min-width: 901px) and (max-width: 1100px) {
+  .cap-entrance > .cap-gravity-card {
+    height: auto;
+    min-height: var(--cap-height, 440px);
+  }
+
+  .cap-card {
+    height: auto;
+    min-height: var(--cap-height, 440px);
+  }
+}
+
+@media (max-width: 900px) {
+  .capabilities-section .section-header-line {
+    display: none;
+  }
+
+  /* 双按钮→大标题约 60px：保留 section 30+30，隐藏 00 序号（~15–19px） */
+  .capabilities-section .section-header-index {
+    display: none;
+  }
+
+  .capabilities-section .section-header-left {
+    gap: 0;
+  }
+
   .capabilities-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
+    padding-bottom: 0;
+  }
+
+  .capabilities-grid:not(.is-visible) .cap-entrance-left,
+  .capabilities-grid:not(.is-visible) .cap-entrance-right {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  .cap-entrance > .cap-gravity-card {
+    height: auto;
+    min-height: 0;
+  }
+
+  .cap-card {
+    height: auto;
+    min-height: 0;
+    padding: 24px 20px 20px;
+    gap: 16px;
+  }
+
+  .cap-card-main {
+    flex: 0 0 auto;
+    height: auto;
+    gap: 16px;
+  }
+
+  .cap-card-footer {
+    gap: 12px;
+  }
+
+  .cap-card-icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .cap-card-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .cap-card-title {
+    font-size: 19px;
+    line-height: 1.25;
+    min-height: 0;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+  }
+
+  .cap-card-body {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 4;
+  }
+
+  .cap-card-mono {
+    font-size: 11px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cap-card-tags {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+  }
+
+  .cap-card-tag {
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }
 

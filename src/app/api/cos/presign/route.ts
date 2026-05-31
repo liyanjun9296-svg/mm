@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCosEnv } from "@/lib/cos/env";
 import { getPresignedPutUrl } from "@/lib/cos/server";
+import { isAllowedWorksUploadKey } from "@/lib/cos/upload-keys";
 
 type PresignBody = {
   key?: string;
@@ -57,6 +58,13 @@ export async function POST(request: Request) {
 
   if (key.includes("..")) {
     return NextResponse.json({ error: "对象键不合法" }, { status: 400 });
+  }
+
+  if (!isAllowedWorksUploadKey(key)) {
+    return NextResponse.json(
+      { error: "对象键必须以 works/ 开头（如 works/videos/demo.mp4）" },
+      { status: 400 },
+    );
   }
 
   try {

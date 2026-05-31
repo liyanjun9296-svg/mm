@@ -45,6 +45,11 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    localPatterns: [
+      { pathname: "/images/**" },
+      // dev 本地快照：/api/dev/media?key=works/...（search 省略 = 允许任意 query）
+      { pathname: "/api/dev/media" },
+    ],
     remotePatterns: [
       {
         protocol: "https",

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import FaqAccordion from "@/components/ui/FaqAccordion";
 import type { Messages } from "@/i18n/messages";
@@ -19,10 +20,23 @@ export default function AboutSection({ messages, locale }: AboutSectionProps) {
 
         <div className="about-grid">
           <article className="about-left-card">
-            <div className="about-portrait" />
-            <h3 className="about-name">{profile.name}</h3>
-            <p className="about-role">{profile.title}</p>
-            <p className="about-location">{profile.location}</p>
+            <div className="about-portrait">
+              <Image
+                src="/images/about-portrait.png"
+                alt={profile.name}
+                className="about-portrait-img"
+                width={760}
+                height={1040}
+                sizes="(max-width: 900px) 80px, 380px"
+                priority
+              />
+              <div className="about-portrait-gradient" aria-hidden="true" />
+              <div className="about-portrait-info">
+                <h3 className="about-name">{profile.name}</h3>
+                <p className="about-role">{profile.title}</p>
+                <p className="about-location">{profile.location}</p>
+              </div>
+            </div>
           </article>
 
           <article className="about-right">
@@ -45,11 +59,19 @@ export default function AboutSection({ messages, locale }: AboutSectionProps) {
               <p className="mono-label">EXPERIENCE</p>
               <ul className="about-exp-list">
                 {profile.timeline.map((item) => (
-                  <li key={item.year} className="about-exp-item">
-                    <span className="about-exp-year">{item.year}</span>
+                  <li
+                    key={`${item.year}-${item.company ?? item.title}`}
+                    className="about-exp-item"
+                  >
+                    <div className="about-exp-meta">
+                      <span className="about-exp-year">{item.year}</span>
+                      {item.company ? (
+                        <span className="about-exp-company">{item.company}</span>
+                      ) : null}
+                    </div>
                     <div className="about-exp-body">
                       <strong>
-                        {item.title} — {item.role}
+                        {item.role ? `${item.title} — ${item.role}` : item.title}
                       </strong>
                       <p>{item.desc}</p>
                     </div>

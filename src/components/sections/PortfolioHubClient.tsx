@@ -149,7 +149,7 @@ export default function PortfolioHubClient({
               </button>
             ))}
           </div>
-          <PhotoMasonryGrid works={filteredPhotos} locale={locale} />
+          <PhotoMasonryGrid works={filteredPhotos} locale={locale} messages={messages} />
         </>
       ) : null}
 

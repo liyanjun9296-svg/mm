@@ -6,6 +6,7 @@ import {
   formatUploadFailure,
   guessContentType,
   uploadFileAdmin,
+  confirmVideoUpload,
 } from "@/lib/admin/api";
 
 function defaultKey(file: File): string {
@@ -33,8 +34,20 @@ export default function CosUploadForm() {
       setStatus("请填写 ADMIN_UPLOAD_TOKEN");
       return;
     }
+    if (!confirmVideoUpload(file)) {
+      return;
+    }
 
     const key = (cosKey || defaultKey(file)).replace(/^\/+/, "");
+    const autoKey = defaultKey(file);
+    if (cosKey && cosKey.replace(/^\/+/, "") !== autoKey.replace(/^\/+/, "")) {
+      const reuse = window.confirm(
+        "你使用了手动 COS 路径。若该路径已存在文件，覆盖后可能产生历史版本或冗余。\n建议留空让系统自动生成新路径。\n\n仍用此路径上传？",
+      );
+      if (!reuse) {
+        return;
+      }
+    }
     setUploading(true);
     setStatus("正在上传到 COS…");
     setPublicUrl("");
@@ -110,6 +123,10 @@ export default function CosUploadForm() {
         <div className="cos-upload-result">
           <p>公网 URL：</p>
           <code className="cos-upload-url">{publicUrl}</code>
+          <p className="cos-upload-hint">
+            若替换了旧视频/封面，旧 COS 文件不会自动删除。可运行{" "}
+            <code>npm run cos:prune-orphans</code> 清理未引用文件。
+          </p>
           <button
             type="button"
             className="btn"

@@ -3,8 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
 import type { WorkItem } from "@/features/portfolio/types";
+import type { Messages } from "@/i18n/messages";
 import { cosOptimizedImageUrl } from "@/lib/cos/image-url";
+import type { Locale } from "@/lib/i18n";
 
 const PHOTO_MASONRY_SIZES = "(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw";
 
@@ -52,10 +55,11 @@ function getColumnCount(viewportWidth: number): number {
 
 type PhotoMasonryGridProps = {
   works: WorkItem[];
-  locale: string;
+  locale: Locale;
+  messages: Messages;
 };
 
-export default function PhotoMasonryGrid({ works, locale }: PhotoMasonryGridProps) {
+export default function PhotoMasonryGrid({ works, locale, messages }: PhotoMasonryGridProps) {
   const [columnCount, setColumnCount] = useState(3);
 
   useEffect(() => {
@@ -74,29 +78,33 @@ export default function PhotoMasonryGrid({ works, locale }: PhotoMasonryGridProp
     <div className="photo-masonry-columns">
       {columns.map((column, colIndex) => (
         <div className="photo-masonry-col" key={`col-${colIndex}`}>
-          {column.map(({ work, variant }) => (
-            <Link
-              key={work.slug}
-              href={`/${locale}/works/${work.slug}`}
-              className="photo-masonry-item"
-            >
-              <div className={`photo-masonry-frame photo-masonry-frame--${variant}`}>
-                <Image
-                  src={cosOptimizedImageUrl(work.coverImage, "grid")}
-                  alt={work.title}
-                  fill
-                  className="photo-masonry-img"
-                  sizes={PHOTO_MASONRY_SIZES}
-                />
-              </div>
-              <div className="photo-masonry-caption">
-                <p className="photo-masonry-caption-title">{work.title}</p>
-                {work.subtitle ? (
-                  <p className="photo-masonry-caption-sub">{work.subtitle}</p>
-                ) : null}
-              </div>
-            </Link>
-          ))}
+          {column.map(({ work, variant }) => {
+            const displayTitle = getWorkDisplayTitle(work, locale, messages);
+
+            return (
+              <Link
+                key={work.slug}
+                href={`/${locale}/works/${work.slug}`}
+                className="photo-masonry-item"
+              >
+                <div className={`photo-masonry-frame photo-masonry-frame--${variant}`}>
+                  <Image
+                    src={cosOptimizedImageUrl(work.coverImage, "grid")}
+                    alt={displayTitle}
+                    fill
+                    className="photo-masonry-img"
+                    sizes={PHOTO_MASONRY_SIZES}
+                  />
+                </div>
+                <div className="photo-masonry-caption">
+                  <p className="photo-masonry-caption-title">{displayTitle}</p>
+                  {work.subtitle ? (
+                    <p className="photo-masonry-caption-sub">{work.subtitle}</p>
+                  ) : null}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       ))}
     </div>

@@ -6,9 +6,7 @@ function unauthorized() {
   return NextResponse.json({ error: "未授权" }, { status: 401 });
 }
 
-function sanitizeKey(raw: string): string {
-  return raw.replace(/^\/+/, "").replace(/\.\./g, "");
-}
+import { isAllowedWorksUploadKey, sanitizeUploadKey } from "@/lib/cos/upload-keys";
 
 export async function POST(request: Request) {
   const env = getCosEnv();
@@ -48,7 +46,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "缺少对象键 key" }, { status: 400 });
   }
 
-  const key = sanitizeKey(keyRaw);
+  const key = sanitizeUploadKey(keyRaw);
+  if (!isAllowedWorksUploadKey(key)) {
+    return NextResponse.json(
+      { error: "对象键必须以 works/ 开头（如 works/videos/demo.mp4）" },
+      { status: 400 },
+    );
+  }
   const contentType = file.type || "application/octet-stream";
   const buffer = Buffer.from(await file.arrayBuffer());
 

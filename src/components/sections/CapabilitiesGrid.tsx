@@ -75,19 +75,23 @@ export default function CapabilitiesGrid() {
         <div key={item.id} className={`cap-entrance ${ENTRANCE_VARIANTS[index] ?? "cap-entrance-center"}`}>
           <GravityCapabilityCard className="cap-card">
             <div className="cap-card-glow" aria-hidden="true" />
-            <div className="cap-card-icon">
-              <CapabilityIcon type={item.icon} />
+            <div className="cap-card-main">
+              <div className="cap-card-icon">
+                <CapabilityIcon type={item.icon} />
+              </div>
+              <h3 className="cap-card-title">{item.title}</h3>
+              <p className="cap-card-body">{item.body}</p>
             </div>
-            <h3 className="cap-card-title">{item.title}</h3>
-            <p className="cap-card-body">{item.body}</p>
-            <div className="cap-card-divider" />
-            <p className="cap-card-mono">{item.monoTag}</p>
-            <div className="cap-card-tags">
-              {item.tags.map((tag) => (
-                <span key={tag} className="cap-card-tag">
-                  {tag}
-                </span>
-              ))}
+            <div className="cap-card-footer">
+              <div className="cap-card-divider" />
+              <p className="cap-card-mono">{item.monoTag}</p>
+              <div className="cap-card-tags">
+                {item.tags.map((tag) => (
+                  <span key={tag} className="cap-card-tag">
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
           </GravityCapabilityCard>
         </div>
