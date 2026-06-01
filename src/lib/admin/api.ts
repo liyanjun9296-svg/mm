@@ -155,6 +155,31 @@ export async function fetchWorksAdmin(token: string): Promise<WorkItem[]> {
   return data.works ?? [];
 }
 
+export type DevPullResult = {
+  worksCount: number;
+  mediaDownloaded: number;
+  mediaSkipped: number;
+  mediaFailed: { key: string; error: string }[];
+};
+
+/** 仅本地 dev：从 COS 拉取最新 works + 缺失媒体到 .dev-data/ */
+export async function pullFromCosAdmin(token: string): Promise<DevPullResult> {
+  const res = await fetch("/api/admin/dev/pull", {
+    method: "POST",
+    headers: authHeaders(token),
+  });
+  const data = (await res.json()) as Partial<DevPullResult> & { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? "拉取失败");
+  }
+  return {
+    worksCount: data.worksCount ?? 0,
+    mediaDownloaded: data.mediaDownloaded ?? 0,
+    mediaSkipped: data.mediaSkipped ?? 0,
+    mediaFailed: data.mediaFailed ?? [],
+  };
+}
+
 export async function fetchCategoriesAdmin(token: string): Promise<string[]> {
   const res = await fetch("/api/admin/categories", {
     headers: authHeaders(token),

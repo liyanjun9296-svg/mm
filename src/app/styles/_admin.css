@@ -4,9 +4,12 @@
   padding-bottom: 80px;
 }
 
-.admin-login,
+.admin-login {
+  max-width: 480px;
+}
+
 .admin-panel {
-  max-width: 720px;
+  max-width: 100%;
 }
 
 .admin-title {
@@ -75,7 +78,21 @@
 
 .admin-toolbar-actions {
   display: flex;
+  flex-wrap: nowrap;
   gap: 12px;
+}
+
+.admin-toolbar-actions .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .admin-toolbar-actions {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 .admin-works-list {
