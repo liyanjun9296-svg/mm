@@ -406,6 +406,29 @@
   letter-spacing: 0.38em;
 }
 
+@keyframes scrollHintBounce {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+.scroll-hint-arrow {
+  display: inline-block;
+  animation: scrollHintBounce 1.6s var(--motion-ease) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-arrow {
+    animation: none;
+  }
+}
+
 /* Hero 响应式：桌面窄窗（901–1100），移动端见 ≤900 */
 @media (min-width: 901px) and (max-width: 1100px) {
   .hero-line1,

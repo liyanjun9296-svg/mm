@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import SectionHeader from "@/components/ui/SectionHeader";
+import RevealText from "@/components/motion/RevealText";
 import PortfolioHubClient from "@/components/sections/PortfolioHubClient";
 import { getPhotoCategories, getVideoCategories } from "@/features/portfolio/data/categories-store";
 import { getWorks } from "@/features/portfolio/data/works-store";
@@ -28,10 +28,7 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
   return (
     <main className="portfolio-hub-page">
       <div className="container">
-        <Link href={`/${locale}#works`} className="back-link hover-link">
-          ← {messages.detail.back}
-        </Link>
-        <SectionHeader index="01" title={messages.works.sectionTitle} />
+        <SectionHeader index="01" title={<RevealText text={messages.works.sectionTitle} />} />
         <Suspense fallback={<p className="admin-desc">加载中…</p>}>
           <PortfolioHubClient
             works={works}
