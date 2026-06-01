@@ -24,9 +24,13 @@
     "cos:prune-orphans": "tsx scripts/cos-prune-orphans.ts",
     "cos:prune-versions": "tsx scripts/cos-prune-versions.ts",
     "cos:cleanup": "tsx scripts/cos-cleanup.ts",
+    "cos:migrate-images": "tsx scripts/cos-migrate-gallery-images.ts",
     "dev:sync": "tsx scripts/dev-sync.ts"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "cos-nodejs-sdk-v5": "^2.15.4",
     "next": "16.2.6",
     "react": "19.2.4",
@@ -39,6 +43,7 @@
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "sharp": "^0.34.5",
     "tsx": "^4.22.3",
     "typescript": "^5"
   }

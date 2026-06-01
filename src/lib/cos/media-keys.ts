@@ -1,5 +1,6 @@
 import type { WorkItem } from "@/features/portfolio/types";
 import { getCosEnv, getCosPublicUrl } from "./env";
+import { expandMediaKeysWithVariants } from "./media-variants";
 
 const WORKS_MEDIA_PREFIX = "works/";
 
@@ -120,5 +121,5 @@ export function resolveDeletableMediaKeys(
     keys.push(key);
   }
 
-  return { keys: [...new Set(keys)], skippedKeys: [...new Set(skippedKeys)] };
+  return { keys: expandMediaKeysWithVariants([...new Set(keys)]), skippedKeys: [...new Set(skippedKeys)] };
 }

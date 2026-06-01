@@ -23,9 +23,12 @@ Bucket/
 └── works/
     ├── videos/{slug}.{ext}      # 视频
     ├── covers/{slug}.{ext}      # 封面
-    └── gallery/{slug}.{ext}     # 摄影主图
-        gallery/{slug}-{n}.{ext} # 摄影详情多图
+    └── gallery/{slug}.{list|admin|detail}.webp   # 摄影主图三档
+        gallery/{slug}-{n}.{list|admin|detail}.webp # 摄影详情多图三档
+        covers/{slug}.{list|admin|detail}.webp    # 视频/文章封面三档
 ```
+
+JSON 中 `coverImage` / `mediaUrl` / `detailImages[]` 存 **detail** 档 URL；列表与后台通过 `mediaVariantUrl()` 推导 list / admin 档（见 `src/lib/cos/media-variants.ts`）。旧版单文件 `{slug}.jpg` 仍可读，迁移：`npm run cos:migrate-images -- --apply`。
 
 静态站点资源（不进 COS）：`public/images/portrait.png`（桌面 Hero）、`hero-avatar-375.png`（移动 Hero）、`about-portrait.png`、`logo.svg`。
 

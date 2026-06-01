@@ -116,6 +116,65 @@
   background: #111;
 }
 
+.admin-works-item-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-works-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.admin-works-thumb--empty {
+  display: inline-block;
+  background: #1a1a1a;
+}
+
+.admin-sort-hint {
+  margin: 0 0 12px;
+}
+
+.admin-sortable-row {
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-sortable-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: -0.12em;
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+}
+
+.admin-sortable-handle:active {
+  cursor: grabbing;
+}
+
+.admin-sortable-handle:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .admin-works-title-row {
   display: flex;
   flex-wrap: wrap;
@@ -207,23 +266,45 @@
   margin: 0 0 16px;
   padding: 0;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-gallery-edit-row {
+  display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #111;
 }
 
-.admin-gallery-edit li {
-  position: relative;
+.admin-gallery-edit-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
 }
 
-.admin-gallery-edit button {
-  display: block;
-  margin-top: 6px;
+.admin-gallery-edit-label {
+  flex: 1;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admin-gallery-edit-row button {
   background: none;
   border: none;
   color: #e85d5d;
   cursor: pointer;
   font-size: 12px;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .admin-form-actions {
@@ -311,27 +392,38 @@
   list-style: none;
   margin: 16px 0 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-  gap: 12px;
-}
-
-.admin-batch-preview li {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--muted);
-  word-break: break-all;
+  gap: 8px;
 }
 
-.admin-batch-preview img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 4px;
+.admin-batch-file-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #111;
+}
+
+.admin-batch-file-thumb {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+.admin-batch-file-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .admin-batch-photo .admin-upload-section:first-of-type {
