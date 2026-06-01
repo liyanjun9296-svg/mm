@@ -10,9 +10,9 @@ import { dirname } from "path";
 import { config } from "dotenv";
 import { resolve } from "path";
 import COS from "cos-nodejs-sdk-v5";
-import { WORKS_JSON_KEY } from "../src/features/portfolio/constants";
+import { WORKS_INDEX_KEY, WORKS_JSON_KEY, workItemCosKey } from "../src/features/portfolio/constants";
 import type { WorkItem } from "../src/features/portfolio/types";
-import { collectWorkMediaKeys } from "../src/lib/cos/media-keys";
+import { collectWorkMediaKeys, normalizeWorkMediaUrlsForCos } from "../src/lib/cos/media-keys";
 import {
   DEV_DATA_DIR,
   DEV_MEDIA_DIR,
@@ -77,7 +77,7 @@ async function downloadMediaKey(
   return body.length;
 }
 
-async function fetchWorksJson(
+async function fetchLegacyWorksJson(
   cos: COS,
   bucket: string,
   region: string,
@@ -87,7 +87,39 @@ async function fetchWorksJson(
   if (!Array.isArray(data)) {
     throw new Error(`${WORKS_JSON_KEY} 不是有效数组`);
   }
-  return data as WorkItem[];
+  return (data as WorkItem[]).map(normalizeWorkMediaUrlsForCos);
+}
+
+async function fetchWorksFromCosSdk(
+  cos: COS,
+  bucket: string,
+  region: string,
+): Promise<WorkItem[]> {
+  try {
+    const indexRaw = await getObjectBody(cos, bucket, region, WORKS_INDEX_KEY);
+    const index = JSON.parse(indexRaw.toString("utf8")) as {
+      version?: number;
+      slugs?: string[];
+    };
+    if (index.version === 2 && Array.isArray(index.slugs) && index.slugs.length > 0) {
+      const items: WorkItem[] = [];
+      for (const slug of index.slugs) {
+        try {
+          const itemRaw = await getObjectBody(cos, bucket, region, workItemCosKey(slug));
+          items.push(JSON.parse(itemRaw.toString("utf8")) as WorkItem);
+        } catch {
+          // 单条缺失不阻断全量同步
+        }
+      }
+      if (items.length > 0) {
+        return items.map(normalizeWorkMediaUrlsForCos);
+      }
+    }
+  } catch {
+    // 无索引时回退 legacy
+  }
+
+  return fetchLegacyWorksJson(cos, bucket, region);
 }
 
 async function main() {
@@ -98,8 +130,8 @@ async function main() {
   await mkdir(DEV_DATA_DIR, { recursive: true });
   await mkdir(DEV_MEDIA_DIR, { recursive: true });
 
-  console.log("dev:sync — 从 COS 拉取作品快照…");
-  const works = await fetchWorksJson(cos, bucket, region);
+  console.log("dev:sync — 从 COS 拉取作品快照（优先 site/works/items/*.json）…");
+  const works = await fetchWorksFromCosSdk(cos, bucket, region);
   await writeFile(DEV_WORKS_FILE, JSON.stringify(works, null, 2));
   console.log(`已写入 ${DEV_WORKS_FILE}（${works.length} 条作品）`);
 

@@ -2,7 +2,12 @@ import { readFile, writeFile, mkdir } from "fs/promises";
 import { existsSync } from "fs";
 import { join } from "path";
 import type { WorkItem } from "@/features/portfolio/types";
-import { cosKeyFromPublicUrl } from "@/lib/cos/media-keys";
+import {
+  cosKeyFromDevMediaUrl,
+  cosKeyFromPublicUrl,
+  normalizeWorkMediaUrlsForCos,
+} from "@/lib/cos/media-keys";
+import { getCosPublicUrl } from "@/lib/cos/env";
 
 export const DEV_DATA_DIR = join(process.cwd(), ".dev-data");
 export const DEV_WORKS_FILE = join(DEV_DATA_DIR, "works.json");
@@ -46,7 +51,12 @@ export async function writeLocalWorksSnapshot(works: WorkItem[]): Promise<void> 
     return;
   }
   await mkdir(DEV_DATA_DIR, { recursive: true });
-  await writeFile(DEV_WORKS_FILE, JSON.stringify(works, null, 2), "utf8");
+  const normalized = works.map(normalizeWorkMediaUrlsForCos);
+  await writeFile(DEV_WORKS_FILE, JSON.stringify(normalized, null, 2), "utf8");
+}
+
+function resolveWorksMediaKey(url: string): string | null {
+  return cosKeyFromDevMediaUrl(url) ?? cosKeyFromPublicUrl(url);
 }
 
 /** 将 COS 公网 URL 改写为 dev 本地媒体代理（仅 snapshot 模式） */
@@ -54,9 +64,16 @@ export function devMediaUrl(url: string): string {
   if (!url || !isDevLocalSnapshotEnabled()) {
     return url;
   }
-  const key = cosKeyFromPublicUrl(url);
-  if (!key || !hasLocalMediaFile(key)) {
+  const key = resolveWorksMediaKey(url);
+  if (!key) {
     return url;
+  }
+  if (!hasLocalMediaFile(key)) {
+    try {
+      return getCosPublicUrl(key);
+    } catch {
+      return url;
+    }
   }
   return `/api/dev/media?key=${encodeURIComponent(key)}`;
 }

@@ -112,14 +112,14 @@ export async function fetchWorksFromCosPerSlug(): Promise<WorkItem[] | null> {
 
 /** @deprecated 兼容旧名 */
 export async function fetchWorksFromCos(): Promise<WorkItem[] | null> {
+  const perSlug = await fetchWorksFromCosPerSlug();
+  if (perSlug !== null && perSlug.length > 0) {
+    return perSlug;
+  }
+
   const legacy = await fetchLegacyWorksFromCos();
   if (legacy && legacy.length > 0) {
     return legacy;
-  }
-
-  const perSlug = await fetchWorksFromCosPerSlug();
-  if (perSlug !== null) {
-    return perSlug;
   }
   return null;
 }
@@ -138,7 +138,7 @@ async function getWorksRaw(): Promise<WorkItem[]> {
   if (isDevLocalSnapshotEnabled()) {
     const local = await readLocalWorksSnapshot();
     if (local !== null && local.length > 0) {
-      return local;
+      return local.map(normalizeWorkMediaUrlsForCos);
     }
   }
 
