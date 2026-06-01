@@ -29,10 +29,8 @@ npm run dev
 
 ## 在其他电脑继续开发
 
-> **协作者**：公开 Git **不含** `.env.local`、Skill zip、`.dev-data/`。负责人私发 **`portfolio-collaborator-setup.zip`** + **`.env.local`**。  
-> 完整步骤见 [**docs/COLLABORATOR_ONBOARDING.md**](docs/COLLABORATOR_ONBOARDING.md)。  
-> 终端：`ENV_LOCAL_SRC=/path/to/.env.local bash scripts/setup-collaborator-env.sh`  
-> 负责人打 Skill 包：`bash scripts/pack-collaborator-skill.sh` → `dist/portfolio-collaborator-setup.zip`
+> **协作者首次上手**：完整流程见 [`docs/COLLABORATOR.md`](docs/COLLABORATOR.md)（clone → cp `.env.local.example` → 粘贴负责人私发的密钥 → `npm run dev:sync -- --media` → `npm run dev`）。
+> 旧版 Skill 流程（`portfolio-collaborator-setup.zip`）已不再推荐，改用 `docs/COLLABORATOR.md`。
 
 ### 不在 Git 上的内容
 
@@ -91,7 +89,7 @@ npm run build
 | **管理后台** | 仅本机 dev：`/zh/admin` + `ADMIN_UPLOAD_TOKEN`；**线上无「管理」按钮** |
 | **本地零流量** | `DEV_USE_LOCAL_SNAPSHOT=1` + `dev:sync --media` → 读 `.dev-data/`；**写仍走 COS** |
 | **数据安全** | 单条保存不覆盖全库（409）；删除默认只删 JSON；勿随意 `seed`/`prune --apply` |
-| **流量安全** | 公有读会计下行；口令/密钥勿泄露；建议余额告警 |
+| **流量安全** | 公有读会计下行；**已配 Referer 白名单防盗链**（详见 [`docs/COS_CONSOLE.md`](docs/COS_CONSOLE.md) §6.5）；口令/密钥勿泄露；建议余额告警 |
 | **万象缩图** | 列表 `imageView2`；详情原图/原视频 |
 
 ### 本地 dev 工作流

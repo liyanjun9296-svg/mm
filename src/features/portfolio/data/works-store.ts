@@ -16,7 +16,10 @@ import {
   writeLocalWorksSnapshot,
 } from "@/lib/dev/local-snapshot";
 import { getCosEnv, getCosPublicUrl } from "@/lib/cos/env";
-import { resolveDeletableMediaKeys } from "@/lib/cos/media-keys";
+import {
+  normalizeWorkMediaUrlsForCos,
+  resolveDeletableMediaKeys,
+} from "@/lib/cos/media-keys";
 import { createCosClient } from "@/lib/cos/server";
 
 export type WorksIndex = {
@@ -126,6 +129,11 @@ export async function getWorks(): Promise<WorkItem[]> {
   return applyDevMediaUrlsToWorks(raw);
 }
 
+// 进程内最近成功缓存：COS 失败（如欠费 451、网络故障）时的兜底层。
+// 仅服务端有效；冷启动首次 COS 失败仍会回退到 seedWorks。
+let lastSuccessfulWorks: WorkItem[] | null = null;
+let lastSuccessfulAt = 0;
+
 async function getWorksRaw(): Promise<WorkItem[]> {
   if (isDevLocalSnapshotEnabled()) {
     const local = await readLocalWorksSnapshot();
@@ -136,8 +144,19 @@ async function getWorksRaw(): Promise<WorkItem[]> {
 
   const remote = await fetchWorksFromCos();
   if (remote !== null) {
+    lastSuccessfulWorks = remote;
+    lastSuccessfulAt = Date.now();
     return remote;
   }
+
+  if (lastSuccessfulWorks && lastSuccessfulWorks.length > 0) {
+    const ageSec = Math.round((Date.now() - lastSuccessfulAt) / 1000);
+    console.warn(
+      `[works-store] COS 读取失败，使用最近成功缓存（age=${ageSec}s, count=${lastSuccessfulWorks.length}）`,
+    );
+    return lastSuccessfulWorks;
+  }
+
   return seedWorks;
 }
 
@@ -224,7 +243,8 @@ async function getOrCreateIndex(): Promise<WorksIndex> {
 }
 
 async function syncLegacyMirror(works: WorkItem[]): Promise<void> {
-  await putCosJson(WORKS_JSON_KEY, JSON.stringify(works, null, 2));
+  const normalized = works.map(normalizeWorkMediaUrlsForCos);
+  await putCosJson(WORKS_JSON_KEY, JSON.stringify(normalized, null, 2));
 }
 
 function featuredSlot(work: WorkItem): FeaturedLayout {
@@ -236,7 +256,8 @@ function clearFeatured(work: WorkItem): WorkItem {
 }
 
 async function persistWorkItem(item: WorkItem): Promise<void> {
-  await putCosJson(workItemCosKey(item.slug), JSON.stringify(item, null, 2));
+  const normalized = normalizeWorkMediaUrlsForCos(item);
+  await putCosJson(workItemCosKey(normalized.slug), JSON.stringify(normalized, null, 2));
 }
 
 /** 保存 featured 时挤占同槽位（大卡 2 / 小卡 4），按 works 顺序取消最早的超额精品 */
@@ -285,25 +306,27 @@ export async function saveWorkItemToCos(
 ): Promise<void> {
   const previousSlug = options?.previousSlug?.trim();
   const current = await getWorksRaw();
+  const normalizedItem = normalizeWorkMediaUrlsForCos(item);
 
-  if (previousSlug && previousSlug !== item.slug) {
+  if (previousSlug && previousSlug !== normalizedItem.slug) {
     await deleteWorkItemFromCos(previousSlug, { skipIndexUpdate: true });
   }
 
-  let merged = current.filter((w) => w.slug !== previousSlug && w.slug !== item.slug);
-  merged.push(item);
-  merged = await enforceFeaturedSlots(item, merged);
+  let merged = current.filter((w) => w.slug !== previousSlug && w.slug !== normalizedItem.slug);
+  merged.push(normalizedItem);
+  merged = await enforceFeaturedSlots(normalizedItem, merged);
+  merged = merged.map(normalizeWorkMediaUrlsForCos);
 
-  await persistWorkItem(item);
+  await persistWorkItem(normalizedItem);
 
   const index = await getOrCreateIndex();
   const slugs = index.slugs.filter((s) => s !== previousSlug);
-  if (!slugs.includes(item.slug)) {
-    slugs.push(item.slug);
+  if (!slugs.includes(normalizedItem.slug)) {
+    slugs.push(normalizedItem.slug);
   } else {
-    const i = slugs.indexOf(item.slug);
+    const i = slugs.indexOf(normalizedItem.slug);
     slugs.splice(i, 1);
-    slugs.push(item.slug);
+    slugs.push(normalizedItem.slug);
   }
   await putCosJson(WORKS_INDEX_KEY, JSON.stringify(buildIndex(slugs), null, 2));
 
@@ -372,13 +395,15 @@ export async function saveAllWorkItemsToCos(works: WorkItem[]): Promise<void> {
   const slugs = works.map((w) => w.slug);
   const keep = new Set(slugs);
 
-  for (const item of works) {
-    await putCosJson(workItemCosKey(item.slug), JSON.stringify(item, null, 2));
+  const normalizedWorks = works.map(normalizeWorkMediaUrlsForCos);
+
+  for (const item of normalizedWorks) {
+    await persistWorkItem(item);
   }
 
   await putCosJson(WORKS_INDEX_KEY, JSON.stringify(buildIndex(slugs), null, 2));
-  await syncLegacyMirror(works);
-  await persistWorksLocalSnapshot(works);
+  await syncLegacyMirror(normalizedWorks);
+  await persistWorksLocalSnapshot(normalizedWorks);
 
   if (oldIndex) {
     for (const oldSlug of oldIndex.slugs) {

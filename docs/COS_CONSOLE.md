@@ -112,3 +112,32 @@ npm run cos:cleanup             # 一键预览；加 -- --apply 执行
 ### 6.4 费用告警
 
 [费用中心](https://console.cloud.tencent.com/expense/overview) 开启余额短信提醒，避免欠费 451 停服。
+
+### 6.5 防盗链 Referer 白名单（必配）
+
+公有读 Bucket 直链可被外站热链/爬虫消耗外网下行流量包。**必须**在控制台开启 Referer 白名单：
+
+控制台路径：Bucket → **安全管理** → **防盗链设置** → 启用
+
+| 配置项 | 建议值 |
+|--------|--------|
+| 类型 | **白名单** |
+| 是否允许空 Referer | **允许**（后台 fetch、Next.js Image、`curl`、APP 内播放等场景需要） |
+| 域名列表 | `gaoxinming.xyz`、`*.gaoxinming.xyz`、`*.vercel.app`、`localhost`、`127.0.0.1` |
+
+**验证**：
+
+```bash
+# 应返回 403（被防盗链拦截）
+curl -I -H "Referer: https://evil.com/" \
+  https://<bucket>.cos.<region>.myqcloud.com/works/videos/<slug>.mp4
+
+# 应返回 200（白名单域名）
+curl -I -H "Referer: https://gaoxinming.xyz/" \
+  https://<bucket>.cos.<region>.myqcloud.com/works/videos/<slug>.mp4
+
+# 应返回 200（空 Referer 已允许）
+curl -I https://<bucket>.cos.<region>.myqcloud.com/works/videos/<slug>.mp4
+```
+
+> 注意：开发期本地 `npm run dev` 的图片/视频 Referer 为 `http://localhost:3000`，已在白名单内。线上部署到自定义域名时记得加入。

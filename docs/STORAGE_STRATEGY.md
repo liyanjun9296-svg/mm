@@ -73,13 +73,13 @@ Bucket/
 | `seed:works --force` | 整包覆盖 COS 作品 JSON | **勿随意执行** |
 | `cos:prune-orphans/cleanup --apply` | 删除未登记对象 | 先 `cos:report`，再 `--apply` |
 | `restore:videos` | 孤儿视频登记为草稿 | 勿随意执行 |
-| 欠费 451 | 前台读失败 | 控制台续费/告警 |
+| 欠费 451 | 前台读失败 | 控制台续费/告警；进程内最近成功缓存兜底（首次冷启动仍可能回种子） |
 
 ### 流量与密钥
 
 | 风险 | 说明 | 规避 |
 |------|------|------|
-| 公有读被刷下行 | 直链可被外链/爬虫拉取 | 余额告警、防盗链（可选）、控制视频体积 |
+| 公有读被刷下行 | 直链可被外链/爬虫拉取 | 余额告警、**Referer 白名单防盗链**（见 [`COS_CONSOLE.md`](COS_CONSOLE.md) §6.5）、控制视频体积 |
 | 口令泄露 | 他人可走你站 API 上传到 `works/` | 长随机 `ADMIN_UPLOAD_TOKEN`；勿提交 `.env.local` |
 | SecretId/Key 泄露 | 等同 Bucket 写权限 | 仅 Vercel/本机 env；轮换密钥 |
 
