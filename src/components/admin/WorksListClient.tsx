@@ -14,6 +14,7 @@ import {
   deleteWorkItemAdmin,
   fetchWorksAdmin,
   getStoredAdminToken,
+  pullFromCosAdmin,
 } from "@/lib/admin/api";
 
 type WorksListClientProps = {
@@ -36,6 +37,8 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
   const [pendingDelete, setPendingDelete] = useState<PendingDelete | null>(null);
   const [deleteMediaFromCos, setDeleteMediaFromCos] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [pulling, setPulling] = useState(false);
+  const isDev = process.env.NODE_ENV === "development";
 
   useEffect(() => {
     if (!token) {
@@ -119,6 +122,30 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
     router.push(`/${locale}/admin`);
   }
 
+  async function handlePullFromCos() {
+    if (pulling) {
+      return;
+    }
+    setPulling(true);
+    setStatus("正在从 COS 拉取最新…");
+    try {
+      const result = await pullFromCosAdmin(token);
+      const data = await fetchWorksAdmin(token);
+      setWorks(data);
+      const failedNote =
+        result.mediaFailed.length > 0
+          ? `，${result.mediaFailed.length} 个媒体下载失败`
+          : "";
+      setStatus(
+        `已同步 ${result.worksCount} 条作品 · 新增媒体 ${result.mediaDownloaded} 个（已存在 ${result.mediaSkipped}）${failedNote}`,
+      );
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "拉取失败");
+    } finally {
+      setPulling(false);
+    }
+  }
+
   const tabs: ListTab[] = ["全部", "视频", "摄影", "文章"];
 
   return (
@@ -138,6 +165,17 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
           <Link href={`/${locale}/admin/works/new?type=article`} className="btn">
             新建文章
           </Link>
+          {isDev ? (
+            <button
+              type="button"
+              className="btn"
+              onClick={handlePullFromCos}
+              disabled={pulling}
+              title="从 COS 拉取最新作品和媒体到本地 .dev-data/（用于多人协作同步）"
+            >
+              {pulling ? "拉取中…" : "从 COS 拉取最新"}
+            </button>
+          ) : null}
           <button type="button" className="btn" onClick={handleLogout}>
             退出
           </button>
