@@ -2,8 +2,9 @@ const zh = {
   siteTitle: "YU ZIJIE 作品集",
   siteDescription: "高级简约风格的个人作品集网站，包含视频与图片项目。",
   nav: {
-    works: "作品集",
-    about: "关于我",
+    home: "关于我",
+    works: "精选作品",
+    about: "个人经历",
     contact: "联系方式",
     capabilities: "服务",
   },
@@ -43,7 +44,7 @@ const zh = {
     marquee: "我在这里，期待与你快速建立连接。",
   },
   works: {
-    sectionTitle: "作品集",
+    sectionTitle: "精选作品",
     sectionDesc: "按类型快速浏览作品，点击进入详情页查看完整信息。",
     all: "全部",
     video: "视频",
@@ -57,8 +58,8 @@ const zh = {
     relatedTitle: "相关作品",
   },
   about: {
-    sectionTitle: "关于我",
-    sectionDesc: "个人介绍、能力方向与核心经历。",
+    sectionTitle: "个人经历",
+    sectionDesc: "教育背景、职业轨迹与核心经历。",
     resume: "下载简历",
     skillsTitle: "能力关键词",
     timelineTitle: "经历",

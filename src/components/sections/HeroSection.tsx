@@ -75,7 +75,7 @@ export default function HeroSection({ messages, locale, displayFont = "helvetica
       </div>
 
       <p className="scroll-hint hero-anim" style={{ animationDelay: "700ms" }}>
-        ↓ SCROLL
+        <span className="scroll-hint-arrow" aria-hidden="true">↓</span> SCROLL
       </p>
     </section>
   );

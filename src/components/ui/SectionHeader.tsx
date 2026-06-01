@@ -2,7 +2,7 @@ import RevealOnScroll from "@/components/motion/RevealOnScroll";
 
 type SectionHeaderProps = {
   index: string;
-  title: string;
+  title: React.ReactNode;
   right?: React.ReactNode;
 };
 

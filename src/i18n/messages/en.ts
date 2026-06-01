@@ -3,8 +3,9 @@ const en = {
   siteDescription:
     "A premium minimalist portfolio featuring video and photography projects.",
   nav: {
-    works: "Works",
-    about: "About",
+    home: "About",
+    works: "Featured Works",
+    about: "Experience",
     contact: "Contact",
     capabilities: "Services",
   },
@@ -44,7 +45,7 @@ const en = {
     marquee: "I'm right here waiting for you. Get in touch with me quickly.",
   },
   works: {
-    sectionTitle: "Portfolio",
+    sectionTitle: "Featured Works",
     sectionDesc: "Browse by category and open each project in a dedicated page.",
     all: "All",
     video: "Video",
@@ -58,8 +59,8 @@ const en = {
     relatedTitle: "Related Works",
   },
   about: {
-    sectionTitle: "About Me",
-    sectionDesc: "Profile, capabilities, and key career timeline.",
+    sectionTitle: "Experience",
+    sectionDesc: "Education, career timeline and key milestones.",
     resume: "Download Resume",
     skillsTitle: "Skill Keywords",
     timelineTitle: "Timeline",

@@ -15,7 +15,7 @@ type NavBarProps = {
 const DEFAULT_SCROLL_DISTANCE = 200;
 
 const MOBILE_NAV_LINKS = [
-  { href: "#capabilities", key: "capabilities" as const },
+  { href: "#home", key: "home" as const },
   { href: "#works", key: "works" as const },
   { href: "#about", key: "about" as const },
   { href: "#contact", key: "contact" as const },
@@ -122,7 +122,7 @@ export default function NavBar({ messages, locale }: NavBarProps) {
           />
         </Link>
         <nav className="menu" aria-label="Main">
-          <a href="#capabilities">{messages.nav.capabilities}</a>
+          <a href="#home">{messages.nav.home}</a>
           <a href="#works">{messages.nav.works}</a>
           <a href="#about">{messages.nav.about}</a>
           <a href="#contact">{messages.nav.contact}</a>
