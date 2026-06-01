@@ -3,7 +3,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-SKILL_DIR="$ROOT/.cursor/skills/portfolio-collaborator-setup"
+SKILLS_PARENT="$ROOT/.cursor/skills"
+SKILL_NAME="portfolio-collaborator-setup"
+SKILL_DIR="$SKILLS_PARENT/$SKILL_NAME"
 OUT_DIR="$ROOT/dist"
 ZIP="$OUT_DIR/portfolio-collaborator-setup.zip"
 
@@ -16,9 +18,9 @@ mkdir -p "$OUT_DIR"
 rm -f "$ZIP"
 
 (
-  cd "$SKILL_DIR"
-  zip -r "$ZIP" SKILL.md CHECKLIST.md
+  cd "$SKILLS_PARENT"
+  zip -r "$ZIP" "$SKILL_NAME"
 )
 
 echo "已生成: $ZIP"
-echo "请与 .env.local 一并通过私聊发给协作者（勿上传公开网盘/Git）"
+echo "解压到 mm/.cursor/skills/ 后与 .env.local 一并通过私聊发给协作者"

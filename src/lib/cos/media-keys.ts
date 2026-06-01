@@ -1,7 +1,54 @@
 import type { WorkItem } from "@/features/portfolio/types";
-import { getCosEnv } from "./env";
+import { getCosEnv, getCosPublicUrl } from "./env";
 
 const WORKS_MEDIA_PREFIX = "works/";
+
+/** 解析本机 dev 代理 URL（/api/dev/media?key=works/...） */
+export function cosKeyFromDevMediaUrl(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed.includes("/api/dev/media")) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(trimmed, "http://localhost");
+    const key = parsed.searchParams.get("key");
+    if (!key?.startsWith(WORKS_MEDIA_PREFIX)) {
+      return null;
+    }
+    return decodeURIComponent(key);
+  } catch {
+    return null;
+  }
+}
+
+/** 写入 COS 前：dev 代理 URL → 公网 URL；已是 COS 公网的保持不变 */
+export function normalizeMediaUrlForCos(url: string): string {
+  if (!url?.trim()) {
+    return url;
+  }
+
+  const devKey = cosKeyFromDevMediaUrl(url);
+  if (devKey) {
+    return getCosPublicUrl(devKey);
+  }
+
+  const cosKey = cosKeyFromPublicUrl(url);
+  if (cosKey) {
+    return getCosPublicUrl(cosKey);
+  }
+
+  return url;
+}
+
+export function normalizeWorkMediaUrlsForCos(work: WorkItem): WorkItem {
+  return {
+    ...work,
+    coverImage: normalizeMediaUrlForCos(work.coverImage),
+    mediaUrl: normalizeMediaUrlForCos(work.mediaUrl),
+    detailImages: work.detailImages?.map((url) => normalizeMediaUrlForCos(url)),
+  };
+}
 
 /** 仅当 URL 属于当前 Bucket 且路径以 works/ 开头时返回 COS 对象键 */
 export function cosKeyFromPublicUrl(url: string): string | null {

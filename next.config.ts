@@ -45,6 +45,14 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // 防 5/31 流量爆量主因:Vercel 默认 minimumCacheTTL 仅 60 秒,
+    // 同一张图反复访问/反复 redeploy 会不断回源 COS。
+    // 媒体路径已 slug 化(workMediaKey)、内容不变 → 1 年 immutable 安全。
+    minimumCacheTTL: 31536000,
+    // 收窄变体数:默认 deviceSizes(8 档) + imageSizes(8 档) = 单图最多 16 变体
+    // → 每个新变体首访都回源 COS 拉原图。砍到 3+3 仍覆盖主流屏幕,视觉无差。
+    deviceSizes: [640, 1080, 1920],
+    imageSizes: [160, 320, 640],
     localPatterns: [
       { pathname: "/images/**" },
       // dev 本地快照：/api/dev/media?key=works/...（search 省略 = 允许任意 query）
