@@ -95,5 +95,6 @@ npm run dev
 
 - 启动报 COS 错 → 检查 `.env.local` 是否粘贴完整（3 个空字段都要填）
 - 视频/图片 404 → 跑一次 `npm run dev:sync -- --media`
+- **队友刚上传新作品但本地 admin 看不到** → admin 列表页右上角点「**从 COS 拉取最新**」按钮（仅 dev 显示），自动同步 works.json + 缺失媒体到 `.dev-data/`，**已存在的媒体不会重下，省流量**
 - `npm install` 失败 → 确认 Node 版本 ≥ 20
 - 其他 → 直接微信问负责人
