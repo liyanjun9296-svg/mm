@@ -13,6 +13,7 @@ import COS from "cos-nodejs-sdk-v5";
 import { WORKS_INDEX_KEY, WORKS_JSON_KEY, workItemCosKey } from "../src/features/portfolio/constants";
 import type { WorkItem } from "../src/features/portfolio/types";
 import { collectWorkMediaKeys, normalizeWorkMediaUrlsForCos } from "../src/lib/cos/media-keys";
+import { expandMediaKeysWithVariants } from "../src/lib/cos/media-variants";
 import {
   DEV_DATA_DIR,
   DEV_MEDIA_DIR,
@@ -138,10 +139,15 @@ async function main() {
   const keysToDownload = new Set<string>(extraKeys.filter((k) => k.startsWith("works/")));
 
   if (media) {
+    const detailKeys: string[] = [];
     for (const work of works) {
       for (const key of collectWorkMediaKeys(work)) {
-        keysToDownload.add(key);
+        detailKeys.push(key);
       }
+    }
+    // 同步 detail + 对应 list.webp / admin.webp 三档
+    for (const key of expandMediaKeysWithVariants(detailKeys)) {
+      keysToDownload.add(key);
     }
   }
 
