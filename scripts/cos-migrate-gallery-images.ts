@@ -1,9 +1,11 @@
 /**
- * 为 COS 中 legacy 图片生成 list / admin / detail 三档 WebP
+ * 为 COS 中 legacy 图片生成 list / admin 两档压缩 WebP（detail 即 legacy 原图，不再生成）。
  *
  * 用法：
  *   npm run cos:migrate-images -- --dry-run
  *   npm run cos:migrate-images -- --apply
+ *
+ * 跑完建议立即 `npm run cos:prune-orphans` 清理早期版本残留的 `*.detail.webp` 孤儿。
  */
 import { writeFile } from "node:fs/promises";
 import sharp from "sharp";
@@ -14,16 +16,16 @@ import {
   requireCosConfig,
 } from "./cos-lib";
 import {
-  MEDIA_VARIANTS,
+  COMPRESSED_VARIANTS,
   mediaBaseFromKey,
   variantKeyFromBase,
-  type MediaVariant,
 } from "../src/lib/cos/media-variants";
 
-const PRESETS: Record<MediaVariant, { maxWidth: number; quality: number }> = {
+type CompressVariant = (typeof COMPRESSED_VARIANTS)[number];
+
+const PRESETS: Record<CompressVariant, { maxWidth: number; quality: number }> = {
   list: { maxWidth: 1200, quality: 85 },
   admin: { maxWidth: 120, quality: 80 },
-  detail: { maxWidth: 2400, quality: 88 },
 };
 
 function parseArgs() {
@@ -36,7 +38,8 @@ function parseArgs() {
 }
 
 function isLegacySourceKey(key: string): boolean {
-  if (/\.(list|admin|detail)\.webp$/i.test(key)) {
+  // 只跳过两档压缩 webp；早期版本产生的 `.detail.webp` 也被视为 legacy 处理。
+  if (/\.(list|admin)\.webp$/i.test(key)) {
     return false;
   }
   return /^works\/(gallery|covers)\/.+\.(jpe?g|png|webp|gif|avif)$/i.test(key);
@@ -80,7 +83,7 @@ async function uploadBuffer(
   });
 }
 
-async function generateVariants(buffer: Buffer, variant: MediaVariant): Promise<Buffer> {
+async function generateVariant(buffer: Buffer, variant: CompressVariant): Promise<Buffer> {
   const { maxWidth, quality } = PRESETS[variant];
   return sharp(buffer)
     .rotate()
@@ -97,7 +100,9 @@ async function main() {
   const objects = await listCurrentObjects(cos, bucket, region, prefix);
   const sources = objects.filter((o) => isLegacySourceKey(o.Key));
 
-  console.log(`扫描 ${objects.length} 个对象，legacy 图片 ${sources.length} 个（${dryRun ? "dry-run" : "apply"}）`);
+  console.log(
+    `扫描 ${objects.length} 个对象，legacy 图片 ${sources.length} 个（${dryRun ? "dry-run" : "apply"}）`,
+  );
 
   let processed = 0;
   let skipped = 0;
@@ -110,7 +115,7 @@ async function main() {
       continue;
     }
 
-    const missingVariants = MEDIA_VARIANTS.filter((variant) => {
+    const missingVariants = COMPRESSED_VARIANTS.filter((variant) => {
       const variantKey = variantKeyFromBase(base, variant);
       return !objects.some((o) => o.Key === variantKey);
     });
@@ -120,7 +125,9 @@ async function main() {
       continue;
     }
 
-    console.log(`\n→ ${item.Key} (${formatBytes(item.Size)}) 缺少: ${missingVariants.join(", ")}`);
+    console.log(
+      `\n→ ${item.Key} (${formatBytes(item.Size)}) 缺少: ${missingVariants.join(", ")}`,
+    );
 
     if (dryRun) {
       processed++;
@@ -130,7 +137,7 @@ async function main() {
     try {
       const buffer = await downloadObject(cos, bucket, region, item.Key);
       for (const variant of missingVariants) {
-        const out = await generateVariants(buffer, variant);
+        const out = await generateVariant(buffer, variant);
         const outKey = variantKeyFromBase(base, variant);
         await uploadBuffer(cos, bucket, region, outKey, out);
         console.log(`  ✓ ${outKey} (${formatBytes(out.length)})`);
