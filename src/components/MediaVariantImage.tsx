@@ -8,8 +8,8 @@ type MediaVariantImageProps = {
   src: string;
   variant: MediaVariant;
   alt: string;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   className?: string;
   fill?: boolean;
   sizes?: string;

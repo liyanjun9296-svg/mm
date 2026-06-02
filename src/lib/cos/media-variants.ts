@@ -86,6 +86,9 @@ export function mediaVariantUrl(detailUrl: string, variant: MediaVariant): strin
 
   const devKey = cosKeyFromDevMediaUrl(detailUrl);
   if (devKey) {
+    if (isWorksImageDetailKey(devKey)) {
+      return detailUrl;
+    }
     const base = mediaBaseFromKey(devKey);
     if (!base) {
       return detailUrl;
@@ -102,6 +105,10 @@ export function mediaVariantUrl(detailUrl: string, variant: MediaVariant): strin
 
   const cosKey = cosKeyFromPublicUrl(detailUrl);
   if (!cosKey) {
+    return detailUrl;
+  }
+
+  if (isWorksImageDetailKey(cosKey)) {
     return detailUrl;
   }
 
@@ -131,9 +138,7 @@ export function expandMediaKeysWithVariants(keys: string[]): string[] {
     const normalized = key.replace(/^\/+/, "");
     const base = mediaBaseFromKey(normalized);
     if (base) {
-      // 保留传入的原 key（可能是 detail legacy 或某档 webp）
       expanded.add(normalized);
-      // 一并展开两档压缩 webp
       for (const variant of COMPRESSED_VARIANTS) {
         expanded.add(variantKeyFromBase(base, variant));
       }

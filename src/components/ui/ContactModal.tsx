@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { type ContactInfo } from "@/features/profile/data/profile";
 import type { Messages } from "@/i18n/messages";
@@ -167,8 +168,14 @@ export default function ContactModal({
 
           <aside className="contact-modal-wechat">
             <p className="contact-modal-label">{t.wechatLabel}</p>
-            <div className="contact-modal-qr" aria-hidden="true">
-              <span>{t.wechatPlaceholder}</span>
+            <div className="contact-modal-qr">
+              <Image
+                src="/images/wechat-qr.jpg"
+                alt={t.wechatHint}
+                width={312}
+                height={312}
+                className="contact-modal-qr-img"
+              />
             </div>
             <p className="contact-modal-wechat-hint">{t.wechatHint}</p>
           </aside>

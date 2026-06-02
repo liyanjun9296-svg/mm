@@ -36,14 +36,16 @@ export default function FeaturedWorkCard({
       href={`/${locale}/works/${work.slug}`}
       className={`featured-card featured-card--${layout}`}
     >
-      <div className="featured-card-thumb" style={{ height: thumbHeight }}>
+      <div className="featured-card-thumb" style={layout === "large" ? { height: thumbHeight } : undefined}>
         <MediaVariantImage
           src={work.coverImage}
           variant="list"
           alt={displayTitle}
           className="featured-card-img"
-          width={800}
-          height={450}
+          fill={layout === "compact"}
+          width={layout === "large" ? 800 : undefined}
+          height={layout === "large" ? 450 : undefined}
+          sizes={layout === "compact" ? "(max-width: 900px) 50vw, 25vw" : undefined}
         />
       </div>
       <div className="featured-card-info">

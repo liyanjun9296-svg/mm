@@ -22,11 +22,11 @@ export default function AboutSection({ messages, locale }: AboutSectionProps) {
           <article className="about-left-card">
             <div className="about-portrait">
               <Image
-                src="/images/about-portrait.png"
+                src="/images/about-portrait.jpg"
                 alt={profile.name}
                 className="about-portrait-img"
                 width={760}
-                height={1040}
+                height={1140}
                 sizes="(max-width: 900px) 80px, 380px"
                 priority
               />

@@ -435,6 +435,50 @@
   object-fit: cover;
 }
 
+.detail-gallery--video {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  margin: 28px 0 8px;
+}
+
+.detail-gallery-grid {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.detail-gallery-grid--landscape {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-gallery-grid--portrait {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.detail-gallery-grid-item {
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  background: #111;
+}
+
+.detail-gallery-grid-item img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  border: none;
+  border-radius: 0;
+}
+
+@media (max-width: 640px) {
+  .detail-gallery-grid--portrait {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .detail-meta {
   margin: 24px 0;
   color: var(--muted);
@@ -569,8 +613,9 @@
 }
 
 .featured-carousel-track {
+  --carousel-gap: 24px;
   display: flex;
-  gap: 24px;
+  gap: var(--carousel-gap);
   width: max-content;
   animation: featured-carousel-scroll var(--carousel-duration, 40s) linear infinite;
 }
@@ -599,7 +644,7 @@
     transform: translateX(0);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(calc(-50% + var(--carousel-gap) / 2));
   }
 }
 
@@ -712,6 +757,12 @@
 
 .featured-card--compact .featured-card-info {
   padding: 10px 12px;
+}
+
+.featured-card--compact .featured-card-thumb {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  min-height: 0;
 }
 
 .featured-card-title {
@@ -948,7 +999,7 @@
 
   /* 摄影轮播与视频区对齐：双列宽、12px 间距、缩略图 4:3 */
   .featured-carousel-track {
-    gap: 12px;
+    --carousel-gap: 12px;
   }
 
   .featured-carousel-item {
