@@ -72,7 +72,20 @@ export function useWorkUpload(args: {
       const key = workMediaKey(slug, kind, file, options?.detailIndex);
       const url = await uploadFileAdmin(args.token, file, key);
       onDone(url);
-      args.setStatusMessage("上传成功", "success");
+      if (kind === "video-original") {
+        const cli = `npm run process:video -- ${slug}`;
+        args.setStatusMessage(
+          `原片上传成功(raw-only) — 单原片无法在线上播放,需在终端跑 CLI 生成 1080p 低档:${cli}`,
+          "success",
+        );
+        if (typeof window !== "undefined") {
+          window.alert(
+            `原片已上传(raw-only)\n\n单原片无法在线上单独播放,需要在项目根目录终端运行:\n\n  ${cli}\n\n生成 1080p 低档后保存并刷新本页,看到绿色「✅ 已上线(dual)」徽章才算完成。`,
+          );
+        }
+      } else {
+        args.setStatusMessage("上传成功", "success");
+      }
     } catch (err) {
       args.setStatusMessage(formatUploadFailure(err), "error");
     } finally {
