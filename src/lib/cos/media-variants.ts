@@ -86,9 +86,6 @@ export function mediaVariantUrl(detailUrl: string, variant: MediaVariant): strin
 
   const devKey = cosKeyFromDevMediaUrl(detailUrl);
   if (devKey) {
-    if (isWorksImageDetailKey(devKey)) {
-      return detailUrl;
-    }
     const base = mediaBaseFromKey(devKey);
     if (!base) {
       return detailUrl;
@@ -105,10 +102,6 @@ export function mediaVariantUrl(detailUrl: string, variant: MediaVariant): strin
 
   const cosKey = cosKeyFromPublicUrl(detailUrl);
   if (!cosKey) {
-    return detailUrl;
-  }
-
-  if (isWorksImageDetailKey(cosKey)) {
     return detailUrl;
   }
 
