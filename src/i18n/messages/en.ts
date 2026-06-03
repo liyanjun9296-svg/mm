@@ -94,6 +94,10 @@ const en = {
     role: "Role",
     year: "Year",
     platform: "Platform",
+    videoUnavailable: "Video failed to load. Please try again later or contact the author.",
+    videoProcessing: "Video is being processed. Please check back soon.",
+    qualitySwitchToOriginal: "Original",
+    qualitySwitchToLow: "1080p",
   },
 };
 

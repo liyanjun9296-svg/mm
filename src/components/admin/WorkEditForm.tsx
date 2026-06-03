@@ -2,50 +2,115 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem, WorkCategory } from "@/features/portfolio/types";
 import AdminThumb from "@/components/admin/AdminThumb";
 import SortableList from "@/components/admin/SortableList";
 import MediaVariantImage from "@/components/MediaVariantImage";
 import {
-  confirmMediaOverwrite,
-  confirmVideoUpload,
   fetchCategoriesAdmin,
   fetchWorksAdmin,
-  formatUploadFailure,
   getStoredAdminToken,
-  resolveUploadSlug,
   saveWorkItemAdmin,
   slugify,
-  uploadFileAdmin,
-  workMediaKey,
-  type WorkMediaKind,
 } from "@/lib/admin/api";
-
-const emptyWork = (category: WorkCategory): WorkItem => ({
-  slug: "",
-  title: "",
-  subtitle: "",
-  description: "",
-  category,
-  subcategory: category === "video" ? "产品" : undefined,
-  duration: "",
-  coverImage: "",
-  mediaUrl: "",
-  role: "",
-  year: new Date().getFullYear().toString(),
-  platform: "",
-  externalUrl: "",
-  detailImages: [],
-  featured: false,
-});
+import {
+  emptyWork,
+  useBlobPreview,
+  useWorkUpload,
+  type StatusTone,
+} from "./WorkEditForm/use-work-upload";
 
 type WorkEditFormProps = {
   locale: string;
   slugParam: string;
   initialType?: WorkCategory;
 };
+
+/**
+ * 视频状态徽章 + CLI 命令复制按钮。
+ * - mediaUrl 空 + mediaUrlOriginal 非空 → raw-only(待处理),提示跑 CLI
+ * - mediaUrl 非空 → dual(已上线),允许重新处理
+ * - 全空 → 未上传(纯新建状态)
+ */
+function VideoStatusBlock({
+  slug,
+  mediaUrl,
+  mediaUrlOriginal,
+}: {
+  slug: string;
+  mediaUrl: string;
+  mediaUrlOriginal?: string;
+}) {
+  const [copied, setCopied] = useState(false);
+  if (!mediaUrl && !mediaUrlOriginal) {
+    return (
+      <p className="admin-status">
+        请上传原片视频文件,会落到 works/videos/{slug || "<slug>"}.original.{"{ext}"};
+        上传完成后请在终端运行 CLI 生成 1080p 低档,前台才会播放。
+      </p>
+    );
+  }
+
+  const cliCmd = `npm run process:video -- ${slug || "<slug>"}`;
+
+  const isRawOnly = !mediaUrl && !!mediaUrlOriginal;
+  const isDual = !!mediaUrl;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(cliCmd);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // 忽略
+    }
+  }
+
+  return (
+    <div
+      className={`admin-status ${
+        isRawOnly ? "admin-status--error" : isDual ? "admin-status--success" : ""
+      }`}
+      style={{ display: "flex", flexDirection: "column", gap: 6 }}
+    >
+      <strong>
+        {isRawOnly ? "⚠️ 未处理(raw-only) — 前台无法播放" : null}
+        {isDual ? "✅ 已上线(dual) — 前台默认播 1080p,可切原画质" : null}
+      </strong>
+      {isRawOnly ? (
+        <span style={{ fontSize: 12, opacity: 0.85 }}>
+          请在项目根目录终端运行下面命令,完成后保存并重新加载本页查看绿色徽章:
+        </span>
+      ) : null}
+      {isDual ? (
+        <span style={{ fontSize: 12, opacity: 0.85 }}>
+          需要重新生成低档(例如换了原片)?重跑命令即可覆盖:
+        </span>
+      ) : null}
+      <code
+        style={{
+          padding: "6px 10px",
+          background: "rgba(0,0,0,0.3)",
+          borderRadius: 4,
+          fontSize: 12,
+          userSelect: "all",
+        }}
+      >
+        {cliCmd}
+      </code>
+      <button
+        type="button"
+        onClick={copy}
+        className="btn"
+        style={{ alignSelf: "flex-start", padding: "4px 12px", fontSize: 12 }}
+      >
+        {copied ? "已复制" : "复制命令"}
+      </button>
+    </div>
+  );
+}
 
 export default function WorkEditForm({
   locale,
@@ -59,44 +124,23 @@ export default function WorkEditForm({
   const [categories, setCategories] = useState<string[]>([]);
   const [work, setWork] = useState<WorkItem>(() => emptyWork(initialType));
   const [status, setStatus] = useState("");
-  const [statusTone, setStatusTone] = useState<"info" | "success" | "error">("info");
-  const [uploading, setUploading] = useState("");
+  const [statusTone, setStatusTone] = useState<StatusTone>("info");
   const [saving, setSaving] = useState(false);
-  const [coverPreviewBlob, setCoverPreviewBlob] = useState<string | null>(null);
-  const [mediaPreviewBlob, setMediaPreviewBlob] = useState<string | null>(null);
+  const [coverPreviewBlob, setCoverBlob] = useBlobPreview();
+  const [mediaPreviewBlob, setMediaBlob] = useBlobPreview();
   const [loadedVideoUrl, setLoadedVideoUrl] = useState<string | null>(null);
-  const coverPreviewBlobRef = useRef<string | null>(null);
-  const mediaPreviewBlobRef = useRef<string | null>(null);
 
-  function revokeBlobUrl(url: string | null) {
-    if (url) {
-      URL.revokeObjectURL(url);
-    }
-  }
-
-  function setCoverBlob(url: string | null) {
-    revokeBlobUrl(coverPreviewBlobRef.current);
-    coverPreviewBlobRef.current = url;
-    setCoverPreviewBlob(url);
-  }
-
-  function setMediaBlob(url: string | null) {
-    revokeBlobUrl(mediaPreviewBlobRef.current);
-    mediaPreviewBlobRef.current = url;
-    setMediaPreviewBlob(url);
-  }
-
-  useEffect(() => {
-    return () => {
-      revokeBlobUrl(coverPreviewBlobRef.current);
-      revokeBlobUrl(mediaPreviewBlobRef.current);
-    };
-  }, []);
-
-  function setStatusMessage(message: string, tone: "info" | "success" | "error" = "info") {
+  function setStatusMessage(message: string, tone: StatusTone = "info") {
     setStatus(message);
     setStatusTone(tone);
   }
+
+  const { upload: handleUpload, uploading } = useWorkUpload({
+    token,
+    slug: work.slug,
+    title: work.title,
+    setStatusMessage,
+  });
 
   const isVideoWork = work.category === "video";
   const isArticleWork = work.category === "article";
@@ -144,37 +188,6 @@ export default function WorkEditForm({
     });
   }
 
-  async function handleUpload(
-    file: File,
-    kind: WorkMediaKind,
-    onDone: (url: string) => void,
-    options?: { existingUrl?: string; fieldLabel?: string; detailIndex?: number },
-  ) {
-    const slug = resolveUploadSlug(work.slug, work.title);
-    if (!slug) {
-      setStatusMessage("请先填写标题或 slug 后再上传", "error");
-      return;
-    }
-    if (!confirmVideoUpload(file)) {
-      return;
-    }
-    if (!confirmMediaOverwrite(options?.fieldLabel ?? "媒体", options?.existingUrl)) {
-      return;
-    }
-    setUploading(file.name);
-    setStatusMessage("正在上传…");
-    try {
-      const key = workMediaKey(slug, kind, file, options?.detailIndex);
-      const url = await uploadFileAdmin(token, file, key);
-      onDone(url);
-      setStatusMessage("上传成功", "success");
-    } catch (err) {
-      setStatusMessage(formatUploadFailure(err), "error");
-    } finally {
-      setUploading("");
-    }
-  }
-
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const slug = work.slug.trim() || slugify(work.title);
@@ -195,6 +208,8 @@ export default function WorkEditForm({
         work.category === "article" && !work.mediaUrl
           ? work.coverImage
           : work.mediaUrl,
+      mediaUrlOriginal:
+        work.category === "video" ? work.mediaUrlOriginal || undefined : undefined,
     };
 
     if (isNew && allWorks.some((w) => w.slug === slug)) {
@@ -414,12 +429,22 @@ export default function WorkEditForm({
       {!isArticleWork ? (
         <section className="admin-upload-section">
           <h2>{isVideoWork ? "主视频" : "主图（详情页大图）"}</h2>
-          {mediaPreviewBlob || work.mediaUrl ? (
+          {isVideoWork ? (
+            <VideoStatusBlock
+              slug={work.slug}
+              mediaUrl={work.mediaUrl}
+              mediaUrlOriginal={work.mediaUrlOriginal}
+            />
+          ) : null}
+          {mediaPreviewBlob || work.mediaUrl || (isVideoWork && work.mediaUrlOriginal) ? (
             isVideoWork ? (
-              mediaPreviewBlob || loadedVideoUrl === work.mediaUrl ? (
+              mediaPreviewBlob ||
+              loadedVideoUrl === (work.mediaUrl || work.mediaUrlOriginal || "") ? (
                 <video
                   className="admin-preview-video"
-                  src={mediaPreviewBlob ?? work.mediaUrl}
+                  src={
+                    mediaPreviewBlob ?? (work.mediaUrl || work.mediaUrlOriginal || "")
+                  }
                   controls
                   preload="none"
                 />
@@ -427,7 +452,9 @@ export default function WorkEditForm({
                 <button
                   type="button"
                   className="btn"
-                  onClick={() => setLoadedVideoUrl(work.mediaUrl)}
+                  onClick={() =>
+                    setLoadedVideoUrl(work.mediaUrl || work.mediaUrlOriginal || "")
+                  }
                 >
                   点击加载视频预览（避免自动消耗 COS 流量）
                 </button>
@@ -462,17 +489,38 @@ export default function WorkEditForm({
               if (f) {
                 const blobUrl = URL.createObjectURL(f);
                 setMediaBlob(blobUrl);
-                const kind = isVideoWork ? "video" : "gallery";
-                void handleUpload(
-                  f,
-                  kind,
-                  (url) => {
-                    setMediaBlob(null);
-                    setLoadedVideoUrl(null);
-                    updateField("mediaUrl", url);
-                  },
-                  { existingUrl: work.mediaUrl, fieldLabel: isVideoWork ? "主视频" : "主图" },
-                );
+                if (isVideoWork) {
+                  // 视频上传:落到 .original.{ext}, 设置 mediaUrlOriginal,清空 mediaUrl(待 CLI 处理)
+                  void handleUpload(
+                    f,
+                    "video-original",
+                    (url) => {
+                      setMediaBlob(null);
+                      setLoadedVideoUrl(null);
+                      setWork((prev) => ({
+                        ...prev,
+                        mediaUrlOriginal: url,
+                        mediaUrl: "",
+                      }));
+                    },
+                    {
+                      existingUrl: work.mediaUrlOriginal,
+                      fieldLabel: "原片",
+                    },
+                  );
+                } else {
+                  // 摄影主图:走原 gallery 路径,直接填 mediaUrl
+                  void handleUpload(
+                    f,
+                    "gallery",
+                    (url) => {
+                      setMediaBlob(null);
+                      setLoadedVideoUrl(null);
+                      updateField("mediaUrl", url);
+                    },
+                    { existingUrl: work.mediaUrl, fieldLabel: "主图" },
+                  );
+                }
               }
             }}
           />

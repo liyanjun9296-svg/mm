@@ -93,6 +93,10 @@ const zh = {
     role: "项目角色",
     year: "年份",
     platform: "发布平台",
+    videoUnavailable: "视频加载失败,请稍后重试或联系作者",
+    videoProcessing: "视频处理中,请稍后再来",
+    qualitySwitchToOriginal: "原画质",
+    qualitySwitchToLow: "1080p",
   },
 };
 

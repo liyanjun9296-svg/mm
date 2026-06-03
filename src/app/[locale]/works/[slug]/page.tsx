@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import VideoDetailGallery from "@/components/works/VideoDetailGallery";
+import WorkVideoPlayer from "@/components/works/WorkVideoPlayer";
 import { getWorks } from "@/features/portfolio/data/works-store";
 import { getWorkBySlug } from "@/features/portfolio/utils/filterWorks";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
@@ -67,7 +68,15 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             }
           >
             {work.category === "video" ? (
-              <video controls preload="metadata" src={work.mediaUrl} />
+              <WorkVideoPlayer
+                src={work.mediaUrl}
+                srcOriginal={work.mediaUrlOriginal}
+                poster={work.coverImage}
+                unavailableLabel={messages.detail.videoUnavailable}
+                processingLabel={messages.detail.videoProcessing}
+                switchToOriginalLabel={messages.detail.qualitySwitchToOriginal}
+                switchToLowLabel={messages.detail.qualitySwitchToLow}
+              />
             ) : (
               <Image
                 src={work.mediaUrl}

@@ -31,6 +31,7 @@ export default function FeaturedVideoCard({
   const videoRef = useRef<HTMLVideoElement>(null);
   const [previewActive, setPreviewActive] = useState(false);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoFailed, setVideoFailed] = useState(false);
   const [progress, setProgress] = useState(0);
   const thumbHeight = layout === "large" ? 260 : 200;
 
@@ -43,7 +44,7 @@ export default function FeaturedVideoCard({
   };
 
   const handleMouseEnter = () => {
-    if (!canHoverPreview() || !work.mediaUrl) {
+    if (!canHoverPreview() || !work.mediaUrl || videoFailed) {
       return;
     }
     setPreviewActive(true);
@@ -86,7 +87,7 @@ export default function FeaturedVideoCard({
             width={800}
             height={450}
           />
-          {work.mediaUrl ? (
+          {work.mediaUrl && !videoFailed ? (
             <video
               ref={videoRef}
               className="featured-video-preview"
@@ -96,6 +97,16 @@ export default function FeaturedVideoCard({
               preload="none"
               aria-hidden="true"
               onTimeUpdate={handleTimeUpdate}
+              onError={() => {
+                // 视频加载失败:停止后续 hover 预览尝试,避免反复重试浪费流量
+                const video = videoRef.current;
+                if (video) {
+                  video.removeAttribute("src");
+                  video.load();
+                }
+                setVideoFailed(true);
+                setPreviewActive(false);
+              }}
             />
           ) : null}
           {work.mediaUrl ? (

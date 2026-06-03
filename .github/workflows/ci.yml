@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main, wife-xinming]
+  pull_request:
+    branches: [main, wife-xinming]
+
+jobs:
+  build:
+    name: lint + test + build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: portfolio-site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: portfolio-site/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+        env:
+          # Build runs without real COS creds; getCosEnv() returns null and
+          # getWorks() falls back to the empty seed. Confirm a clean build still works.
+          NEXT_TELEMETRY_DISABLED: "1"

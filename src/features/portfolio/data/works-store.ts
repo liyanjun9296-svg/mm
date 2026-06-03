@@ -1,13 +1,12 @@
 import {
   FEATURED_COMPACT_MAX,
   FEATURED_LARGE_MAX,
-  WORKS_CACHE_TAG,
   WORKS_INDEX_KEY,
   WORKS_JSON_BACKUP_KEY,
   WORKS_JSON_KEY,
   workItemCosKey,
 } from "../constants";
-import type { FeaturedLayout, WorkItem } from "../types";
+import type { WorkItem } from "../types";
 import { works as seedWorks } from "./works";
 import {
   applyDevMediaUrlsToWorks,
@@ -15,114 +14,28 @@ import {
   readLocalWorksSnapshot,
   writeLocalWorksSnapshot,
 } from "@/lib/dev/local-snapshot";
-import { getCosEnv, getCosPublicUrl } from "@/lib/cos/env";
 import {
   normalizeWorkMediaUrlsForCos,
   resolveDeletableMediaKeys,
 } from "@/lib/cos/media-keys";
-import { createCosClient } from "@/lib/cos/server";
+import { deleteCosObject, putCosJson } from "./works-store/cos-io";
+import {
+  buildIndex,
+  fetchLegacyWorksFromCos,
+  fetchWorksFromCos,
+  fetchWorksIndexFromCos,
+  getOrCreateIndex,
+} from "./works-store/index-store";
+import { clearFeatured, featuredSlot } from "./works-store/featured";
 
-export type WorksIndex = {
-  version: 2;
-  slugs: string[];
-  updatedAt: string;
-};
-
-function getWorksPublicUrl(key: string): string | null {
-  const env = getCosEnv();
-  if (!env) {
-    return null;
-  }
-  return getCosPublicUrl(key);
-}
-
-function parseWorks(data: unknown): WorkItem[] {
-  if (!Array.isArray(data)) {
-    return [];
-  }
-  return data as WorkItem[];
-}
-
-function parseIndex(data: unknown): WorksIndex | null {
-  if (!data || typeof data !== "object") {
-    return null;
-  }
-  const obj = data as WorksIndex;
-  if (obj.version !== 2 || !Array.isArray(obj.slugs)) {
-    return null;
-  }
-  return obj;
-}
-
-async function fetchJsonFromCos<T>(key: string): Promise<T | null> {
-  const url = getWorksPublicUrl(key);
-  if (!url) {
-    return null;
-  }
-  try {
-    const res = await fetch(url, {
-      cache: "no-store",
-      next: { tags: [WORKS_CACHE_TAG] },
-    });
-    if (!res.ok) {
-      return null;
-    }
-    return (await res.json()) as T;
-  } catch {
-    return null;
-  }
-}
-
-export async function fetchLegacyWorksFromCos(): Promise<WorkItem[] | null> {
-  const json = await fetchJsonFromCos<unknown>(WORKS_JSON_KEY);
-  if (json === null) {
-    return null;
-  }
-  return parseWorks(json);
-}
-
-export async function fetchWorksIndexFromCos(): Promise<WorksIndex | null> {
-  const json = await fetchJsonFromCos<unknown>(WORKS_INDEX_KEY);
-  return parseIndex(json);
-}
-
-export async function fetchWorkItemFromCos(slug: string): Promise<WorkItem | null> {
-  return fetchJsonFromCos<WorkItem>(workItemCosKey(slug));
-}
-
-export async function fetchWorksFromCosPerSlug(): Promise<WorkItem[] | null> {
-  const index = await fetchWorksIndexFromCos();
-  if (!index || index.slugs.length === 0) {
-    return null;
-  }
-
-  const items = await Promise.all(
-    index.slugs.map(async (slug) => {
-      const item = await fetchWorkItemFromCos(slug);
-      return item;
-    }),
-  );
-
-  const works = items.filter((item): item is WorkItem => item !== null && !!item.slug);
-  if (works.length === 0) {
-    return null;
-  }
-  return works;
-}
-
-/** @deprecated 兼容旧名 */
-export async function fetchWorksFromCos(): Promise<WorkItem[] | null> {
-  const perSlug = await fetchWorksFromCosPerSlug();
-  if (perSlug !== null && perSlug.length > 0) {
-    return perSlug;
-  }
-
-  const legacy = await fetchLegacyWorksFromCos();
-  if (legacy && legacy.length > 0) {
-    return legacy;
-  }
-  return null;
-}
+export type { WorksIndex } from "./works-store/index-store";
+export {
+  fetchLegacyWorksFromCos,
+  fetchWorksIndexFromCos,
+  fetchWorkItemFromCos,
+  fetchWorksFromCosPerSlug,
+  fetchWorksFromCos,
+} from "./works-store/index-store";
 
 export async function getWorks(): Promise<WorkItem[]> {
   const raw = await getWorksRaw();
@@ -160,59 +73,6 @@ async function getWorksRaw(): Promise<WorkItem[]> {
   return seedWorks;
 }
 
-async function putCosJson(key: string, body: string): Promise<void> {
-  const env = getCosEnv();
-  if (!env) {
-    throw new Error("COS 未配置");
-  }
-
-  const cos = createCosClient();
-  await new Promise<void>((resolve, reject) => {
-    cos.putObject(
-      {
-        Bucket: env.bucket,
-        Region: env.region,
-        Key: key,
-        Body: body,
-        ContentType: "application/json; charset=utf-8",
-        CacheControl: "no-cache",
-      },
-      (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      },
-    );
-  });
-}
-
-async function deleteCosObject(key: string): Promise<void> {
-  const env = getCosEnv();
-  if (!env) {
-    throw new Error("COS 未配置");
-  }
-
-  const cos = createCosClient();
-  await new Promise<void>((resolve, reject) => {
-    cos.deleteObject(
-      {
-        Bucket: env.bucket,
-        Region: env.region,
-        Key: key,
-      },
-      (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve();
-      },
-    );
-  });
-}
-
 async function backupLegacyWorksJsonIfExists(): Promise<void> {
   const current = await fetchLegacyWorksFromCos();
   if (!current || current.length === 0) {
@@ -221,38 +81,9 @@ async function backupLegacyWorksJsonIfExists(): Promise<void> {
   await putCosJson(WORKS_JSON_BACKUP_KEY, JSON.stringify(current, null, 2));
 }
 
-function buildIndex(slugs: string[]): WorksIndex {
-  const unique = [...new Set(slugs.filter(Boolean))];
-  return {
-    version: 2,
-    slugs: unique,
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-async function getOrCreateIndex(): Promise<WorksIndex> {
-  const index = await fetchWorksIndexFromCos();
-  if (index) {
-    return index;
-  }
-  const legacy = await fetchLegacyWorksFromCos();
-  if (legacy && legacy.length > 0) {
-    return buildIndex(legacy.map((w) => w.slug));
-  }
-  return buildIndex([]);
-}
-
 async function syncLegacyMirror(works: WorkItem[]): Promise<void> {
   const normalized = works.map(normalizeWorkMediaUrlsForCos);
   await putCosJson(WORKS_JSON_KEY, JSON.stringify(normalized, null, 2));
-}
-
-function featuredSlot(work: WorkItem): FeaturedLayout {
-  return work.featuredLayout === "compact" ? "compact" : "large";
-}
-
-function clearFeatured(work: WorkItem): WorkItem {
-  return { ...work, featured: false, featuredLayout: undefined };
 }
 
 async function persistWorkItem(item: WorkItem): Promise<void> {

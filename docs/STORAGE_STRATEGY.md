@@ -17,11 +17,12 @@
 Bucket/
 ├── site/works.json              # 全量镜像（兼容/备份，保存时同步）
 ├── site/works.json.bak          # 全量保存前的自动备份
-├── site/works.json              # 索引（version 2）
+├── site/works/index.json        # 索引（version 2）
 │   └── slugs: string[]
 ├── site/works/items/{slug}.json # 单条作品元数据（主数据源）
 └── works/
-    ├── videos/{slug}.{ext}                       # 视频
+    ├── videos/{slug}.mp4                          # 视频低档(1080p H.264 + faststart,默认播)
+    │   videos/{slug}.original.{ext}               #       原片(faststart,后台 GUI 上传写入)
     ├── covers/{slug}.{ext}                       # 封面 detail（原图）
     │   covers/{slug}.{list|admin}.webp           #       压缩两档
     └── gallery/{slug}.{ext}                      # 摄影主图 detail（原图）
@@ -29,6 +30,13 @@ Bucket/
         gallery/{slug}-{n}.{ext}                  # 摄影详情多图 detail（原图）
         gallery/{slug}-{n}.{list|admin}.webp      #              压缩两档
 ```
+
+视频「双状态」(2026-06):
+
+- `mediaUrl` 非空 + `mediaUrlOriginal` 非空 → **dual**(已上线;前台默认低档,详情页可切原画)
+- `mediaUrl` 空 + `mediaUrlOriginal` 非空 → **raw-only**(后台 GUI 已传原片,前台显示「视频处理中」)
+- 后台 GUI 上传只写原片;CLI `npm run process:video -- <slug>` 才生成低档转 dual
+- 历史「单档」视频迁移:`npm run reprocess:videos -- --apply`
 
 图片三档语义：
 - `detail` 档 = **legacy 原文件**（原扩展名、原画质，无任何二次压缩，详情页直接使用）
@@ -70,7 +78,7 @@ JSON 中 `coverImage` / `mediaUrl` / `detailImages[]` 存 **detail（原图）UR
 
 - **20G 套餐 = 存储容量**，不含 **外网下行**
 - 访客播放视频、拉 JSON/图片均计下行；欠费常见 **HTTP 451** → 前台像「没作品」，COS 内数据通常仍在
-- **预算**：有效作品媒体建议 ≤ **10 GB**（约 1.38GB 现状）
+- **预算**：有效作品媒体建议 ≤ **10 GB**
 - **本地省流量**：`DEV_USE_LOCAL_SNAPSHOT=1` + `npm run dev:sync -- --media`（一次性 ~1.4GB 下行），日常 dev 读 `.dev-data/`
 - **注意**：后台上传/保存仍写 COS（上行+存储）；避免的是 dev 反复刷新产生的下行
 

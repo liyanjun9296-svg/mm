@@ -129,7 +129,7 @@ src/
 ├── features/portfolio/        ← works-store.ts、types、utils
 ├── lib/
 │   ├── admin/api.ts         ← workMediaKey、上传/保存 API
-│   ├── cos/                 ← env、upload-keys、image-url（万象）
+│   ├── cos/                 ← env、upload-keys、image-url（万象已弃用,保留兼容）
 │   └── dev/local-snapshot.ts
 └── i18n/messages/
 scripts/                       ← dev:sync、cos:report、upload:cos 等
@@ -152,6 +152,20 @@ public/logo.svg                ← 导航 Logo
 2. 新建或编辑作品：**先填标题/slug**，再上传封面、视频、详情图，点 **保存**
 3. 媒体路径固定为 `works/.../{slug}.*`，覆盖已有文件前会弹 confirm
 4. 删除作品时可选：**仅删记录**（默认）或 **勾选后连同 COS 媒体一起删**
+
+### 视频「双状态」(2026-06)
+
+每个视频在 COS 上有两份物理文件:
+
+- `works/videos/{slug}.mp4` — **低档**(默认播,1080p H.264 CRF 23 + AAC 128k + faststart)
+- `works/videos/{slug}.original.{ext}` — **原片**(faststart,后台 GUI 上传走这里)
+
+后台编辑作品时:
+
+- 上传视频 → 只写 `mediaUrlOriginal`(原片),作品进入「raw-only / 单版本原片」状态,**前台不播**(显示「视频处理中」),不会触发 Range 死循环
+- CLI 跑 `npm run process:video -- <slug>` → 从 COS 拉原片 → ffmpeg 压成 1080p .mp4 → 上传 → 写回 `mediaUrl`,转为 「dual / 双版本」,前台正常播,详情页右下角胶囊可切换「原画/标清」
+- 历史「单档」视频迁移:`npm run reprocess:videos -- --apply`(把已存在的 mediaUrl 当原片 copy 一份到 .original,再生成低档)
+- 浏览器永远不会 Range 重试死循环:raw-only 不发请求,onError 立即清 src
 
 **数据防丢失：**
 
@@ -243,6 +257,8 @@ npm run lint     # ESLint 检查
 npm run start    # 预览生产构建
 npm run migrate:works          # 将 works.json 拆分为 site/works/items/*.json
 npm run restore:videos         # 扫描 COS 孤儿视频并生成草稿作品
+npm run process:video -- <slug>      # raw-only → dual：从 COS 拉原片压 1080p,生成低档 .mp4
+npm run reprocess:videos -- --apply  # 一次性把所有「单档」历史视频升级为 dual
 npm run cos:report             # COS 用量与孤儿统计
 npm run cos:cleanup              # 预览清理；npm run cos:cleanup -- --apply 执行
 npm run dev:sync -- --media      # 同步 COS 到 .dev-data/（本地 dev 零外网下行，见 .env.local.example）
@@ -295,7 +311,7 @@ cp .env.local.example .env.local
 
 **上传路径**：后台媒体固定为 `works/videos/{slug}.mp4`、`works/covers/{slug}.jpg` 等，覆盖前会 confirm；勿用时间戳路径重复上传。
 
-**图片三档**：后台上传图片时，浏览器端会同时压缩生成 `.list.webp`（约 1200w / 列表用）+ `.admin.webp`（约 120w / 后台缩略用）；详情页仍读 detail 原图。已不再依赖数据万象 `imageView2`，列表/缩略全部命中物理 webp 对象。早期残留的 `*.detail.webp` 可由 `npm run cos:prune-orphans -- --apply` 清理；本地补齐 list/admin：`npm run cos:migrate-images -- --apply`。
+**图片三档与视频双状态**：详见 [`docs/STORAGE_STRATEGY.md`](docs/STORAGE_STRATEGY.md)。早期残留的 `*.detail.webp` 可由 `npm run cos:prune-orphans -- --apply` 清理；本地补齐 list/admin：`npm run cos:migrate-images -- --apply`。
 
 ### 3) 作品管理后台（仅本机 dev）
 

@@ -10,11 +10,16 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "deploy:vercel": "vercel --prod",
     "vercel:env": "bash scripts/push-vercel-env.sh",
     "vercel:domains": "bash scripts/add-vercel-domains.sh",
     "cos:cors": "tsx scripts/cos-update-cors.ts",
     "upload:cos": "tsx scripts/upload-cos.ts",
+    "upload:video": "tsx scripts/upload-video.ts",
+    "process:video": "tsx scripts/process-video.ts",
+    "reprocess:videos": "tsx scripts/reprocess-videos.ts",
     "seed:works": "tsx scripts/seed-works-json.ts",
     "migrate:works": "tsx scripts/migrate-works-to-per-slug.ts",
     "restore:videos": "tsx scripts/restore-orphan-videos.ts",
@@ -40,11 +45,14 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.8",
     "dotenv": "^17.4.2",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
+    "jsdom": "^29.1.1",
     "sharp": "^0.34.5",
     "tsx": "^4.22.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.8"
   }
 }
