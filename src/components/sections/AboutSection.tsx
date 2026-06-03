@@ -2,7 +2,7 @@ import Image from "next/image";
 import SectionHeader from "@/components/ui/SectionHeader";
 import FaqAccordion from "@/components/ui/FaqAccordion";
 import type { Messages } from "@/i18n/messages";
-import { profile } from "@/features/profile/data/profile";
+import { getProfile } from "@/features/profile/data/profile";
 import type { Locale } from "@/lib/i18n";
 
 type AboutSectionProps = {
@@ -11,6 +11,7 @@ type AboutSectionProps = {
 };
 
 export default function AboutSection({ messages, locale }: AboutSectionProps) {
+  const profile = getProfile(locale);
   const bio = locale === "zh" ? profile.bioZh : profile.bioEn;
 
   return (
