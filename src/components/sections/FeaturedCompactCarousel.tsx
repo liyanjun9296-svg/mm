@@ -1,6 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import FeaturedWorkCard from "@/components/sections/FeaturedWorkCard";
 import type { WorkItem } from "@/features/portfolio/types";
 import type { Messages } from "@/i18n/messages";
@@ -12,16 +12,48 @@ type FeaturedCompactCarouselProps = {
   messages: Messages;
 };
 
-const SECONDS_PER_ITEM = 10;
+/** 半轨滚动像素速度，各断点体感一致 */
+const PIXELS_PER_SECOND = 25;
+const MIN_DURATION_SECONDS = 24;
 
 export default function FeaturedCompactCarousel({
   works,
   locale,
   messages,
 }: FeaturedCompactCarouselProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [durationSeconds, setDurationSeconds] = useState(
+    Math.max(works.length * 10, MIN_DURATION_SECONDS),
+  );
+
   const shouldScroll = works.length > 1;
   const loopWorks = shouldScroll ? [...works, ...works] : works;
-  const durationSeconds = works.length * SECONDS_PER_ITEM;
+
+  useEffect(() => {
+    if (!shouldScroll) {
+      return;
+    }
+
+    const track = trackRef.current;
+    if (!track) {
+      return;
+    }
+
+    function updateDuration() {
+      const halfWidth = track!.scrollWidth / 2;
+      if (halfWidth <= 0) {
+        return;
+      }
+      setDurationSeconds(Math.max(halfWidth / PIXELS_PER_SECOND, MIN_DURATION_SECONDS));
+    }
+
+    updateDuration();
+
+    const observer = new ResizeObserver(updateDuration);
+    observer.observe(track);
+
+    return () => observer.disconnect();
+  }, [shouldScroll, works]);
 
   return (
     <div
@@ -33,7 +65,7 @@ export default function FeaturedCompactCarousel({
       }
     >
       <div className="featured-carousel-viewport">
-        <div className="featured-carousel-track">
+        <div className="featured-carousel-track" ref={trackRef}>
           {loopWorks.map((work, index) => (
             <div
               className="featured-carousel-item"

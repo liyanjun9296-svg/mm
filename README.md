@@ -90,7 +90,7 @@ npm run build
 | **本地零流量** | `DEV_USE_LOCAL_SNAPSHOT=1` + `dev:sync --media` → 读 `.dev-data/`；**写仍走 COS** |
 | **数据安全** | 单条保存不覆盖全库（409）；删除默认只删 JSON；勿随意 `seed`/`prune --apply` |
 | **流量安全** | 公有读会计下行；**已配 Referer 白名单防盗链**（详见 [`docs/COS_CONSOLE.md`](docs/COS_CONSOLE.md) §6.5）；口令/密钥勿泄露；建议余额告警 |
-| **万象缩图** | 列表 `imageView2`；详情原图/原视频 |
+| **图片三档** | `detail` 原图（详情页）+ `.list.webp` + `.admin.webp`（列表/后台），后台上传时浏览器端同时生成并上传 |
 
 ### 本地 dev 工作流
 
@@ -295,7 +295,7 @@ cp .env.local.example .env.local
 
 **上传路径**：后台媒体固定为 `works/videos/{slug}.mp4`、`works/covers/{slug}.jpg` 等，覆盖前会 confirm；勿用时间戳路径重复上传。
 
-**万象缩图**：首页卡片与摄影列表 URL 带 `imageView2` 压缩参数；详情页仍为 COS 原图/原视频。
+**图片三档**：后台上传图片时，浏览器端会同时压缩生成 `.list.webp`（约 1200w / 列表用）+ `.admin.webp`（约 120w / 后台缩略用）；详情页仍读 detail 原图。已不再依赖数据万象 `imageView2`，列表/缩略全部命中物理 webp 对象。早期残留的 `*.detail.webp` 可由 `npm run cos:prune-orphans -- --apply` 清理；本地补齐 list/admin：`npm run cos:migrate-images -- --apply`。
 
 ### 3) 作品管理后台（仅本机 dev）
 

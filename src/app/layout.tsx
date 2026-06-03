@@ -87,7 +87,7 @@ export const metadata: Metadata = {
     description: "Premium minimalist portfolio built with Next.js.",
     images: [
       {
-        url: "/images/about-portrait.png",
+        url: "/images/about-portrait.jpg",
         width: 1200,
         height: 630,
         alt: "GAO XINMING Portfolio",
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "GAO XINMING Portfolio",
     description: "Premium minimalist portfolio built with Next.js.",
-    images: ["/images/about-portrait.png"],
+    images: ["/images/about-portrait.jpg"],
   },
 };
 

@@ -1,12 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import MediaVariantImage from "@/components/MediaVariantImage";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
 import type { WorkItem } from "@/features/portfolio/types";
 import type { Messages } from "@/i18n/messages";
-import { cosOptimizedImageUrl } from "@/lib/cos/image-url";
 import type { Locale } from "@/lib/i18n";
 
 const PHOTO_MASONRY_SIZES = "(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw";
@@ -88,12 +87,15 @@ export default function PhotoMasonryGrid({ works, locale, messages }: PhotoMason
                 className="photo-masonry-item"
               >
                 <div className={`photo-masonry-frame photo-masonry-frame--${variant}`}>
-                  <Image
-                    src={cosOptimizedImageUrl(work.coverImage, "grid")}
+                  <MediaVariantImage
+                    src={work.coverImage}
+                    variant="list"
                     alt={displayTitle}
                     fill
                     className="photo-masonry-img"
                     sizes={PHOTO_MASONRY_SIZES}
+                    width={1200}
+                    height={900}
                   />
                 </div>
                 <div className="photo-masonry-caption">

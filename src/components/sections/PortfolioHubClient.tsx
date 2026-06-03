@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import MediaVariantImage from "@/components/MediaVariantImage";
 import { useSearchParams } from "next/navigation";
 import { mergeVideoTabCategories } from "@/features/portfolio/utils/mergeCategories";
 import PhotoMasonryGrid from "@/components/sections/PhotoMasonryGrid";
@@ -104,8 +104,9 @@ export default function PortfolioHubClient({
             {filteredVideos.map((work) => (
               <Link key={work.slug} href={`/${locale}/works/${work.slug}`} className="video-card">
                 <div className="video-card-thumb">
-                  <Image
+                  <MediaVariantImage
                     src={work.coverImage}
+                    variant="list"
                     alt={work.title}
                     className="video-card-img"
                     width={800}
@@ -159,7 +160,13 @@ export default function PortfolioHubClient({
             <article key={work.slug} className="article-card">
               {work.coverImage ? (
                 <div className="article-card-cover">
-                  <Image src={work.coverImage} alt="" width={320} height={180} />
+                  <MediaVariantImage
+                    src={work.coverImage}
+                    variant="list"
+                    alt=""
+                    width={320}
+                    height={180}
+                  />
                 </div>
               ) : null}
               <div className="article-card-body">

@@ -47,3 +47,4 @@ next-env.d.ts
 # 协作者 Skill 私发包（负责人 zip 私发，不进公开 Git）
 .cursor/skills/
 dist/
+cos-migrate-images-last-run.json

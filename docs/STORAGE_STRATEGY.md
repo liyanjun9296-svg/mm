@@ -21,11 +21,23 @@ Bucket/
 │   └── slugs: string[]
 ├── site/works/items/{slug}.json # 单条作品元数据（主数据源）
 └── works/
-    ├── videos/{slug}.{ext}      # 视频
-    ├── covers/{slug}.{ext}      # 封面
-    └── gallery/{slug}.{ext}     # 摄影主图
-        gallery/{slug}-{n}.{ext} # 摄影详情多图
+    ├── videos/{slug}.{ext}                       # 视频
+    ├── covers/{slug}.{ext}                       # 封面 detail（原图）
+    │   covers/{slug}.{list|admin}.webp           #       压缩两档
+    └── gallery/{slug}.{ext}                      # 摄影主图 detail（原图）
+        gallery/{slug}.{list|admin}.webp          #          压缩两档
+        gallery/{slug}-{n}.{ext}                  # 摄影详情多图 detail（原图）
+        gallery/{slug}-{n}.{list|admin}.webp      #              压缩两档
 ```
+
+图片三档语义：
+- `detail` 档 = **legacy 原文件**（原扩展名、原画质，无任何二次压缩，详情页直接使用）
+- `list` 档 = `.list.webp`（约 1200w / q=85，列表/卡片用）
+- `admin` 档 = `.admin.webp`（约 120w / q=80，后台缩略用）
+
+JSON 中 `coverImage` / `mediaUrl` / `detailImages[]` 存 **detail（原图）URL**；列表与后台通过 `mediaVariantUrl()` 推导 list / admin URL（见 `src/lib/cos/media-variants.ts`）。后台上传时浏览器端同时压缩并上传 list/admin 两档；若任一档失败，由 `npm run cos:migrate-images -- --apply` 在服务端 `sharp` 兜底补齐。
+
+> 不再依赖数据万象 imageView2。前端不会拼 `imageView2` 参数，列表/缩略图全部命中物理 webp 对象。早期版本产生的 `*.detail.webp` 已废弃，可由 `npm run cos:prune-orphans -- --apply` 清理。
 
 静态站点资源（不进 COS）：`public/images/portrait.png`（桌面 Hero）、`hero-avatar-375.png`（移动 Hero）、`about-portrait.png`、`logo.svg`。
 

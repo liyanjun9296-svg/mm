@@ -1,9 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
+import MediaVariantImage from "@/components/MediaVariantImage";
 import FeaturedVideoCard from "@/components/sections/FeaturedVideoCard";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
-import { cosOptimizedImageUrl } from "@/lib/cos/image-url";
 import type { WorkItem } from "@/features/portfolio/types";
 import type { Messages } from "@/i18n/messages";
 import type { Locale } from "@/lib/i18n";
@@ -37,17 +36,16 @@ export default function FeaturedWorkCard({
       href={`/${locale}/works/${work.slug}`}
       className={`featured-card featured-card--${layout}`}
     >
-      <div className="featured-card-thumb" style={{ height: thumbHeight }}>
-        <Image
-          src={
-            work.category === "photo"
-              ? cosOptimizedImageUrl(work.coverImage, "card")
-              : work.coverImage
-          }
+      <div className="featured-card-thumb" style={layout === "large" ? { height: thumbHeight } : undefined}>
+        <MediaVariantImage
+          src={work.coverImage}
+          variant="list"
           alt={displayTitle}
           className="featured-card-img"
-          width={800}
-          height={450}
+          fill={layout === "compact"}
+          width={layout === "large" ? 800 : undefined}
+          height={layout === "large" ? 450 : undefined}
+          sizes={layout === "compact" ? "(max-width: 900px) 50vw, 25vw" : undefined}
         />
       </div>
       <div className="featured-card-info">

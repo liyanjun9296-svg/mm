@@ -1,7 +1,8 @@
 "use client";
 
+import AdminThumb from "@/components/admin/AdminThumb";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem } from "@/features/portfolio/types";
 import {
@@ -9,13 +10,16 @@ import {
   FEATURED_LARGE_MAX,
 } from "@/features/portfolio/constants";
 import VideoCategoryManager from "@/components/admin/VideoCategoryManager";
+import SortableList from "@/components/admin/SortableList";
 import {
   clearStoredAdminToken,
   deleteWorkItemAdmin,
   fetchWorksAdmin,
   getStoredAdminToken,
   pullFromCosAdmin,
+  saveWorksAdmin,
 } from "@/lib/admin/api";
+import { reorderPhotosInWorks } from "@/lib/admin/reorder-works";
 
 type WorksListClientProps = {
   locale: string;
@@ -38,6 +42,7 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
   const [deleteMediaFromCos, setDeleteMediaFromCos] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [pulling, setPulling] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const isDev = process.env.NODE_ENV === "development";
 
   useEffect(() => {
@@ -117,9 +122,73 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
     }
   }
 
+  async function handlePhotoReorder(newPhotoOrder: WorkItem[]) {
+    const previousWorks = works;
+    const merged = reorderPhotosInWorks(previousWorks, newPhotoOrder);
+    setWorks(merged);
+    setReordering(true);
+    setStatus("正在保存排序…");
+    try {
+      await saveWorksAdmin(token, merged);
+      setStatus("排序已保存");
+    } catch (err) {
+      setWorks(previousWorks);
+      setStatus(err instanceof Error ? err.message : "排序保存失败");
+    } finally {
+      setReordering(false);
+    }
+  }
+
   function handleLogout() {
     clearStoredAdminToken();
     router.push(`/${locale}/admin`);
+  }
+
+  function renderWorkThumb(work: WorkItem) {
+    return <AdminThumb src={work.coverImage || work.mediaUrl} size={40} />;
+  }
+
+  function renderWorkRow(work: WorkItem, dragHandle?: ReactNode) {
+    return (
+      <>
+        <div className="admin-works-item-main">
+          {dragHandle}
+          {renderWorkThumb(work)}
+          <div>
+            <div className="admin-works-title-row">
+              <strong>{work.title}</strong>
+              {work.featured ? (
+                <span
+                  className={`admin-featured-badge${
+                    work.featuredLayout === "compact"
+                      ? " admin-featured-badge--compact"
+                      : " admin-featured-badge--large"
+                  }`}
+                >
+                  {work.featuredLayout === "compact" ? "精品·小卡" : "精品·大卡"}
+                </span>
+              ) : null}
+            </div>
+            <span className="admin-works-meta">
+              {work.category === "video"
+                ? "视频"
+                : work.category === "photo"
+                  ? "摄影"
+                  : "文章"}
+              {work.subcategory ? ` · ${work.subcategory}` : ""} · {work.slug}
+            </span>
+          </div>
+        </div>
+        <div className="admin-works-actions">
+          <Link href={`/${locale}/admin/works/${work.slug}`} className="work-link">
+            编辑
+          </Link>
+          <button type="button" className="work-link" onClick={() => openDeleteDialog(work)}>
+            删除
+          </button>
+        </div>
+      </>
+    );
   }
 
   async function handlePullFromCos() {
@@ -203,44 +272,29 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
       </p>
 
       {status ? <p className="admin-status">{status}</p> : null}
-      <ul className="admin-works-list">
-        {filteredWorks.map((work) => (
-          <li key={work.slug} className="admin-works-item">
-            <div>
-              <div className="admin-works-title-row">
-                <strong>{work.title}</strong>
-                {work.featured ? (
-                  <span
-                    className={`admin-featured-badge${
-                      work.featuredLayout === "compact"
-                        ? " admin-featured-badge--compact"
-                        : " admin-featured-badge--large"
-                    }`}
-                  >
-                    {work.featuredLayout === "compact" ? "精品·小卡" : "精品·大卡"}
-                  </span>
-                ) : null}
-              </div>
-              <span className="admin-works-meta">
-                {work.category === "video"
-                  ? "视频"
-                  : work.category === "photo"
-                    ? "摄影"
-                    : "文章"}
-                {work.subcategory ? ` · ${work.subcategory}` : ""} · {work.slug}
-              </span>
-            </div>
-            <div className="admin-works-actions">
-              <Link href={`/${locale}/admin/works/${work.slug}`} className="work-link">
-                编辑
-              </Link>
-              <button type="button" className="work-link" onClick={() => openDeleteDialog(work)}>
-                删除
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {activeTab === "摄影" && filteredWorks.length > 0 ? (
+        <>
+          <p className="admin-desc admin-sort-hint">
+            拖拽左侧手柄可调整前台摄影区展示顺序{reordering ? "（保存中…）" : ""}
+          </p>
+          <SortableList
+            items={filteredWorks}
+            getItemId={(work) => work.slug}
+            onReorder={handlePhotoReorder}
+            className="admin-works-list"
+            itemClassName="admin-works-item admin-sortable-row"
+            renderItem={(work, _index, dragHandle) => renderWorkRow(work, dragHandle)}
+          />
+        </>
+      ) : (
+        <ul className="admin-works-list">
+          {filteredWorks.map((work) => (
+            <li key={work.slug} className="admin-works-item">
+              {renderWorkRow(work)}
+            </li>
+          ))}
+        </ul>
+      )}
       {filteredWorks.length === 0 && !status.includes("加载") ? (
         <p className="admin-desc">
           {activeTab === "摄影"

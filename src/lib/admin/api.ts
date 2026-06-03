@@ -1,6 +1,8 @@
 "use client";
 
 import type { WorkItem } from "@/features/portfolio/types";
+import { isWorksImageDetailKey } from "@/lib/cos/media-variants";
+import { uploadImageVariantsAdmin } from "@/lib/admin/upload-image-variants";
 
 const TOKEN_KEY = "portfolio_admin_token";
 const SERVER_UPLOAD_MAX = 50 * 1024 * 1024;
@@ -283,6 +285,18 @@ export async function uploadFileAdmin(
     throw new Error("未登录：请从 /admin 输入管理口令后再上传");
   }
 
+  if (file.type.startsWith("image/") && isWorksImageDetailKey(key)) {
+    return uploadImageVariantsAdmin(token, file, key, uploadRawFileAdmin);
+  }
+
+  return uploadRawFileAdmin(token, file, key);
+}
+
+async function uploadRawFileAdmin(
+  token: string,
+  file: File,
+  key: string,
+): Promise<string> {
   if (file.size > SERVER_UPLOAD_MAX) {
     return uploadViaPresign(token, file, key);
   }
@@ -348,11 +362,11 @@ export function workMediaKey(
     case "video":
       return `works/videos/${safe}.${ext}`;
     case "cover":
-      return `works/covers/${safe}.${ext}`;
+      return `works/covers/${safe}.detail.webp`;
     case "gallery":
-      return `works/gallery/${safe}.${ext}`;
+      return `works/gallery/${safe}.detail.webp`;
     case "gallery-detail":
-      return `works/gallery/${safe}-${detailIndex ?? 0}.${ext}`;
+      return `works/gallery/${safe}-${detailIndex ?? 0}.detail.webp`;
   }
 }
 

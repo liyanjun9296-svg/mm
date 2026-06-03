@@ -3,6 +3,7 @@ import { resolve } from "path";
 import COS from "cos-nodejs-sdk-v5";
 import type { WorkItem } from "../src/features/portfolio/types";
 import { collectWorkMediaKeys } from "../src/lib/cos/media-keys";
+import { expandMediaKeysWithVariants } from "../src/lib/cos/media-variants";
 
 config({ path: resolve(process.cwd(), ".env.local") });
 
@@ -145,12 +146,14 @@ export async function loadReferencedMediaKeys(): Promise<{
 }> {
   const { getWorks } = await import("../src/features/portfolio/data/works-store");
   const works = await getWorks();
-  const keys = new Set<string>();
+  const rawKeys: string[] = [];
   for (const work of works) {
     for (const key of collectWorkMediaKeys(work)) {
-      keys.add(key);
+      rawKeys.push(key);
     }
   }
+  // 把图片 detail key 展开为 detail + list.webp + admin.webp，避免压缩档被误判为孤儿
+  const keys = new Set<string>(expandMediaKeysWithVariants(rawKeys));
   return { works, keys };
 }
 

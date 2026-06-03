@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem, WorkCategory } from "@/features/portfolio/types";
+import AdminThumb from "@/components/admin/AdminThumb";
+import SortableList from "@/components/admin/SortableList";
+import MediaVariantImage from "@/components/MediaVariantImage";
 import {
   confirmMediaOverwrite,
   confirmVideoUpload,
@@ -379,13 +382,17 @@ export default function WorkEditForm({
         <h2>{isVideoWork ? "封面（建议 16:9）" : isArticleWork ? "文章封面" : "列表封面"}</h2>
         {coverPreviewBlob || work.coverImage ? (
           <div className="admin-preview admin-preview-cover">
-            <Image
-              src={coverPreviewBlob ?? work.coverImage}
-              alt=""
-              width={320}
-              height={180}
-              unoptimized
-            />
+            {coverPreviewBlob ? (
+              <Image src={coverPreviewBlob} alt="" width={320} height={180} unoptimized />
+            ) : (
+              <MediaVariantImage
+                src={work.coverImage}
+                variant="list"
+                alt=""
+                width={320}
+                height={180}
+              />
+            )}
           </div>
         ) : null}
         <input
@@ -427,13 +434,23 @@ export default function WorkEditForm({
               )
             ) : (
               <div className="admin-preview admin-preview-cover">
-                <Image
-                  src={mediaPreviewBlob ?? work.mediaUrl}
-                  alt=""
-                  width={320}
-                  height={320}
-                  unoptimized
-                />
+                {mediaPreviewBlob ? (
+                  <Image
+                    src={mediaPreviewBlob}
+                    alt=""
+                    width={320}
+                    height={320}
+                    unoptimized
+                  />
+                ) : (
+                  <MediaVariantImage
+                    src={work.mediaUrl}
+                    variant="detail"
+                    alt=""
+                    width={320}
+                    height={320}
+                  />
+                )}
               </div>
             )
           ) : null}
@@ -464,17 +481,26 @@ export default function WorkEditForm({
 
       {!isArticleWork ? (
         <section className="admin-upload-section">
-          <h2>详情页图片（可多张）</h2>
-          <ul className="admin-gallery-edit">
-            {(work.detailImages ?? []).map((url, i) => (
-              <li key={`${url}-${i}`}>
-                <Image src={url} alt="" width={160} height={90} unoptimized />
-                <button type="button" onClick={() => removeDetailImage(i)}>
-                  删除
-                </button>
-              </li>
-            ))}
-          </ul>
+          <h2>详情页图片（可多张，拖拽排序）</h2>
+          {(work.detailImages ?? []).length > 0 ? (
+            <SortableList
+              items={work.detailImages ?? []}
+              getItemId={(url) => url}
+              onReorder={(urls) => updateField("detailImages", urls)}
+              className="admin-gallery-edit"
+              itemClassName="admin-gallery-edit-row admin-sortable-row"
+              renderItem={(url, index, dragHandle) => (
+                <>
+                  {dragHandle}
+                  <AdminThumb src={url} size={48} className="admin-gallery-edit-thumb" />
+                  <span className="admin-gallery-edit-label">详情图 {index + 1}</span>
+                  <button type="button" onClick={() => removeDetailImage(index)}>
+                    删除
+                  </button>
+                </>
+              )}
+            />
+          ) : null}
           <input
             type="file"
             accept="image/*"

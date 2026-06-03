@@ -2,9 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem } from "@/features/portfolio/types";
+import SortableList from "@/components/admin/SortableList";
 import {
   fetchWorksAdmin,
   formatUploadFailure,
@@ -28,6 +29,11 @@ type SharedMeta = {
   platform: string;
 };
 
+type FilePreviewEntry = {
+  file: File;
+  previewUrl: string;
+};
+
 const defaultMeta = (): SharedMeta => ({
   subtitle: "",
   description: "",
@@ -41,14 +47,23 @@ function uniquePhotoSlug(baseTitle: string, index: number): string {
   return `${base}-${Date.now()}-${index}`;
 }
 
+function fileEntryId(entry: FilePreviewEntry): string {
+  return `${entry.file.name}-${entry.file.size}-${entry.file.lastModified}`;
+}
+
 export default function PhotoBatchUploadForm({ locale }: PhotoBatchUploadFormProps) {
   const router = useRouter();
   const [token] = useState(() => getStoredAdminToken());
   const [allWorks, setAllWorks] = useState<WorkItem[]>([]);
   const [meta, setMeta] = useState<SharedMeta>(defaultMeta);
-  const [files, setFiles] = useState<File[]>([]);
+  const [fileEntries, setFileEntries] = useState<FilePreviewEntry[]>([]);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
+  const fileEntriesRef = useRef(fileEntries);
+
+  useEffect(() => {
+    fileEntriesRef.current = fileEntries;
+  }, [fileEntries]);
 
   useEffect(() => {
     if (!token) {
@@ -62,38 +77,40 @@ export default function PhotoBatchUploadForm({ locale }: PhotoBatchUploadFormPro
       });
   }, [locale, router, token]);
 
-  const previews = useMemo(
-    () => files.map((f) => URL.createObjectURL(f)),
-    [files],
-  );
-
   useEffect(() => {
     return () => {
-      previews.forEach((url) => URL.revokeObjectURL(url));
+      fileEntriesRef.current.forEach((entry) => URL.revokeObjectURL(entry.previewUrl));
     };
-  }, [previews]);
+  }, []);
 
   function updateMeta<K extends keyof SharedMeta>(key: K, value: SharedMeta[K]) {
     setMeta((prev) => ({ ...prev, [key]: value }));
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    fileEntriesRef.current.forEach((entry) => URL.revokeObjectURL(entry.previewUrl));
     const picked = Array.from(e.target.files ?? []).filter((f) =>
       f.type.startsWith("image/"),
     );
-    setFiles(picked);
-    setStatus(picked.length > 0 ? `已选择 ${picked.length} 张图片` : "");
+    const entries = picked.map((file) => ({
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+    setFileEntries(entries);
+    setStatus(picked.length > 0 ? `已选择 ${picked.length} 张图片，可拖拽调整顺序` : "");
+    e.target.value = "";
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (files.length === 0) {
+    if (fileEntries.length === 0) {
       setStatus("请先选择要上传的图片");
       return;
     }
 
     setSaving(true);
     const newItems: WorkItem[] = [];
+    const files = fileEntries.map((entry) => entry.file);
 
     try {
       for (let i = 0; i < files.length; i++) {
@@ -191,7 +208,6 @@ export default function PhotoBatchUploadForm({ locale }: PhotoBatchUploadFormPro
             <input
               value={meta.platform}
               onChange={(e) => updateMeta("platform", e.target.value)}
-              placeholder="小红书 / 官网"
             />
           </label>
         </div>
@@ -200,21 +216,34 @@ export default function PhotoBatchUploadForm({ locale }: PhotoBatchUploadFormPro
       <section className="admin-upload-section">
         <h2>选择图片（可多选）</h2>
         <input type="file" accept="image/*" multiple onChange={handleFileChange} />
-        {previews.length > 0 ? (
-          <ul className="admin-batch-preview">
-            {previews.map((src, i) => (
-              <li key={src}>
-                <Image src={src} alt="" width={120} height={120} unoptimized />
-                <span>{files[i]?.name}</span>
-              </li>
-            ))}
-          </ul>
+        {fileEntries.length > 0 ? (
+          <SortableList
+            items={fileEntries}
+            getItemId={fileEntryId}
+            onReorder={setFileEntries}
+            className="admin-batch-preview"
+            itemClassName="admin-batch-file-row admin-sortable-row"
+            renderItem={(entry, _index, dragHandle) => (
+              <>
+                {dragHandle}
+                <Image
+                  src={entry.previewUrl}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="admin-batch-file-thumb"
+                  unoptimized
+                />
+                <span className="admin-batch-file-name">{entry.file.name}</span>
+              </>
+            )}
+          />
         ) : null}
       </section>
 
       <div className="admin-form-actions">
-        <button type="submit" className="btn" disabled={saving || files.length === 0}>
-          {saving ? "上传并保存中…" : `保存 ${files.length > 0 ? files.length : ""} 张摄影`}
+        <button type="submit" className="btn" disabled={saving || fileEntries.length === 0}>
+          {saving ? "上传并保存中…" : `保存 ${fileEntries.length > 0 ? fileEntries.length : ""} 张摄影`}
         </button>
       </div>
     </form>

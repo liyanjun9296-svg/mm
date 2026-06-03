@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import VideoDetailGallery from "@/components/works/VideoDetailGallery";
 import { getWorks } from "@/features/portfolio/data/works-store";
 import { getWorkBySlug } from "@/features/portfolio/utils/filterWorks";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
@@ -79,7 +80,11 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
           </div>
         )}
 
-        {work.category !== "article" && work.detailImages && work.detailImages.length > 0 ? (
+        {work.category === "video" && work.detailImages && work.detailImages.length > 0 ? (
+          <VideoDetailGallery images={work.detailImages} altPrefix={displayTitle} />
+        ) : null}
+
+        {work.category === "photo" && work.detailImages && work.detailImages.length > 0 ? (
           <div className="detail-gallery">
             {work.detailImages.map((src, index) => (
               <div className="detail-gallery-item" key={`${src}-${index}`}>

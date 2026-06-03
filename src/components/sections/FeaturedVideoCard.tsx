@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import RevealOnScroll from "@/components/motion/RevealOnScroll";
+import MediaVariantImage from "@/components/MediaVariantImage";
 import type { WorkItem } from "@/features/portfolio/types";
 import type { Messages } from "@/i18n/messages";
 import type { Locale } from "@/lib/i18n";
@@ -78,8 +78,9 @@ export default function FeaturedVideoCard({
         onMouseLeave={handleMouseLeave}
       >
         <div className="featured-card-thumb" style={{ height: thumbHeight }}>
-          <Image
+          <MediaVariantImage
             src={work.coverImage}
+            variant="list"
             alt={work.title}
             className="featured-card-img featured-card-img--poster"
             width={800}
