@@ -129,4 +129,4 @@ npm run dev:sync -- --media --keys works/videos/foo.mp4  # 增量
 - `src/features/portfolio/data/works-store.ts`
 - `src/lib/admin/api.ts`（`workMediaKey`、`confirmMediaOverwrite`）
 - `src/lib/dev/local-snapshot.ts`
-- `.cursor/rules/cos-traffic-dev.mdc`（Agent 常载规则，与本文同步）
+- `.cursor/rules/cos-ops.mdc`（Agent 常载规则：存储速查 + 流量纪律 + 5/31 事故红线，与本文同步）

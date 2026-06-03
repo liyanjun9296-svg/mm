@@ -78,7 +78,7 @@ npm run build
 |------|------|
 | [**docs/STORAGE_STRATEGY.md**](docs/STORAGE_STRATEGY.md) | **COS 存储策略**（对象布局、读写链、计费、安全/丢失/流量风险、后台规范） |
 | [docs/COS_CONSOLE.md](docs/COS_CONSOLE.md) | 控制台 CORS、密钥、生命周期 |
-| [`.cursor/rules/cos-traffic-dev.mdc`](../.cursor/rules/cos-traffic-dev.mdc) | Agent 常载：流量与省流量习惯 |
+| [`.cursor/rules/cos-ops.mdc`](../.cursor/rules/cos-ops.mdc) | Agent 常载：存储速查 + 流量纪律 + 上线红线 |
 | [`.cursor/rules/portfolio-project.mdc`](../.cursor/rules/portfolio-project.mdc) | 站点架构与样式规范 |
 
 | 主题 | 约定 |
