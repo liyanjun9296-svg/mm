@@ -16,10 +16,8 @@ type FeaturedVideoCardProps = {
 };
 
 function canHoverPreview() {
-  return (
-    typeof window !== "undefined" &&
-    window.matchMedia("(hover: hover) and (pointer: fine)").matches
-  );
+  // 暂时关闭 hover 预览以节省 COS 外网下行流量（每次 hover = 下载完整视频文件）
+  return false;
 }
 
 export default function FeaturedVideoCard({

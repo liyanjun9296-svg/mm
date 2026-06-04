@@ -25,7 +25,6 @@ export async function fetchVideoCategoriesFromCos(): Promise<string[] | null> {
   const url = getCosPublicUrl(VIDEO_CATEGORIES_JSON_KEY);
   try {
     const res = await fetch(url, {
-      cache: "no-store",
       next: { tags: [VIDEO_CATEGORIES_CACHE_TAG] },
     });
     if (!res.ok) {
@@ -95,7 +94,6 @@ export async function fetchPhotoCategoriesFromCos(): Promise<string[] | null> {
   const url = getCosPublicUrl(PHOTO_CATEGORIES_JSON_KEY);
   try {
     const res = await fetch(url, {
-      cache: "no-store",
       next: { tags: [PHOTO_CATEGORIES_CACHE_TAG] },
     });
     if (!res.ok) {

@@ -132,3 +132,22 @@ export async function saveWorkItemsBatchAdmin(token: string, items: WorkItem[]):
     throw new Error(data.error ?? "批量保存失败");
   }
 }
+
+export type WorkVideoStatus = {
+  slug: string;
+  status: "dual" | "raw-only" | "none";
+  mediaUrl: string | null;
+  mediaUrlOriginal: string | null;
+};
+
+/** 从 COS 实时读取单条作品视频状态（绕过本地快照） */
+export async function fetchWorkStatusAdmin(token: string, slug: string): Promise<WorkVideoStatus> {
+  const res = await fetch(`/api/admin/works/${encodeURIComponent(slug)}/status`, {
+    headers: authHeaders(token),
+  });
+  const data = (await res.json()) as WorkVideoStatus & { error?: string };
+  if (!res.ok) {
+    throw new Error(data.error ?? "查询状态失败");
+  }
+  return data;
+}

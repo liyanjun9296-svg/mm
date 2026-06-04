@@ -67,6 +67,36 @@
   color: #6bcf8e;
 }
 
+.admin-upload-progress {
+  margin: 0 0 16px;
+}
+
+.admin-progress-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.admin-progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.admin-progress-bar-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+}
+
 .admin-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -581,4 +611,109 @@
 .admin-delete-confirm {
   border-color: #8b3a3a;
   color: #ffb4b4;
+}
+
+/* ── 视频处理弹窗（编辑页保存后） ──────────────── */
+.admin-process-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-process-cmd {
+  display: block;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  font-size: 13px;
+  user-select: all;
+  word-break: break-all;
+}
+
+.admin-process-local-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.admin-process-local-input::placeholder {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-process-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.admin-process-status-btn--ok {
+  border-color: #2e7d32 !important;
+  color: #81c784 !important;
+}
+
+/* ── 视频状态圆点（列表页） ────────────────────── */
+.admin-video-status-wrap {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 6px;
+}
+
+.admin-video-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.admin-video-dot--ok {
+  background: #4caf50;
+  box-shadow: 0 0 4px #4caf50;
+}
+
+.admin-video-dot--pending {
+  background: #f44336;
+  box-shadow: 0 0 4px #f44336;
+}
+
+.admin-video-popover {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 100;
+  margin-top: 6px;
+  padding: 10px 12px;
+  background: #1a1a1a;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.admin-video-popover-cmd {
+  font-size: 12px;
+  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+  user-select: all;
+  word-break: break-all;
+}
+
+.admin-video-popover-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-video-popover-actions .btn {
+  padding: 3px 10px;
+  font-size: 12px;
 }

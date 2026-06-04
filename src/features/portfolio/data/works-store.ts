@@ -126,9 +126,7 @@ async function enforceFeaturedSlots(
 }
 
 async function persistWorksLocalSnapshot(works: WorkItem[]): Promise<void> {
-  if (isDevLocalSnapshotEnabled()) {
-    await writeLocalWorksSnapshot(works);
-  }
+  await writeLocalWorksSnapshot(works);
 }
 
 export async function saveWorkItemToCos(

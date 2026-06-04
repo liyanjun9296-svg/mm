@@ -48,6 +48,7 @@ export function useWorkUpload(args: {
   setStatusMessage: SetStatus;
 }) {
   const [uploading, setUploading] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   async function upload(
     file: File,
@@ -67,22 +68,19 @@ export function useWorkUpload(args: {
       return;
     }
     setUploading(file.name);
+    setUploadProgress(0);
     args.setStatusMessage("正在上传…");
     try {
       const key = workMediaKey(slug, kind, file, options?.detailIndex);
-      const url = await uploadFileAdmin(args.token, file, key);
+      const url = await uploadFileAdmin(args.token, file, key, (percent) => {
+        setUploadProgress(percent);
+      });
       onDone(url);
       if (kind === "video-original") {
-        const cli = `npm run process:video -- ${slug}`;
         args.setStatusMessage(
-          `原片上传成功(raw-only) — 单原片无法在线上播放,需在终端跑 CLI 生成 1080p 低档:${cli}`,
+          `原片上传成功 — 自动保存中，完成后可在下方粘贴路径并复制 CLI 命令`,
           "success",
         );
-        if (typeof window !== "undefined") {
-          window.alert(
-            `原片已上传(raw-only)\n\n单原片无法在线上单独播放,需要在项目根目录终端运行:\n\n  ${cli}\n\n生成 1080p 低档后保存并刷新本页,看到绿色「✅ 已上线(dual)」徽章才算完成。`,
-          );
-        }
       } else {
         args.setStatusMessage("上传成功", "success");
       }
@@ -90,10 +88,11 @@ export function useWorkUpload(args: {
       args.setStatusMessage(formatUploadFailure(err), "error");
     } finally {
       setUploading("");
+      setUploadProgress(0);
     }
   }
 
-  return { upload, uploading };
+  return { upload, uploading, uploadProgress };
 }
 
 /** 一个 ref + state 的 blob URL 槽位，组件卸载时自动 revoke。 */

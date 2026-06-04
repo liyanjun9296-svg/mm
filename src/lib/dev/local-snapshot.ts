@@ -45,9 +45,9 @@ export async function readLocalWorksSnapshot(): Promise<WorkItem[] | null> {
   }
 }
 
-/** 后台保存/删除后写穿本地 works 快照（仅 DEV_USE_LOCAL_SNAPSHOT=1） */
+/** 后台保存/删除/CLI 处理后写穿本地 works 快照（仅 DEV_USE_LOCAL_SNAPSHOT=1） */
 export async function writeLocalWorksSnapshot(works: WorkItem[]): Promise<void> {
-  if (!isDevLocalSnapshotEnabled()) {
+  if (process.env.DEV_USE_LOCAL_SNAPSHOT !== "1") {
     return;
   }
   await mkdir(DEV_DATA_DIR, { recursive: true });
@@ -86,6 +86,7 @@ export function applyDevMediaUrls(work: WorkItem): WorkItem {
     ...work,
     coverImage: devMediaUrl(work.coverImage),
     mediaUrl: devMediaUrl(work.mediaUrl),
+    mediaUrlOriginal: work.mediaUrlOriginal ? devMediaUrl(work.mediaUrlOriginal) : work.mediaUrlOriginal,
     detailImages: work.detailImages?.map((url) => devMediaUrl(url)),
   };
 }

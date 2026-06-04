@@ -70,8 +70,13 @@ export function workMediaKey(
       return `works/covers/${safe}.detail.webp`;
     case "gallery":
       return `works/gallery/${safe}.detail.webp`;
-    case "gallery-detail":
+    case "gallery-detail": {
+      const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
+      if (isVideo) {
+        return `works/gallery/${safe}-${detailIndex ?? 0}.${ext}`;
+      }
       return `works/gallery/${safe}-${detailIndex ?? 0}.detail.webp`;
+    }
   }
 }
 

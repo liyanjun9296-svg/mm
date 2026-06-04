@@ -11,6 +11,7 @@ import MediaVariantImage from "@/components/MediaVariantImage";
 import {
   fetchCategoriesAdmin,
   fetchWorksAdmin,
+  fetchWorkStatusAdmin,
   getStoredAdminToken,
   saveWorkItemAdmin,
   slugify,
@@ -28,43 +29,85 @@ type WorkEditFormProps = {
   initialType?: WorkCategory;
 };
 
+/** 去掉用户粘贴路径首尾的引号 */
+function stripQuotes(s: string): string {
+  const t = s.trim();
+  if ((t.startsWith("'") && t.endsWith("'")) || (t.startsWith('"') && t.endsWith('"'))) {
+    return t.slice(1, -1);
+  }
+  return t;
+}
+
 /**
  * 视频状态徽章 + CLI 命令复制按钮。
- * - mediaUrl 空 + mediaUrlOriginal 非空 → raw-only(待处理),提示跑 CLI
- * - mediaUrl 非空 → dual(已上线),允许重新处理
- * - 全空 → 未上传(纯新建状态)
+ * 挂载时自动从 COS 拉取实时状态,不依赖本地快照。
  */
 function VideoStatusBlock({
   slug,
-  mediaUrl,
-  mediaUrlOriginal,
+  mediaUrl: initialMediaUrl,
+  mediaUrlOriginal: initialOriginal,
+  token,
+  refreshKey,
 }: {
   slug: string;
   mediaUrl: string;
   mediaUrlOriginal?: string;
+  token: string;
+  refreshKey?: number;
 }) {
   const [copied, setCopied] = useState(false);
+  const [localPath, setLocalPath] = useState("");
+  const [realStatus, setRealStatus] = useState<"dual" | "raw-only" | "none" | null>(null);
+  const [checking, setChecking] = useState(false);
+
+  // 挂载时 + refreshKey 变化时拉实时状态
+  useEffect(() => {
+    if (!slug || !token) return;
+    fetchWorkStatusAdmin(token, slug)
+      .then((r) => setRealStatus(r.status))
+      .catch(() => {});
+  }, [token, slug, refreshKey]);
+
+  const mediaUrl = realStatus === "dual" ? "has" : realStatus === "raw-only" ? "" : initialMediaUrl;
+  const mediaUrlOriginal = realStatus === "raw-only" ? "has" : realStatus === "none" ? "" : initialOriginal;
+
   if (!mediaUrl && !mediaUrlOriginal) {
     return (
       <p className="admin-status">
-        请上传原片视频文件,会落到 works/videos/{slug || "<slug>"}.original.{"{ext}"};
+        请上传原片视频文件,会落到 works/videos/{slug}.original.{"{ext}"};
         上传完成后请在终端运行 CLI 生成 1080p 低档,前台才会播放。
       </p>
     );
   }
 
-  const cliCmd = `npm run process:video -- ${slug || "<slug>"}`;
-
+  const cleanPath = stripQuotes(localPath);
+  const cliCmd = cleanPath
+    ? `npm run process:video -- ${slug} --local "${cleanPath}"`
+    : "";
   const isRawOnly = !mediaUrl && !!mediaUrlOriginal;
   const isDual = !!mediaUrl;
 
   async function copy() {
+    if (!cliCmd) return;
     try {
       await navigator.clipboard.writeText(cliCmd);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       // 忽略
+    }
+  }
+
+  async function refreshStatus() {
+    if (!slug || !token) return;
+    setChecking(true);
+    try {
+      const r = await fetchWorkStatusAdmin(token, slug);
+      setRealStatus(r.status);
+    } catch {
+      // 忽略
+    } finally {
+      setChecking(false);
     }
   }
 
@@ -89,6 +132,14 @@ function VideoStatusBlock({
           需要重新生成低档(例如换了原片)?重跑命令即可覆盖:
         </span>
       ) : null}
+      <input
+        className="admin-process-local-input"
+        type="text"
+        placeholder="粘贴本地原片绝对路径（必填）"
+        value={localPath}
+        onChange={(e) => setLocalPath(e.target.value)}
+        style={{ marginTop: 4 }}
+      />
       <code
         style={{
           padding: "6px 10px",
@@ -98,16 +149,28 @@ function VideoStatusBlock({
           userSelect: "all",
         }}
       >
-        {cliCmd}
+        {cliCmd || `npm run process:video -- ${slug} --local "填写上方路径"`}
       </code>
-      <button
-        type="button"
-        onClick={copy}
-        className="btn"
-        style={{ alignSelf: "flex-start", padding: "4px 12px", fontSize: 12 }}
-      >
-        {copied ? "已复制" : "复制命令"}
-      </button>
+      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <button
+          type="button"
+          onClick={copy}
+          className="btn"
+          disabled={!cliCmd}
+          style={{ padding: "4px 12px", fontSize: 12 }}
+        >
+          {copied ? "已复制" : "复制命令"}
+        </button>
+        <button
+          type="button"
+          onClick={refreshStatus}
+          className={`btn${isDual ? " admin-process-status-btn--ok" : ""}`}
+          disabled={checking}
+          style={{ padding: "4px 12px", fontSize: 12 }}
+        >
+          {checking ? "检查中…" : isDual ? "✓ 已就绪（dual）" : "刷新状态"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -118,7 +181,7 @@ export default function WorkEditForm({
   initialType = "video",
 }: WorkEditFormProps) {
   const router = useRouter();
-  const isNew = slugParam === "new";
+  const [isNew, setIsNew] = useState(slugParam === "new");
   const [token] = useState(() => getStoredAdminToken());
   const [allWorks, setAllWorks] = useState<WorkItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
@@ -126,6 +189,8 @@ export default function WorkEditForm({
   const [status, setStatus] = useState("");
   const [statusTone, setStatusTone] = useState<StatusTone>("info");
   const [saving, setSaving] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [statusRefreshKey, setStatusRefreshKey] = useState(0);
   const [coverPreviewBlob, setCoverBlob] = useBlobPreview();
   const [mediaPreviewBlob, setMediaBlob] = useBlobPreview();
   const [loadedVideoUrl, setLoadedVideoUrl] = useState<string | null>(null);
@@ -135,7 +200,7 @@ export default function WorkEditForm({
     setStatusTone(tone);
   }
 
-  const { upload: handleUpload, uploading } = useWorkUpload({
+  const { upload: handleUpload, uploading, uploadProgress } = useWorkUpload({
     token,
     slug: work.slug,
     title: work.title,
@@ -222,7 +287,7 @@ export default function WorkEditForm({
     try {
       await saveWorkItemAdmin(token, item, {
         isNew,
-        previousSlug: isNew ? undefined : slugParam,
+        previousSlug: isNew ? undefined : (slugParam === "new" ? slug : slugParam),
       });
       setStatusMessage("已保存到云端", "success");
       router.push(`/${locale}/admin/works`);
@@ -237,6 +302,41 @@ export default function WorkEditForm({
     const imgs = [...(work.detailImages ?? [])];
     imgs.splice(index, 1);
     updateField("detailImages", imgs);
+  }
+
+  /** 视频原片上传后自动保存到 COS，让内页 VideoStatusBlock 立刻能拉到真实状态 */
+  async function autoSaveAfterVideoUpload(originalUrl: string) {
+    const slug = work.slug.trim() || slugify(work.title);
+    if (!slug) return;
+
+    const item: WorkItem = {
+      ...work,
+      slug,
+      mediaUrlOriginal: originalUrl,
+      mediaUrl: "",
+      detailImages: work.detailImages?.filter(Boolean) ?? [],
+      subcategory: work.category === "video" ? work.subcategory?.trim() || categories[0] : undefined,
+      duration: work.category === "video" ? work.duration : undefined,
+      featured: work.featured ?? false,
+      featuredLayout: work.featured ? work.featuredLayout ?? "large" : undefined,
+    };
+
+    setAutoSaving(true);
+    try {
+      await saveWorkItemAdmin(token, item, {
+        isNew,
+        previousSlug: isNew ? undefined : slugParam,
+      });
+      // 把真正的 slug 写回 work，让 VideoStatusBlock 能生成正确命令
+      setWork((prev) => ({ ...prev, slug }));
+      setIsNew(false);
+      setStatusRefreshKey((k) => k + 1);
+      setStatusMessage("原片已上传并自动保存，请在下方粘贴路径复制命令", "success");
+    } catch {
+      setStatusMessage("自动保存失败，请手动点击保存", "error");
+    } finally {
+      setAutoSaving(false);
+    }
   }
 
   const pageTitle = isNew
@@ -272,7 +372,24 @@ export default function WorkEditForm({
           {status}
         </p>
       ) : null}
-      {uploading ? <p className="admin-status">正在上传：{uploading}</p> : null}
+      {uploading ? (
+        <div className="admin-upload-progress">
+          <p className="admin-status">正在上传：{uploading}</p>
+          {uploadProgress > 0 ? (
+            <div className="admin-progress-bar">
+              <div
+                className="admin-progress-bar-fill"
+                style={{ width: `${uploadProgress}%` }}
+              />
+              <span className="admin-progress-bar-text">{uploadProgress}%</span>
+            </div>
+          ) : (
+            <p className="admin-status" style={{ fontSize: "12px", opacity: 0.7 }}>
+              准备中…
+            </p>
+          )}
+        </div>
+      ) : null}
 
       <div className="admin-form-grid">
         <label className="admin-field">
@@ -431,9 +548,11 @@ export default function WorkEditForm({
           <h2>{isVideoWork ? "主视频" : "主图（详情页大图）"}</h2>
           {isVideoWork ? (
             <VideoStatusBlock
-              slug={work.slug}
+              slug={work.slug || slugParam}
               mediaUrl={work.mediaUrl}
               mediaUrlOriginal={work.mediaUrlOriginal}
+              token={token}
+              refreshKey={statusRefreshKey}
             />
           ) : null}
           {mediaPreviewBlob || work.mediaUrl || (isVideoWork && work.mediaUrlOriginal) ? (
@@ -502,6 +621,8 @@ export default function WorkEditForm({
                         mediaUrlOriginal: url,
                         mediaUrl: "",
                       }));
+                      // 上传完成后自动保存到 COS，让 VideoStatusBlock 立即可用
+                      void autoSaveAfterVideoUpload(url);
                     },
                     {
                       existingUrl: work.mediaUrlOriginal,
@@ -529,19 +650,28 @@ export default function WorkEditForm({
 
       {!isArticleWork ? (
         <section className="admin-upload-section">
-          <h2>详情页图片（可多张，拖拽排序）</h2>
+          <h2>详情页素材（图片/MP4，可多个，拖拽排序）</h2>
           {(work.detailImages ?? []).length > 0 ? (
             <SortableList
               items={work.detailImages ?? []}
-              getItemId={(url) => url}
+              getItemId={(url, index) => `${url}__${index}`}
               onReorder={(urls) => updateField("detailImages", urls)}
               className="admin-gallery-edit"
               itemClassName="admin-gallery-edit-row admin-sortable-row"
               renderItem={(url, index, dragHandle) => (
                 <>
                   {dragHandle}
-                  <AdminThumb src={url} size={48} className="admin-gallery-edit-thumb" />
-                  <span className="admin-gallery-edit-label">详情图 {index + 1}</span>
+                  {/\.(mp4|webm|mov)(\?|$)/i.test(url) ? (
+                    <video
+                      src={url}
+                      muted
+                      className="admin-gallery-edit-thumb"
+                      style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 4 }}
+                    />
+                  ) : (
+                    <AdminThumb src={url} size={48} className="admin-gallery-edit-thumb" />
+                  )}
+                  <span className="admin-gallery-edit-label">详情素材 {index + 1}</span>
                   <button type="button" onClick={() => removeDetailImage(index)}>
                     删除
                   </button>
@@ -551,11 +681,22 @@ export default function WorkEditForm({
           ) : null}
           <input
             type="file"
-            accept="image/*"
+            accept="image/*,video/mp4"
             multiple
             onChange={(e) => {
               const files = Array.from(e.target.files ?? []);
-              files.forEach((f) => {
+              const baseIndex = (work.detailImages ?? []).length;
+              let offset = 0;
+              for (const f of files) {
+                if (f.type === "video/mp4" || f.name.toLowerCase().endsWith(".mp4")) {
+                  const mb = f.size / 1024 / 1024;
+                  if (mb > 50) {
+                    alert(`详情视频 ${f.name} 超过 50MB（${mb.toFixed(1)}MB），请压缩后再上传`);
+                    continue;
+                  }
+                }
+                const idx = baseIndex + offset;
+                offset++;
                 void handleUpload(
                   f,
                   "gallery-detail",
@@ -566,21 +707,22 @@ export default function WorkEditForm({
                     }));
                   },
                   {
-                    detailIndex: (work.detailImages ?? []).length,
-                    fieldLabel: "详情图",
+                    detailIndex: idx,
+                    fieldLabel: "详情素材",
                   },
                 );
-              });
+              }
             }}
           />
         </section>
       ) : null}
 
       <div className="admin-form-actions">
-        <button type="submit" className="btn" disabled={saving || !!uploading}>
-          {saving ? "保存中…" : "保存全部作品"}
+        <button type="submit" className="btn" disabled={saving || autoSaving || !!uploading}>
+          {saving ? "保存中…" : autoSaving ? "自动保存中…" : "保存全部作品"}
         </button>
       </div>
+
     </form>
   );
 }

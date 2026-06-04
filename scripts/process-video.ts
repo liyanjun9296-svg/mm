@@ -4,21 +4,23 @@
  *
  * 用法:
  *   npm run process:video -- <slug>
+ *   npm run process:video -- <slug> --local ~/Desktop/video.mov   # 使用本地文件,零 COS 下行
  *   npm run process:video -- <slug> --force   # 即使作品已是 dual,也重新压缩覆盖低档
  *
- * 不接受本地文件参数 — 数据源永远来自 COS 的 `mediaUrlOriginal`。
+ * 本地文件查找顺序(优先级高→低):
+ *   1. --local <path> 指定的文件
+ *   2. .dev-data/media/{originalKey} (dev:sync 同步过的本地快照)
+ *   3. 报错退出(绝不从 COS 下载,零外网下行)
  *
  * 约定:
  *   - 输入:works/videos/{slug}.original.{ext}  (faststart 已生效;由后台 GUI 上传)
  *   - 输出:works/videos/{slug}.mp4              (1080p H.264 CRF 23 + AAC 128k + faststart)
  *   - 单条 ≤ 80MB 是软目标;不达标会打印告警但不阻断
  */
-import { existsSync, statSync, unlinkSync, createWriteStream } from "node:fs";
+import { existsSync, statSync, unlinkSync, copyFileSync } from "node:fs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Readable } from "node:stream";
-import { pipeline } from "node:stream/promises";
 
 import { createCosClient, requireCosConfig, formatBytes } from "./cos-lib";
 import {
@@ -28,6 +30,11 @@ import {
 import { cosKeyFromPublicUrl } from "../src/lib/cos/media-keys";
 import { getCosPublicUrl } from "../src/lib/cos/env";
 
+/** .dev-data/media/ 下的本地快照路径 */
+function localSnapshotPath(key: string): string {
+  return path.join(process.cwd(), ".dev-data", "media", key.replace(/^\/+/, ""));
+}
+
 function ensureFfmpeg(): void {
   const result = spawnSync("ffmpeg", ["-version"], { stdio: "ignore" });
   if (result.error || result.status !== 0) {
@@ -35,19 +42,44 @@ function ensureFfmpeg(): void {
   }
 }
 
-async function downloadFromCos(key: string, dest: string): Promise<void> {
-  const { bucket, region } = requireCosConfig();
-  const url = getCosPublicUrl(key);
-  console.log(`下载 ${key}...`);
-  console.log(`  URL: ${url}`);
-  // 用公网 URL 直连下载 (公有读),省去签名烦恼
-  const res = await fetch(url);
-  if (!res.ok || !res.body) {
-    throw new Error(`下载失败 ${res.status} ${res.statusText} (bucket=${bucket} region=${region})`);
+/**
+ * 解析原片到本地临时文件,优先级:
+ * 1. --local <path> 指定的文件
+ * 2. .dev-data/media/{originalKey} (dev:sync 同步过的本地快照)
+ * 3. 报错退出(不会从 COS 下载,零外网下行)
+ */
+async function resolveOriginalFile(
+  key: string,
+  dest: string,
+  localPath: string | undefined,
+): Promise<void> {
+  // 1. 用户显式指定本地文件
+  if (localPath) {
+    const resolved = path.resolve(localPath);
+    if (!existsSync(resolved)) {
+      throw new Error(`--local 指定的文件不存在: ${resolved}`);
+    }
+    const size = statSync(resolved).size;
+    console.log(`使用本地文件: ${resolved} (${formatBytes(size)})`);
+    copyFileSync(resolved, dest);
+    return;
   }
-  await pipeline(Readable.fromWeb(res.body as never), createWriteStream(dest));
-  const size = statSync(dest).size;
-  console.log(`  ✅ ${formatBytes(size)} → ${dest}`);
+
+  // 2. 检查 .dev-data/media/ 本地快照
+  const snapshotFile = localSnapshotPath(key);
+  if (existsSync(snapshotFile)) {
+    const size = statSync(snapshotFile).size;
+    console.log(`使用本地快照: ${snapshotFile} (${formatBytes(size)})`);
+    copyFileSync(snapshotFile, dest);
+    return;
+  }
+
+  // 3. 本地无文件 → 报错退出,绝不从 COS 下载
+  throw new Error(
+    `本地找不到原片文件。请使用 --local 指定本地路径:\n` +
+    `  npm run process:video -- <slug> --local /你的原片路径.mp4\n\n` +
+    `或先执行 npm run dev:sync -- --media --keys ${key} 同步到本地快照。`,
+  );
 }
 
 function compressTo1080p(input: string, output: string): void {
@@ -104,7 +136,7 @@ async function uploadToCos(localPath: string, cosKey: string): Promise<void> {
   });
 }
 
-export async function processVideo(slug: string, force = false): Promise<void> {
+export async function processVideo(slug: string, force = false, localPath?: string): Promise<void> {
   ensureFfmpeg();
 
   const work = await fetchWorkItemFromCos(slug);
@@ -134,7 +166,7 @@ export async function processVideo(slug: string, force = false): Promise<void> {
   const tempOut = path.join(tmpdir(), `process-video-${slug}-out.mp4`);
 
   try {
-    await downloadFromCos(originalKey, tempIn);
+    await resolveOriginalFile(originalKey, tempIn, localPath);
     compressTo1080p(tempIn, tempOut);
 
     const outSize = statSync(tempOut).size;
@@ -172,12 +204,19 @@ async function main() {
   const slug = args.find((a) => !a.startsWith("--"));
   const force = args.includes("--force");
 
+  // 解析 --local <path>
+  let localPath: string | undefined;
+  const localIdx = args.indexOf("--local");
+  if (localIdx !== -1 && args[localIdx + 1]) {
+    localPath = args[localIdx + 1];
+  }
+
   if (!slug) {
-    console.error("用法: npm run process:video -- <slug> [--force]");
+    console.error("用法: npm run process:video -- <slug> [--local <文件路径>] [--force]");
     process.exit(1);
   }
 
-  await processVideo(slug, force);
+  await processVideo(slug, force, localPath);
 }
 
 // 仅当作为入口运行时执行 main;被 reprocess-videos.ts 引用时不触发

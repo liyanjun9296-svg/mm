@@ -35,6 +35,7 @@ export async function getPresignedPutUrl({
         Expires: expiresSeconds,
         Headers: {
           "Content-Type": contentType,
+          "Cache-Control": "public, max-age=31536000, immutable",
         },
       },
       (err, data) => {

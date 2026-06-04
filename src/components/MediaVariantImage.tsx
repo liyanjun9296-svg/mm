@@ -38,7 +38,7 @@ export default function MediaVariantImage({
       fill={fill}
       className={className}
       sizes={sizes}
-      unoptimized={variant === "admin"}
+      unoptimized
       onError={() => {
         if (!failed) {
           setFailed(true);

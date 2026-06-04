@@ -4,10 +4,8 @@ import { isWorksImageDetailKey } from "@/lib/cos/media-variants";
 import { uploadImageVariantsAdmin } from "@/lib/admin/upload-image-variants";
 import { authHeaders } from "@/lib/admin/token";
 
-const SERVER_UPLOAD_MAX = 50 * 1024 * 1024;
-const PRESIGN_PUT_TIMEOUT_MS = 120_000;
+const PRESIGN_PUT_TIMEOUT_MS = 600_000;
 
-export const SERVER_UPLOAD_MAX_BYTES = SERVER_UPLOAD_MAX;
 export const VIDEO_UPLOAD_WARN_BYTES = 80 * 1024 * 1024;
 export const VIDEO_UPLOAD_CONFIRM_BYTES = 200 * 1024 * 1024;
 
@@ -34,10 +32,10 @@ function formatUploadError(res: Response, data: { error?: string }, fallback: st
 
 export function formatUploadFailure(error: unknown): string {
   if (error instanceof DOMException && error.name === "AbortError") {
-    return "上传超时：请检查网络。超过 50MB 的文件需在 COS 配置 CORS 后直传，或压缩后再试";
+    return "上传超时：请检查网络连接或 COS CORS 配置";
   }
   if (error instanceof TypeError && error.message === "Failed to fetch") {
-    return "网络请求失败：请确认 dev 已启动；超过 50MB 的直传还需在 COS 控制台配置 CORS（PUT + localhost 来源）";
+    return "网络请求失败：请确认 dev 已启动，并在 COS 控制台配置 CORS（PUT + localhost 来源及线上域名）";
   }
   if (error instanceof Error) {
     return error.message;
@@ -45,7 +43,14 @@ export function formatUploadFailure(error: unknown): string {
   return "上传失败";
 }
 
-async function uploadViaPresign(token: string, file: File, key: string): Promise<string> {
+export type UploadProgressCallback = (percent: number) => void;
+
+async function uploadViaPresign(
+  token: string,
+  file: File,
+  key: string,
+  onProgress?: UploadProgressCallback,
+): Promise<string> {
   const contentType = guessContentType(file);
   const presignRes = await fetch("/api/cos/presign", {
     method: "POST",
@@ -63,73 +68,70 @@ async function uploadViaPresign(token: string, file: File, key: string): Promise
     throw new Error(formatUploadError(presignRes, presignData, "预签名失败"));
   }
 
-  const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), PRESIGN_PUT_TIMEOUT_MS);
+  // 使用 XMLHttpRequest 以获取上传进度
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const timeoutId = window.setTimeout(() => {
+      xhr.abort();
+      reject(new Error("上传超时：直传 COS 无响应，请检查 CORS 配置或网络连接"));
+    }, PRESIGN_PUT_TIMEOUT_MS);
 
-  let putRes: Response;
-  try {
-    putRes = await fetch(presignData.uploadUrl, {
-      method: "PUT",
-      headers: { "Content-Type": contentType },
-      body: file,
-      signal: controller.signal,
-    });
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("上传超时：直传 COS 无响应，请检查 CORS 或改用 ≤50MB 文件走本站中转");
-    }
-    throw new Error(
-      "直传 COS 失败：请在腾讯云 Bucket → 安全管理 → CORS 中允许 PUT，并添加来源 http://localhost:3000（及线上域名）",
-    );
-  } finally {
-    window.clearTimeout(timeoutId);
-  }
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        onProgress(Math.round((event.loaded / event.total) * 100));
+      }
+    };
 
-  if (!putRes.ok) {
-    throw new Error(
-      `COS 直传失败 (HTTP ${putRes.status})：请检查 Bucket CORS 是否允许 PUT，以及对象键是否合法`,
-    );
-  }
+    xhr.onload = () => {
+      window.clearTimeout(timeoutId);
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else {
+        reject(
+          new Error(
+            `COS 直传失败 (HTTP ${xhr.status})：请检查 Bucket CORS 是否允许 PUT，以及对象键是否合法`,
+          ),
+        );
+      }
+    };
 
-  return presignData.publicUrl;
-}
+    xhr.onerror = () => {
+      window.clearTimeout(timeoutId);
+      reject(
+        new Error(
+          "直传 COS 失败：请在腾讯云 Bucket → 安全管理 → CORS 中允许 PUT，并添加来源 http://localhost:3000（及线上域名）",
+        ),
+      );
+    };
 
-async function uploadViaServer(token: string, file: File, key: string): Promise<string> {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("key", key);
+    xhr.onabort = () => {
+      window.clearTimeout(timeoutId);
+      reject(new Error("上传超时：直传 COS 无响应，请检查 CORS 配置或网络连接"));
+    };
 
-  const res = await fetch("/api/cos/upload", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
+    xhr.open("PUT", presignData.uploadUrl!);
+    xhr.setRequestHeader("Content-Type", contentType);
+    xhr.setRequestHeader("Cache-Control", "public, max-age=31536000, immutable");
+    xhr.send(file);
   });
 
-  const data = (await res.json()) as { publicUrl?: string; error?: string };
-  if (!res.ok || !data.publicUrl) {
-    throw new Error(formatUploadError(res, data, "上传失败"));
-  }
-  return data.publicUrl;
+  return presignData.publicUrl;
 }
 
 async function uploadRawFileAdmin(
   token: string,
   file: File,
   key: string,
+  onProgress?: UploadProgressCallback,
 ): Promise<string> {
-  if (file.size > SERVER_UPLOAD_MAX) {
-    return uploadViaPresign(token, file, key);
-  }
-
-  return uploadViaServer(token, file, key);
+  return uploadViaPresign(token, file, key, onProgress);
 }
 
 export async function uploadFileAdmin(
   token: string,
   file: File,
   key: string,
+  onProgress?: UploadProgressCallback,
 ): Promise<string> {
   if (!token.trim()) {
     throw new Error("未登录：请从 /admin 输入管理口令后再上传");
@@ -139,7 +141,7 @@ export async function uploadFileAdmin(
     return uploadImageVariantsAdmin(token, file, key, uploadRawFileAdmin);
   }
 
-  return uploadRawFileAdmin(token, file, key);
+  return uploadRawFileAdmin(token, file, key, onProgress);
 }
 
 /** 替换已有媒体前确认 */

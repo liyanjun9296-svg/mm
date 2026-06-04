@@ -1,5 +1,5 @@
 import type { WorkItem } from "@/features/portfolio/types";
-import { getCosEnv, getCosPublicUrl } from "./env";
+import { getCosPublicBaseUrl, getCosPublicUrl } from "./env";
 import { expandMediaKeysWithVariants } from "./media-variants";
 
 const WORKS_MEDIA_PREFIX = "works/";
@@ -47,6 +47,7 @@ export function normalizeWorkMediaUrlsForCos(work: WorkItem): WorkItem {
     ...work,
     coverImage: normalizeMediaUrlForCos(work.coverImage),
     mediaUrl: normalizeMediaUrlForCos(work.mediaUrl),
+    mediaUrlOriginal: work.mediaUrlOriginal ? normalizeMediaUrlForCos(work.mediaUrlOriginal) : work.mediaUrlOriginal,
     detailImages: work.detailImages?.map((url) => normalizeMediaUrlForCos(url)),
   };
 }
@@ -58,14 +59,14 @@ export function cosKeyFromPublicUrl(url: string): string | null {
     return null;
   }
 
-  const env = getCosEnv();
-  if (!env) {
+  const baseUrl = getCosPublicBaseUrl();
+  if (!baseUrl) {
     return null;
   }
 
   try {
     const parsed = new URL(trimmed);
-    const base = new URL(env.publicBaseUrl);
+    const base = new URL(baseUrl);
     if (parsed.hostname !== base.hostname) {
       return null;
     }

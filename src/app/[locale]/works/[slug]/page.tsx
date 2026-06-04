@@ -9,6 +9,8 @@ import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-tit
 import { getMessages } from "@/i18n/messages";
 import { isLocale } from "@/lib/i18n";
 
+export const revalidate = 3600;
+
 type WorkDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };

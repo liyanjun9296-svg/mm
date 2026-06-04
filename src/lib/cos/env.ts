@@ -11,6 +11,22 @@ function trimTrailingSlash(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
+/** Resolve just the public base URL — works on both server and client (uses NEXT_PUBLIC_ fallback). */
+export function getCosPublicBaseUrl(): string | null {
+  const explicit =
+    process.env.COS_PUBLIC_BASE_URL ??
+    process.env.NEXT_PUBLIC_COS_PUBLIC_BASE_URL;
+  if (explicit) {
+    return trimTrailingSlash(explicit);
+  }
+  const bucket = process.env.COS_BUCKET;
+  const region = process.env.COS_REGION;
+  if (bucket && region) {
+    return `https://${bucket}.cos.${region}.myqcloud.com`;
+  }
+  return null;
+}
+
 export function getCosEnv(): CosEnv | null {
   const secretId = process.env.COS_SECRET_ID;
   const secretKey = process.env.COS_SECRET_KEY;

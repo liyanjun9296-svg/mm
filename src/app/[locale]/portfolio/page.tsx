@@ -8,6 +8,8 @@ import { getWorks } from "@/features/portfolio/data/works-store";
 import { getMessages } from "@/i18n/messages";
 import { isLocale, type Locale } from "@/lib/i18n";
 
+export const revalidate = 300;
+
 type PortfolioPageProps = {
   params: Promise<{ locale: string }>;
 };

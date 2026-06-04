@@ -15,11 +15,109 @@ import {
   clearStoredAdminToken,
   deleteWorkItemAdmin,
   fetchWorksAdmin,
+  fetchWorkStatusAdmin,
   getStoredAdminToken,
   pullFromCosAdmin,
   saveWorksAdmin,
 } from "@/lib/admin/api";
 import { reorderPhotosInWorks } from "@/lib/admin/reorder-works";
+
+/** 去掉用户粘贴路径首尾的引号 */
+function stripQuotes(s: string): string {
+  const t = s.trim();
+  if ((t.startsWith("'") && t.endsWith("'")) || (t.startsWith('"') && t.endsWith('"'))) {
+    return t.slice(1, -1);
+  }
+  return t;
+}
+
+/**
+ * 视频状态圆点：绿=dual, 红=raw-only/none
+ * 点击弹出浮层：复制 process:video 命令 + 刷新状态
+ */
+function VideoStatusDot({ work, token }: { work: WorkItem; token: string }) {
+  const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [statusOverride, setStatusOverride] = useState<"dual" | "raw-only" | "none" | null>(null);
+  const [localPath, setLocalPath] = useState("");
+
+  // 挂载时自动拉取实时状态
+  useEffect(() => {
+    fetchWorkStatusAdmin(token, work.slug)
+      .then((r) => setStatusOverride(r.status))
+      .catch(() => {});
+  }, [token, work.slug]);
+
+  const currentStatus = statusOverride ?? (work.mediaUrl ? "dual" : work.mediaUrlOriginal ? "raw-only" : "none");
+  const isDual = currentStatus === "dual";
+  const cleanPath = stripQuotes(localPath);
+  const cliCmd = cleanPath
+    ? `npm run process:video -- ${work.slug} --local "${cleanPath}"`
+    : "";
+
+  async function copy() {
+    if (!cliCmd) return;
+    try {
+      await navigator.clipboard.writeText(cliCmd);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // ignore
+    }
+  }
+
+  async function refreshStatus() {
+    setChecking(true);
+    try {
+      const result = await fetchWorkStatusAdmin(token, work.slug);
+      setStatusOverride(result.status);
+    } catch {
+      // ignore
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  return (
+    <span className="admin-video-status-wrap" style={{ position: "relative" }}>
+      <button
+        type="button"
+        className={`admin-video-dot${isDual ? " admin-video-dot--ok" : " admin-video-dot--pending"}`}
+        title={isDual ? "已就绪（dual）" : "待处理"}
+        onClick={() => setOpen(!open)}
+      />
+      {open ? (
+        <div className="admin-video-popover" onClick={(e) => e.stopPropagation()}>
+          <input
+            className="admin-process-local-input"
+            type="text"
+            placeholder="粘贴本地路径（必填）"
+            value={localPath}
+            onChange={(e) => setLocalPath(e.target.value)}
+          />
+          <code className="admin-video-popover-cmd">{cliCmd || `npm run process:video -- ${work.slug} --local "填写上方路径"`}</code>
+          <div className="admin-video-popover-actions">
+            <button type="button" className="btn" onClick={copy} disabled={!cliCmd}>
+              {copied ? "已复制" : "复制"}
+            </button>
+            <button
+              type="button"
+              className={`btn${isDual ? " admin-process-status-btn--ok" : ""}`}
+              onClick={refreshStatus}
+              disabled={checking}
+            >
+              {checking ? "…" : isDual ? "✓" : "刷新"}
+            </button>
+            <button type="button" className="btn" onClick={() => setOpen(false)}>
+              ×
+            </button>
+          </div>
+        </div>
+      ) : null}
+    </span>
+  );
+}
 
 type WorksListClientProps = {
   locale: string;
@@ -154,6 +252,9 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
         <div className="admin-works-item-main">
           {dragHandle}
           {renderWorkThumb(work)}
+          {work.category === "video" ? (
+            <VideoStatusDot work={work} token={token} />
+          ) : null}
           <div>
             <div className="admin-works-title-row">
               <strong>{work.title}</strong>
