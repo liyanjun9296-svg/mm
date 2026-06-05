@@ -50,6 +50,14 @@ function fileExtension(file: File): string {
   return "bin";
 }
 
+/** 详情素材每次上传都用 timestamp+random 的唯一后缀，避免复用 detailIndex 时覆盖既有 COS 对象。
+ *  既有同 key 旧对象被新文件 PUT 覆盖会导致：旧 URL 仍在 JSON / 浏览器缓存中 →
+ *  视觉上"传上去的图变成了旧的那张"。
+ *  孤儿留在 COS 由 `npm run cos:prune-orphans` 清理。 */
+function uniqueDetailSuffix(): string {
+  return `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+}
+
 /** 按作品 slug 固定 COS 路径，避免时间戳 key 产生孤儿文件 */
 export function workMediaKey(
   slug: string,
@@ -71,11 +79,14 @@ export function workMediaKey(
     case "gallery":
       return `works/gallery/${safe}.detail.webp`;
     case "gallery-detail": {
+      // detailIndex 仅用于上传顺序追踪 / 状态消息，不参与 key 命名（防覆盖）
+      void detailIndex;
+      const suffix = uniqueDetailSuffix();
       const isVideo = file.type.startsWith("video/") || /\.(mp4|webm|mov)$/i.test(file.name);
       if (isVideo) {
-        return `works/gallery/${safe}-${detailIndex ?? 0}.${ext}`;
+        return `works/gallery/${safe}-${suffix}.${ext}`;
       }
-      return `works/gallery/${safe}-${detailIndex ?? 0}.detail.webp`;
+      return `works/gallery/${safe}-${suffix}.detail.webp`;
     }
   }
 }

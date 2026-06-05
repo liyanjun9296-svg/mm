@@ -1,7 +1,10 @@
 "use client";
 
 import { isWorksImageDetailKey } from "@/lib/cos/media-variants";
-import { uploadImageVariantsAdmin } from "@/lib/admin/upload-image-variants";
+import {
+  uploadImageVariantsAdmin,
+  type VariantWarningCallback,
+} from "@/lib/admin/upload-image-variants";
 import { authHeaders } from "@/lib/admin/token";
 
 const PRESIGN_PUT_TIMEOUT_MS = 600_000;
@@ -132,13 +135,14 @@ export async function uploadFileAdmin(
   file: File,
   key: string,
   onProgress?: UploadProgressCallback,
+  onVariantWarning?: VariantWarningCallback,
 ): Promise<string> {
   if (!token.trim()) {
     throw new Error("未登录：请从 /admin 输入管理口令后再上传");
   }
 
   if (file.type.startsWith("image/") && isWorksImageDetailKey(key)) {
-    return uploadImageVariantsAdmin(token, file, key, uploadRawFileAdmin);
+    return uploadImageVariantsAdmin(token, file, key, uploadRawFileAdmin, onVariantWarning);
   }
 
   return uploadRawFileAdmin(token, file, key, onProgress);

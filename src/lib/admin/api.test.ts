@@ -47,13 +47,22 @@ describe("titleFromFilename", () => {
 });
 
 describe("workMediaKey", () => {
-  it("video uses original extension", () => {
+  it("video kind always lands on .mp4 (1080p low-tier convention; CLI process:video output)", () => {
     expect(workMediaKey("hero", "video", makeFile("clip.mp4", 0, "video/mp4"))).toBe(
       "works/videos/hero.mp4",
     );
     expect(workMediaKey("hero", "video", makeFile("clip.webm", 0, "video/webm"))).toBe(
-      "works/videos/hero.webm",
+      "works/videos/hero.mp4",
     );
+  });
+
+  it("video-original preserves source extension", () => {
+    expect(
+      workMediaKey("hero", "video-original", makeFile("clip.webm", 0, "video/webm")),
+    ).toBe("works/videos/hero.original.webm");
+    expect(
+      workMediaKey("hero", "video-original", makeFile("clip.mov", 0, "video/quicktime")),
+    ).toBe("works/videos/hero.original.mov");
   });
 
   it("cover always normalizes to .detail.webp (variant pipeline expects legacy detail key)", () => {
@@ -71,13 +80,18 @@ describe("workMediaKey", () => {
     );
   });
 
-  it("gallery-detail uses index suffix", () => {
-    expect(workMediaKey("trip", "gallery-detail", makeFile("a.jpg"), 3)).toBe(
-      "works/gallery/trip-3.detail.webp",
-    );
-    expect(workMediaKey("trip", "gallery-detail", makeFile("a.jpg"))).toBe(
-      "works/gallery/trip-0.detail.webp",
-    );
+  it("gallery-detail uses unique random suffix per upload (avoid overwriting prior objects)", () => {
+    const key1 = workMediaKey("trip", "gallery-detail", makeFile("a.jpg"), 0);
+    const key2 = workMediaKey("trip", "gallery-detail", makeFile("a.jpg"), 0);
+    // detailIndex 不再决定 key,两次同 index 上传必产生不同对象,杜绝复用 index 时覆盖既有 COS 文件
+    expect(key1).not.toBe(key2);
+    expect(key1).toMatch(/^works\/gallery\/trip-[a-z0-9]+\.detail\.webp$/);
+    expect(key2).toMatch(/^works\/gallery\/trip-[a-z0-9]+\.detail\.webp$/);
+  });
+
+  it("gallery-detail video preserves source extension with unique suffix", () => {
+    const key = workMediaKey("trip", "gallery-detail", makeFile("clip.mp4", 0, "video/mp4"));
+    expect(key).toMatch(/^works\/gallery\/trip-[a-z0-9]+\.mp4$/);
   });
 
   it("sanitizes unsafe slug characters", () => {

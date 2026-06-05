@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem, WorkCategory } from "@/features/portfolio/types";
 import AdminThumb from "@/components/admin/AdminThumb";
@@ -186,6 +186,12 @@ export default function WorkEditForm({
   const [allWorks, setAllWorks] = useState<WorkItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [work, setWork] = useState<WorkItem>(() => emptyWork(initialType));
+  // workRef 与 work state 同步，供 autoSaveAfterVideoUpload 在 await waitForIdle 后读取最新值
+  // （直接读闭包里的 work 会拿到陈旧快照，丢失并发上传期间追加的 detailImages）
+  const workRef = useRef<WorkItem>(work);
+  useEffect(() => {
+    workRef.current = work;
+  }, [work]);
   const [status, setStatus] = useState("");
   const [statusTone, setStatusTone] = useState<StatusTone>("info");
   const [saving, setSaving] = useState(false);
@@ -200,7 +206,7 @@ export default function WorkEditForm({
     setStatusTone(tone);
   }
 
-  const { upload: handleUpload, uploading, uploadProgress } = useWorkUpload({
+  const { upload: handleUpload, uploading, uploadProgress, isUploading, waitForIdle } = useWorkUpload({
     token,
     slug: work.slug,
     title: work.title,
@@ -234,7 +240,6 @@ export default function WorkEditForm({
       .catch((err) => {
         setStatusMessage(err instanceof Error ? err.message : "加载失败", "error");
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale, router, slugParam, token, initialType]);
 
   function updateField<K extends keyof WorkItem>(key: K, value: WorkItem[K]) {
@@ -308,32 +313,47 @@ export default function WorkEditForm({
 
   /** 视频原片上传后自动保存到 COS，让内页 VideoStatusBlock 立刻能拉到真实状态 */
   async function autoSaveAfterVideoUpload(originalUrl: string) {
-    const slug = work.slug.trim() || slugify(work.title);
+    // 等待所有并发上传（如同时拖入的详情多图）落 state，避免读到陈旧快照导致 detailImages 丢失
+    await waitForIdle();
+    const latest = workRef.current;
+    const slug = latest.slug.trim() || slugify(latest.title);
     if (!slug) return;
 
     const item: WorkItem = {
-      ...work,
+      ...latest,
       slug,
       mediaUrlOriginal: originalUrl,
       mediaUrl: "",
-      detailImages: work.detailImages?.filter(Boolean) ?? [],
-      subcategory: work.category === "video" ? work.subcategory?.trim() || categories[0] : undefined,
-      duration: work.category === "video" ? work.duration : undefined,
-      featured: work.featured ?? false,
-      featuredLayout: work.featured ? work.featuredLayout ?? "large" : undefined,
+      detailImages: latest.detailImages?.filter(Boolean) ?? [],
+      subcategory: latest.category === "video" ? latest.subcategory?.trim() || categories[0] : undefined,
+      duration: latest.category === "video" ? latest.duration : undefined,
+      featured: latest.featured ?? false,
+      featuredLayout: latest.featured ? latest.featuredLayout ?? "large" : undefined,
     };
 
     setAutoSaving(true);
     try {
+      // previousSlug 与 handleSave 对齐：autoSave 已发生过一次后 isNew=false 但 slugParam 仍是 "new"，
+      // 此时应把真实 slug 当 previousSlug，而不是把字面量 "new" 发到服务端
+      const previousSlug = isNew
+        ? undefined
+        : slugParam === "new"
+          ? slug
+          : slugParam;
       await saveWorkItemAdmin(token, item, {
         isNew,
-        previousSlug: isNew ? undefined : slugParam,
+        previousSlug,
       });
       // 把真正的 slug 写回 work，让 VideoStatusBlock 能生成正确命令
       setWork((prev) => ({ ...prev, slug }));
       setIsNew(false);
       setStatusRefreshKey((k) => k + 1);
       setStatusMessage("原片已上传并自动保存，请在下方粘贴路径复制命令", "success");
+      // 把 URL 同步到真实 slug，避免用户刷新页面后 slugParam 仍是 "new" → 服务端 isNew=true → 409
+      // 参考 docs/ADMIN_ARCHITECTURE.md 第 309-312 行「已知技术债 #2 isNew 状态转换」
+      if (slugParam === "new") {
+        router.replace(`/${locale}/admin/works/${slug}`, { scroll: false });
+      }
     } catch {
       setStatusMessage("自动保存失败，请手动点击保存", "error");
     } finally {
@@ -652,7 +672,16 @@ export default function WorkEditForm({
 
       {!isArticleWork ? (
         <section className="admin-upload-section">
-          <h2>详情页素材（图片/MP4，可多个，拖拽排序）</h2>
+          <h2>
+            {isVideoWork
+              ? "视频详情页素材（出现在播放器下方，图片/MP4，可多个，拖拽排序）"
+              : "详情页素材（图片/MP4，可多个，拖拽排序）"}
+          </h2>
+          {isVideoWork ? (
+            <p className="admin-form-hint" style={{ margin: "4px 0 8px", color: "#888", fontSize: 12 }}>
+              视频原片请用上方「媒体」区上传；本区是详情页正文里的图文素材。
+            </p>
+          ) : null}
           {(work.detailImages ?? []).length > 0 ? (
             <SortableList
               items={work.detailImages ?? []}
@@ -687,7 +716,11 @@ export default function WorkEditForm({
             multiple
             onChange={(e) => {
               const files = Array.from(e.target.files ?? []);
+              if (files.length === 0) return;
               const baseIndex = (work.detailImages ?? []).length;
+
+              // 过滤超大视频；保留索引顺序
+              const uploads: { file: File; idx: number }[] = [];
               let offset = 0;
               for (const f of files) {
                 if (f.type === "video/mp4" || f.name.toLowerCase().endsWith(".mp4")) {
@@ -697,31 +730,48 @@ export default function WorkEditForm({
                     continue;
                   }
                 }
-                const idx = baseIndex + offset;
+                uploads.push({ file: f, idx: baseIndex + offset });
                 offset++;
-                void handleUpload(
-                  f,
-                  "gallery-detail",
-                  (url) => {
-                    setWork((prev) => ({
-                      ...prev,
-                      detailImages: [...(prev.detailImages ?? []), url],
-                    }));
-                  },
-                  {
-                    detailIndex: idx,
-                    fieldLabel: "详情素材",
-                  },
-                );
               }
+              if (uploads.length === 0) return;
+
+              // 并发上传，按选择顺序收集 URL，最后一次性追加，避免 state 抖动 + 顺序错乱。
+              // 注意 useWorkUpload.upload 永不 reject（失败时静默吞错并 setStatusMessage），
+              // 因此直接 await Promise.all 即可——任一失败那个 slot 留 null，过滤掉再追加。
+              const slots: (string | null)[] = new Array(uploads.length).fill(null);
+              void Promise.all(
+                uploads.map(({ file, idx }, i) =>
+                  handleUpload(
+                    file,
+                    "gallery-detail",
+                    (url) => {
+                      slots[i] = url;
+                    },
+                    {
+                      detailIndex: idx,
+                      fieldLabel: "详情素材",
+                    },
+                  ),
+                ),
+              ).then(() => {
+                const ordered = slots.filter((u): u is string => !!u);
+                if (ordered.length === 0) return;
+                setWork((prev) => ({
+                  ...prev,
+                  detailImages: [...(prev.detailImages ?? []), ...ordered],
+                }));
+              });
+
+              // 清空 input 让用户能再次选同一个文件
+              e.target.value = "";
             }}
           />
         </section>
       ) : null}
 
       <div className="admin-form-actions">
-        <button type="submit" className="btn" disabled={saving || autoSaving || !!uploading}>
-          {saving ? "保存中…" : autoSaving ? "自动保存中…" : "保存全部作品"}
+        <button type="submit" className="btn" disabled={saving || autoSaving || isUploading}>
+          {saving ? "保存中…" : autoSaving ? "自动保存中…" : isUploading ? "上传中…" : "保存全部作品"}
         </button>
       </div>
 
