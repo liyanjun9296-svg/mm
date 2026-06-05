@@ -77,6 +77,7 @@ export type VideoDirectionCard = {
   keywords: string[];
   description: string;
   placeholder: string;
+  videoUrl?: string;
 };
 
 export type VideoLinkCard = {
@@ -144,7 +145,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
           title: "业务痛点",
           subtitle: "学校宣传不只是曝光，核心是建立家长信任并推动招生转化。",
           content:
-            "教育品牌的转化链路长，家长不会因为一条内容立刻报名。项目初期真正要解决的，不是单纯「发什么内容」，而是如何让学校被持续看见、被持续信任，并让内容带来的咨询能够被有效承接和转化。",
+            "教育品牌的转化链路长，家长不会因为一条内容立刻报名。项目初期真正要解决的，不是单纯「发什么内容」，而是如何让学校<strong>被持续看见、被持续信任</strong>，并让内容带来的咨询能够被有效<strong>承接和转化</strong>。",
           type: "pain-points",
         },
         {
@@ -227,7 +228,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       index: "02",
       tag: "爆款打造",
       tagExtra: "账号冷启动",
-      title: "0-1起号",
+      title: "单条爆款打造",
       subtitle:
         "在账号 0-1 起号阶段，通过用户洞察、竞品拆解与内容方向判断，找到「精短、剧情合理、自然代入产品」的内容策略，打出账号首个爆款视频，完成从冷启动到热门内容的突破。",
       projectInfo: "0-1 起号项目｜短视频内容策划 / 脚本输出",
@@ -323,7 +324,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       index: "03",
       tag: "AIGC体系",
       tagExtra: "跨场景内容生产",
-      title: "AIGC流程搭建与团队赋能",
+      title: "AIGC / 团队赋能",
       subtitle:
         "围绕 AIGC 视频在连续性、稳定性和协作效率上的核心问题，搭建从创意拆解、分镜控制到生成校准的生产流程，将 AI 生成从单点素材产出转化为可复用的内容生产方法，降低团队使用门槛，统一产出标准。",
       projectInfo: "AIGC视频生产体系｜流程搭建 / 内容导演 / 团队赋能",
@@ -374,11 +375,11 @@ const casesData: Record<Locale, CaseCardData[]> = {
         },
       ],
       videoDirections: [
-        { title: "校园宣传视频", keywords: ["真实素材", "延时摄影", "品牌包装"], description: "用于校园宣传与活动包装，让真实素材具备更强的节奏感和传播质感。", placeholder: "校园视频循环素材" },
-        { title: "真人产品视频", keywords: ["场景代入", "产品表达", "商业短片"], description: "用于产品展示与营销传播，让产品自然进入场景，而不是生硬露出。", placeholder: "真人产品视频循环素材" },
-        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材" },
-        { title: "无人驾驶系列", keywords: ["科技视觉", "场景逻辑", "未来交通"], description: "用于智能驾驶与科技产品表达，重点建立清晰的场景逻辑和未来感视觉。", placeholder: "无人驾驶系列循环素材" },
-        { title: "卡通游戏CG", keywords: ["角色风格", "趣味叙事", "游戏感"], description: "用于游戏化与动漫化内容表达，重点统一角色风格、动作表现和娱乐化情绪。", placeholder: "卡通游戏CG循环素材" },
+        { title: "校园宣传视频", keywords: ["真实素材", "延时摄影", "品牌包装"], description: "用于校园宣传与活动包装，让真实素材具备更强的节奏感和传播质感。", placeholder: "校园视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/campus.mp4" },
+        { title: "真人产品视频", keywords: ["场景代入", "产品表达", "商业短片"], description: "用于产品展示与营销传播，让产品自然进入场景，而不是生硬露出。", placeholder: "真人产品视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/product.mp4" },
+        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4" },
+        { title: "无人驾驶系列", keywords: ["科技视觉", "场景逻辑", "未来交通"], description: "用于智能驾驶与科技产品表达，重点建立清晰的场景逻辑和未来感视觉。", placeholder: "无人驾驶系列循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/autonomous.mp4" },
+        { title: "卡通游戏CG", keywords: ["角色风格", "趣味叙事", "游戏感"], description: "用于游戏化与动漫化内容表达，重点统一角色风格、动作表现和娱乐化情绪。", placeholder: "卡通游戏CG循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/game-cg.mp4" },
       ],
       problemCards: [
         { title: "角色稳定", description: "人物形象、服装、姿态和状态在不同镜头中容易变化。" },
@@ -463,7 +464,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
           title: "Business Pain Points",
           subtitle: "School marketing isn't just about exposure — it's about building parent trust and driving enrollment.",
           content:
-            "The conversion path in education is long; parents won't enroll from a single piece of content. The real challenge wasn't 'what to post' but how to ensure the school is consistently seen, trusted, and that inquiries are effectively handled and converted.",
+            "The conversion path in education is long; parents won't enroll from a single piece of content. The real challenge wasn't 'what to post' but how to ensure the school is <strong>consistently seen, trusted</strong>, and that inquiries are effectively <strong>handled and converted</strong>.",
           type: "pain-points",
         },
         {

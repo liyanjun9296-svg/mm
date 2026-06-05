@@ -9,7 +9,7 @@
 - `src/components/sections/ViralCaseCards.tsx` — 小卡 + 弹窗壳（header/metrics/close）
 - `src/app/styles/_viral-hits.css` — 全部样式
 
-## 已有 module type（可直接复用）
+## 已有 module type
 
 | type | 用途 | 组件 |
 |------|------|------|
@@ -21,6 +21,12 @@
 | `insights` | 4 洞察卡横排 + 结论卡 | InsightsModule |
 | `strategy` | 纵向流程图 + 右图片占位 | StrategyModule |
 | `result-deposits` | 左数据 + 右沉淀价值列表 | ResultDepositsModule |
+| `image-showcase` | 单张长图展示 | ImageShowcaseModule |
+| `video-cards` | 5 视频卡网格（16:9占位+标题+单行描述）| VideoCardsModule |
+| `problem-cards` | 4 问题卡网格 | ProblemCardsModule |
+| `flow-horizontal` | 横向流程图 | FlowHorizontalModule |
+| `value-cards` | 4 价值卡网格 | ValueCardsModule |
+| `video-link` | 底部视频跳转大卡（蓝边按钮）| VideoLinkModule |
 
 ## CaseCardData 关键字段
 
@@ -29,11 +35,12 @@
   id, index, tag, tagExtra?, title, subtitle, projectInfo?,
   metrics: CaseMetric[],      // 小卡 + 弹窗 header 右侧
   platformTags: string[],     // 小卡底部
-  modules: CaseModule[],      // 弹窗内模块（type 决定渲染方式）
+  modules: CaseModule[],      // 弹窗内模块
   // 按 module type 选用的数据字段：
   painPoints?, systemCards?, cycleNodes?, cycleSummary?, resultSummary?,
   backgroundPoints?, backgroundImages?, insightCards?, insightConclusion?,
-  strategyNodes?, strategyImages?, resultDeposits?
+  strategyNodes?, strategyImages?, resultDeposits?, showcaseImage?,
+  videoDirections?, problemCards?, horizontalFlow?, valueCards?, videoLink?
 }
 ```
 
@@ -41,7 +48,7 @@
 
 - 小标签：`{index} / {tag} / {tagExtra}`（tagExtra 可选）
 - 主标题：`title`
-- 核心总结：`subtitle`（长文，替代旧 subtitle）
+- 核心总结：`subtitle`（长文）
 - projectInfo
 - 右侧 metrics 数据卡
 - 弹窗 max-width: 1200px
@@ -52,24 +59,27 @@
 |---|-----------|-----------|------|
 | 01 | 内容运营系统搭建 | 内容运营系统搭建 | 已完成 |
 | 02 | 0-1起号 | 冷启动爆款突破 | 已完成 |
-| 03 | 爆款拆解（placeholder）| — | 待做 |
-| 04 | 账号运营（placeholder）| — | 待做 |
+| 03 | AIGC流程搭建与团队赋能 | AIGC流程搭建与团队赋能 | 已完成 |
+| 04 | 文章 /seo 数据展示 | 图文爆款与网感表达 | 已完成 |
 
-## 添加新卡片步骤
+## 交互动画（ViralCaseCards.tsx）
 
-1. 在 `case-details.ts` 替换对应 placeholder（zh + en 都要改）
-2. 如需新 module type：
-   - `CaseModule.type` union 加入新值
-   - `CaseModalContent.tsx` 写渲染函数
-   - 主 export 函数加 `{mod.type === "xxx" && <XxxModule />}`
-3. 如复用已有 type → 只写数据
-4. CSS 新布局加在 `/* ── Mobile ── */` 之前；移动端规则加在 `@media (max-width: 900px)` 块末尾
-5. `npm run build` 验证
+- 小卡点击 → `layoutId={`case-card-${id}`}` 动画展开为弹窗
+- 弹窗关闭 → 反向收缩回小卡
+- 使用 Framer Motion `AnimatePresence` + `motion.div`
+- 弹窗内容 `CaseModalContent` 内各模块有 stagger 入场动画
+
+## 样式约定
+
+- 弹窗背景：`#0d0d0d`，边框 `var(--line)`
+- 卡片背景：`#141414`，边框 `rgba(255,255,255,0.08)`
+- 强调色：`var(--accent)` = `#4a9fd8`
+- 模块入场：`opacity 0→1 + y 20→0`，stagger delay `0.15 + i*0.1`
+- 移动端断点：`@media (max-width: 900px)`
 
 ## 注意事项
 
-- 字符串内中文引号用 `「」` 不要用 `""`（会导致 TS parse 错误）
+- 字符串内中文引号用 `「」` 不要用 `""`
 - 组件内不能用 `JSX.Element`，用 `React.ReactElement`
-- 小卡 tag 和弹窗 tag 可以不同
-- 图片占位后续替换为真实图片（`ImagePlaceholder.src` 填路径，用 `next/image`）
-- 交互方式保持现状：小卡 layoutId 动画展开为弹窗，收起同理
+- 图片占位后续替换为真实图片
+- 视频占位后续替换为循环视频/gif

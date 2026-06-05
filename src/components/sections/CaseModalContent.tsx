@@ -312,9 +312,20 @@ function VideoCardsModule({ caseData }: Props) {
     <div className="case-video-cards">
       {caseData.videoDirections.map((card) => (
         <div key={card.title} className="case-video-card">
-          <div className="case-video-card-placeholder">
-            <span>{card.placeholder}</span>
-          </div>
+          {card.videoUrl ? (
+            <video
+              className="case-video-card-video"
+              src={card.videoUrl}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <div className="case-video-card-placeholder">
+              <span>{card.placeholder}</span>
+            </div>
+          )}
           <div className="case-video-card-text">
             <h4>{card.title}</h4>
             <p>{card.description}</p>
@@ -425,7 +436,7 @@ export default function CaseModalContent({ caseData }: Props) {
           </div>
           <p className="case-module-subtitle">{mod.subtitle}</p>
           {mod.content && (
-            <p className="case-module-content">{mod.content}</p>
+            <p className="case-module-content" dangerouslySetInnerHTML={{ __html: mod.content }} />
           )}
 
           {mod.type === "pain-points" && <PainPointsModule caseData={caseData} />}

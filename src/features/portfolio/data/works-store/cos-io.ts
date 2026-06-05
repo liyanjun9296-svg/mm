@@ -17,7 +17,7 @@ export async function fetchJsonFromCos<T>(key: string): Promise<T | null> {
   }
   try {
     const res = await fetch(url, {
-      next: { tags: [WORKS_CACHE_TAG] },
+      next: { tags: [WORKS_CACHE_TAG], revalidate: 300 },
     });
     if (!res.ok) {
       return null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CaseCardData } from "@/features/profile/data/case-details";
 import CaseModalContent from "./CaseModalContent";
@@ -12,6 +12,17 @@ type Props = {
 export default function ViralCaseCards({ cases }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const activeCase = cases.find((c) => c.id === activeId);
+
+  useEffect(() => {
+    if (activeId) {
+      document.documentElement.style.overflow = "hidden";
+    } else {
+      document.documentElement.style.overflow = "";
+    }
+    return () => {
+      document.documentElement.style.overflow = "";
+    };
+  }, [activeId]);
 
   return (
     <>
@@ -29,12 +40,9 @@ export default function ViralCaseCards({ cases }: Props) {
               <span className="viral-case-index">{c.index}</span>
               <span className="viral-case-tag">{c.tag}</span>
             </div>
-            <motion.h3
-              layoutId={`case-title-${c.id}`}
-              className="viral-case-title"
-            >
+            <h3 className="viral-case-title">
               {c.title}
-            </motion.h3>
+            </h3>
             <p className="viral-case-subtitle">{c.subtitle}</p>
             {c.metrics.length > 0 && (
               <div className="viral-case-metrics">
@@ -81,12 +89,9 @@ export default function ViralCaseCards({ cases }: Props) {
                     <span className="case-modal-index">
                       {activeCase.index} / {activeCase.tag}{activeCase.tagExtra ? ` / ${activeCase.tagExtra}` : ""}
                     </span>
-                    <motion.h2
-                      layoutId={`case-title-${activeCase.id}`}
-                      className="case-modal-title"
-                    >
+                    <h2 className="case-modal-title">
                       {activeCase.title}
-                    </motion.h2>
+                    </h2>
                     <p className="case-modal-subtitle">
                       {activeCase.subtitle}
                     </p>
@@ -95,18 +100,6 @@ export default function ViralCaseCards({ cases }: Props) {
                         {activeCase.projectInfo}
                       </p>
                     )}
-                  </div>
-                  <div className="case-modal-header-right">
-                    {activeCase.metrics.map((m) => (
-                      <div key={m.label} className="case-modal-metric">
-                        <span className="case-modal-metric-value">
-                          {m.value}
-                        </span>
-                        <span className="case-modal-metric-label">
-                          {m.label}
-                        </span>
-                      </div>
-                    ))}
                   </div>
                 </div>
 

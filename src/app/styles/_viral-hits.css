@@ -73,7 +73,7 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
-  padding: 45px 0 0;
+  padding: 30px 0 0;
 }
 
 .viral-case-card {
@@ -126,7 +126,7 @@
 }
 
 .viral-case-title {
-  font-size: 1.125rem;
+  font-size: 1.375rem;
   font-weight: 600;
   color: var(--text);
   line-height: 1.4;
@@ -138,13 +138,38 @@
   color: var(--muted);
   line-height: 1.5;
   margin: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ── Case tag per-card colors ── */
+.viral-cases .viral-case-card:nth-child(1) .viral-case-tag {
+  color: #5b8db8;
+  background: rgba(91, 141, 184, 0.12);
+}
+
+.viral-cases .viral-case-card:nth-child(2) .viral-case-tag {
+  color: #b89a5b;
+  background: rgba(184, 154, 91, 0.12);
+}
+
+.viral-cases .viral-case-card:nth-child(3) .viral-case-tag {
+  color: #9b7ab8;
+  background: rgba(155, 122, 184, 0.12);
+}
+
+.viral-cases .viral-case-card:nth-child(4) .viral-case-tag {
+  color: #5b9b8a;
+  background: rgba(91, 155, 138, 0.12);
 }
 
 .viral-case-metrics {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
-  margin-top: 4px;
+  margin-top: 14px;
 }
 
 .viral-case-metric {
@@ -155,13 +180,11 @@
 .viral-case-metric strong {
   color: var(--text);
   font-weight: 700;
+  font-size: 1rem;
 }
 
 .viral-case-platforms {
-  font-size: 0.7rem;
-  color: var(--muted);
-  opacity: 0.7;
-  margin-top: auto;
+  display: none;
 }
 
 .viral-case-arrow {
@@ -206,12 +229,31 @@
   max-width: 1200px;
   max-height: 80vh;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(140, 140, 140, 0.35) transparent;
   background: #0d0d0d;
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 56px 60px;
   pointer-events: auto;
   position: relative;
+}
+
+.case-modal::-webkit-scrollbar {
+  width: 4px;
+}
+
+.case-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.case-modal::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.35);
+  border-radius: 2px;
+}
+
+.case-modal::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.55);
 }
 
 /* ── Modal header ── */
@@ -256,7 +298,7 @@
 .case-modal-project {
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.45);
-  margin: 0;
+  margin: 30px 0 0;
 }
 
 .case-modal-header-right {
@@ -324,7 +366,7 @@
 }
 
 .case-module-index {
-  font-size: 0.8rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--accent);
   letter-spacing: 0.06em;
@@ -547,10 +589,15 @@
   margin: 0 0 28px;
 }
 
+.case-module-content strong {
+  color: #fff;
+  font-weight: 600;
+}
+
 /* ── Pain Points: circles with connectors ── */
 .case-pain-points {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0;
   justify-content: center;
 }
@@ -569,6 +616,7 @@
   background: #141414;
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
   padding: 20px;
@@ -594,6 +642,7 @@
   height: 1px;
   background: rgba(255, 255, 255, 0.12);
   flex-shrink: 0;
+  margin: auto;
 }
 
 /* ── System Build: vertical large cards ── */
@@ -1267,6 +1316,14 @@
   justify-content: center;
   color: var(--muted);
   font-size: 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.case-video-card-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
