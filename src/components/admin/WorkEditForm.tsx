@@ -215,11 +215,12 @@ export default function WorkEditForm({
       router.replace(`/${locale}/admin`);
       return;
     }
+    const loadingNew = slugParam === "new";
     Promise.all([fetchWorksAdmin(token), fetchCategoriesAdmin(token)])
       .then(([list, cats]) => {
         setAllWorks(list);
         setCategories(cats);
-        if (isNew) {
+        if (loadingNew) {
           setWork(emptyWork(initialType));
         } else {
           const found = list.find((w) => w.slug === slugParam);
@@ -233,7 +234,8 @@ export default function WorkEditForm({
       .catch((err) => {
         setStatusMessage(err instanceof Error ? err.message : "加载失败", "error");
       });
-  }, [locale, router, slugParam, isNew, token, initialType]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, router, slugParam, token, initialType]);
 
   function updateField<K extends keyof WorkItem>(key: K, value: WorkItem[K]) {
     setWork((prev) => {
