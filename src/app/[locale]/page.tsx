@@ -4,6 +4,7 @@ import CapabilitiesSection from "@/components/sections/CapabilitiesSection";
 import ContactSection from "@/components/sections/ContactSection";
 import HeroSection from "@/components/sections/HeroSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
+import ViralHitsSection from "@/components/sections/ViralHitsSection";
 import { resolveHeroDisplayFont } from "@/config/hero-display-font";
 import { getWorks } from "@/features/portfolio/data/works-store";
 import { getMessages } from "@/i18n/messages";
@@ -35,6 +36,7 @@ export default async function LocaleHomePage({ params, searchParams }: LocaleHom
       <HeroSection messages={messages} locale={locale as Locale} displayFont={displayFont} />
       <CapabilitiesSection messages={messages} />
       <PortfolioSection works={works} messages={messages} locale={locale as Locale} />
+      <ViralHitsSection messages={messages} locale={locale as Locale} />
       <AboutSection messages={messages} locale={locale as Locale} />
       <ContactSection messages={messages} locale={locale as Locale} />
     </main>

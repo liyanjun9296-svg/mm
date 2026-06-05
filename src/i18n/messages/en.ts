@@ -58,6 +58,10 @@ const en = {
     openDetail: "View Detail",
     relatedTitle: "Related Works",
   },
+  viralHits: {
+    sectionTitle: "Viral Track Record",
+    sectionDesc: "Data-backed proof of creating viral content at scale.",
+  },
   about: {
     sectionTitle: "Experience",
     sectionDesc: "Education, career timeline and key milestones.",

@@ -57,6 +57,10 @@ const zh = {
     openDetail: "查看详情",
     relatedTitle: "相关作品",
   },
+  viralHits: {
+    sectionTitle: "爆款战绩",
+    sectionDesc: "用数据说话，证明打造爆款的能力。",
+  },
   about: {
     sectionTitle: "个人经历",
     sectionDesc: "教育背景、职业轨迹与核心经历。",

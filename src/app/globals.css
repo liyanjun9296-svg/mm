@@ -5,6 +5,7 @@
 @import "./styles/_section-header.css"; /* 全站大板块标题 */
 @import "./styles/_capabilities.css"; /* 我能做什么 */
 @import "./styles/_portfolio.css"; /* 作品集：视频区、照片区、详情页 */
+@import "./styles/_viral-hits.css"; /* 爆款战绩 */
 @import "./styles/_about.css";    /* 关于我 */
 @import "./styles/_contact.css";  /* 联系方式 + 页脚 */
 @import "./styles/_dock.css";     /* 左下角操作栏 */

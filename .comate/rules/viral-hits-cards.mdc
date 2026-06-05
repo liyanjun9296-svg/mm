@@ -1,0 +1,75 @@
+# 曝光战绩卡片弹窗框架
+
+曝光战绩区块（ViralHitsSection）包含 4 张能力卡片，点击展开为 1200px 居中弹窗，弹窗内可滚动。整体深色高级作品集风格。
+
+## 涉及文件
+
+- `src/features/profile/data/case-details.ts` — 类型定义 + 中英文 case 数据
+- `src/components/sections/CaseModalContent.tsx` — 弹窗内容渲染（按 module type 分发）
+- `src/components/sections/ViralCaseCards.tsx` — 小卡 + 弹窗壳（header/metrics/close）
+- `src/app/styles/_viral-hits.css` — 全部样式
+
+## 已有 module type（可直接复用）
+
+| type | 用途 | 组件 |
+|------|------|------|
+| `pain-points` | 4 圆圈痛点 + 连线 | PainPointsModule |
+| `system-build` | 3 张大卡（左文字+右示意图）| SystemBuildModule |
+| `cycle` | 环形闭环图 + 说明卡 | CycleModule |
+| `result` | 横向大卡（左文字+右数据）| ResultModule |
+| `background` | 左文字要点 + 右图片占位 | BackgroundModule |
+| `insights` | 4 洞察卡横排 + 结论卡 | InsightsModule |
+| `strategy` | 纵向流程图 + 右图片占位 | StrategyModule |
+| `result-deposits` | 左数据 + 右沉淀价值列表 | ResultDepositsModule |
+
+## CaseCardData 关键字段
+
+```ts
+{
+  id, index, tag, tagExtra?, title, subtitle, projectInfo?,
+  metrics: CaseMetric[],      // 小卡 + 弹窗 header 右侧
+  platformTags: string[],     // 小卡底部
+  modules: CaseModule[],      // 弹窗内模块（type 决定渲染方式）
+  // 按 module type 选用的数据字段：
+  painPoints?, systemCards?, cycleNodes?, cycleSummary?, resultSummary?,
+  backgroundPoints?, backgroundImages?, insightCards?, insightConclusion?,
+  strategyNodes?, strategyImages?, resultDeposits?
+}
+```
+
+## 弹窗 header 结构
+
+- 小标签：`{index} / {tag} / {tagExtra}`（tagExtra 可选）
+- 主标题：`title`
+- 核心总结：`subtitle`（长文，替代旧 subtitle）
+- projectInfo
+- 右侧 metrics 数据卡
+- 弹窗 max-width: 1200px
+
+## 当前 4 张卡状态
+
+| # | 小卡 title | 弹窗 title | 状态 |
+|---|-----------|-----------|------|
+| 01 | 内容运营系统搭建 | 内容运营系统搭建 | 已完成 |
+| 02 | 0-1起号 | 冷启动爆款突破 | 已完成 |
+| 03 | 爆款拆解（placeholder）| — | 待做 |
+| 04 | 账号运营（placeholder）| — | 待做 |
+
+## 添加新卡片步骤
+
+1. 在 `case-details.ts` 替换对应 placeholder（zh + en 都要改）
+2. 如需新 module type：
+   - `CaseModule.type` union 加入新值
+   - `CaseModalContent.tsx` 写渲染函数
+   - 主 export 函数加 `{mod.type === "xxx" && <XxxModule />}`
+3. 如复用已有 type → 只写数据
+4. CSS 新布局加在 `/* ── Mobile ── */` 之前；移动端规则加在 `@media (max-width: 900px)` 块末尾
+5. `npm run build` 验证
+
+## 注意事项
+
+- 字符串内中文引号用 `「」` 不要用 `""`（会导致 TS parse 错误）
+- 组件内不能用 `JSX.Element`，用 `React.ReactElement`
+- 小卡 tag 和弹窗 tag 可以不同
+- 图片占位后续替换为真实图片（`ImagePlaceholder.src` 填路径，用 `next/image`）
+- 交互方式保持现状：小卡 layoutId 动画展开为弹窗，收起同理

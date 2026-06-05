@@ -17,7 +17,7 @@ export default function AboutSection({ messages, locale }: AboutSectionProps) {
   return (
     <section id="about" className="section about-section">
       <div className="container">
-        <SectionHeader index="02" title={messages.about.sectionTitle} />
+        <SectionHeader index="03" title={messages.about.sectionTitle} />
 
         <div className="about-grid">
           <article className="about-left-card">
