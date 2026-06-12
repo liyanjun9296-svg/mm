@@ -1089,6 +1089,19 @@
   font-size: 0.75rem;
 }
 
+.case-background-img-placeholder--filled {
+  overflow: hidden;
+  border-style: solid;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.case-background-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* ── Insights Module: cards + conclusion ── */
 .case-insights {
   display: flex;

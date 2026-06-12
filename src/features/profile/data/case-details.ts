@@ -279,8 +279,8 @@ const casesData: Record<Locale, CaseCardData[]> = {
         "需要找到可复制的视频结构",
       ],
       backgroundImages: [
-        { label: "账号主页截图" },
-        { label: "爆款视频截图" },
+        { label: "账号主页截图", src: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/cold-start/account-profile.png" },
+        { label: "爆款视频截图", src: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/cold-start/viral-video.png" },
       ],
       insightCards: [
         { title: "用户洞察", description: "用户不是想看硬广，而是想看一个真实生活问题被解决。" },
@@ -377,7 +377,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       videoDirections: [
         { title: "校园宣传视频", keywords: ["真实素材", "延时摄影", "品牌包装"], description: "用于校园宣传与活动包装，让真实素材具备更强的节奏感和传播质感。", placeholder: "校园视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/campus.mp4" },
         { title: "真人产品视频", keywords: ["场景代入", "产品表达", "商业短片"], description: "用于产品展示与营销传播，让产品自然进入场景，而不是生硬露出。", placeholder: "真人产品视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/product.mp4" },
-        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4" },
+        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260607" },
         { title: "无人驾驶系列", keywords: ["科技视觉", "场景逻辑", "未来交通"], description: "用于智能驾驶与科技产品表达，重点建立清晰的场景逻辑和未来感视觉。", placeholder: "无人驾驶系列循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/autonomous.mp4" },
         { title: "卡通游戏CG", keywords: ["角色风格", "趣味叙事", "游戏感"], description: "用于游戏化与动漫化内容表达，重点统一角色风格、动作表现和娱乐化情绪。", placeholder: "卡通游戏CG循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/game-cg.mp4" },
       ],
@@ -389,9 +389,9 @@ const casesData: Record<Locale, CaseCardData[]> = {
       ],
       horizontalFlow: [
         { title: "创意拆解", description: "明确内容目标、情绪方向和核心看点" },
+        { title: "风格约束", description: "统一角色设定、画面质感、色调和视觉关键词" },
         { title: "脚本结构", description: "把想法拆成开头、推进、转折和收尾" },
         { title: "分镜控制", description: "规划镜头顺序、景别、动作和信息释放" },
-        { title: "风格约束", description: "统一角色设定、画面质感、色调和视觉关键词" },
         { title: "镜头生成", description: "按分镜生成素材，筛选可用镜头" },
         { title: "后期校准", description: "通过剪辑、调色、补镜头和节奏调整统一成片" },
         { title: "方法沉淀", description: "沉淀提示词、分镜模板、风格规范和验收标准" },
@@ -598,8 +598,8 @@ const casesData: Record<Locale, CaseCardData[]> = {
         "Need to find replicable video structure",
       ],
       backgroundImages: [
-        { label: "Account homepage screenshot" },
-        { label: "Viral video screenshot" },
+        { label: "Account homepage screenshot", src: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/cold-start/account-profile.png" },
+        { label: "Viral video screenshot", src: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/cold-start/viral-video.png" },
       ],
       insightCards: [
         { title: "User Insight", description: "Users don't want hard ads — they want to see a real-life problem being solved." },
@@ -696,7 +696,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       videoDirections: [
         { title: "Campus Promo Video", keywords: ["Real footage", "Timelapse", "Brand packaging"], description: "For campus marketing and event packaging, giving real footage stronger rhythm and distribution quality.", placeholder: "Campus video loop" },
         { title: "Product Video", keywords: ["Scene immersion", "Product expression", "Commercial short"], description: "For product showcase and marketing, letting products enter scenes naturally without forced placement.", placeholder: "Product video loop" },
-        { title: "3D Animation Short", keywords: ["Storyboard control", "Character consistency", "Narrative rhythm"], description: "For narrative visual content, focusing on character, space, action causality and camera rhythm control.", placeholder: "3D animation loop" },
+        { title: "3D Animation Short", keywords: ["Storyboard control", "Character consistency", "Narrative rhythm"], description: "For narrative visual content, focusing on character, space, action causality and camera rhythm control.", placeholder: "3D animation loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260607" },
         { title: "Autonomous Driving", keywords: ["Tech visuals", "Scene logic", "Future transport"], description: "For intelligent driving and tech product expression, building clear scene logic and futuristic visuals.", placeholder: "Autonomous driving loop" },
         { title: "Cartoon Game CG", keywords: ["Character style", "Fun narrative", "Game feel"], description: "For gamified and anime-style content, unifying character style, action performance, and entertainment emotion.", placeholder: "Game CG loop" },
       ],
@@ -708,9 +708,9 @@ const casesData: Record<Locale, CaseCardData[]> = {
       ],
       horizontalFlow: [
         { title: "Creative Breakdown", description: "Clarify content goals, emotional direction, and core highlights" },
+        { title: "Style Constraints", description: "Unify character design, visual texture, color tone, and visual keywords" },
         { title: "Script Structure", description: "Break ideas into opening, progression, turning point, and conclusion" },
         { title: "Storyboard Control", description: "Plan shot sequence, framing, actions, and information release" },
-        { title: "Style Constraints", description: "Unify character design, visual texture, color tone, and visual keywords" },
         { title: "Shot Generation", description: "Generate assets per storyboard, screen usable shots" },
         { title: "Post Calibration", description: "Unify through editing, color grading, supplementary shots, and rhythm adjustment" },
         { title: "Method Deposit", description: "Deposit prompts, storyboard templates, style specs, and acceptance standards" },

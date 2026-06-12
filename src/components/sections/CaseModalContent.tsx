@@ -219,8 +219,16 @@ function BackgroundModule({ caseData }: Props) {
       </div>
       <div className="case-background-images">
         {(caseData.backgroundImages ?? []).map((img) => (
-          <div key={img.label} className="case-background-img-placeholder">
-            <span>{img.label}</span>
+          <div
+            key={img.label}
+            className={`case-background-img-placeholder${img.src ? " case-background-img-placeholder--filled" : ""}`}
+          >
+            {img.src ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={img.src} alt={img.label} className="case-background-img" />
+            ) : (
+              <span>{img.label}</span>
+            )}
           </div>
         ))}
       </div>
