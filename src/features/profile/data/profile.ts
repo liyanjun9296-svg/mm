@@ -84,6 +84,16 @@ const profileSource = {
   faq: [
     {
       question: {
+        zh: "你何时能到岗？",
+        en: "When can you start?",
+      },
+      answer: {
+        zh: "随时可以，目前处于gap期，欢迎联系：15607835498（同v）",
+        en: "Available immediately. Currently in a gap period — feel free to reach out: 15607835498 (also WeChat).",
+      },
+    },
+    {
+      question: {
         zh: "你的核心差异化优势是什么？",
         en: "What is your core differentiator?",
       },
@@ -130,6 +140,16 @@ const profileSource = {
       answer: {
         zh: "两类企业：一是渴望利用AI降本增效、快速重构内容生产线的传统品牌；二是产品客单价高、急需通过全网矩阵精准获客并跑通私域转化闭环的商业项目。",
         en: "Two kinds: traditional brands who want AI to cut cost and rebuild their content line; and high-ticket businesses who need cross-platform multi-account acquisition plus a working private-traffic conversion loop.",
+      },
+    },
+    {
+      question: {
+        zh: "网站与作品集内容生产工具？",
+        en: "What tools were used to build this site and produce the content?",
+      },
+      answer: {
+        zh: "开发与搭建：IDE Cursor，AI Model Claude Sonnet / Codex / Composer。视觉与影像生成：平台 LiblibAI / Lovart，模型 Midjourney / Nano Banana / GPT Image 2。内容策划与文案：ChatGPT / Gemini。",
+        en: "Dev & build: IDE Cursor, AI Model Claude Sonnet / Codex / Composer. Visual & image generation: LiblibAI / Lovart, models Midjourney / Nano Banana / GPT Image 2. Content planning & copy: ChatGPT / Gemini.",
       },
     },
   ] satisfies LocalizedFaq[],

@@ -101,6 +101,10 @@
   transform: translateY(-2px);
 }
 
+.menu a.active {
+  color: #fff;
+}
+
 .nav-right {
   display: flex;
   align-items: center;
@@ -272,7 +276,8 @@
   }
 
   .nav-mobile-links a:hover,
-  .nav-mobile-links a:focus-visible {
+  .nav-mobile-links a:focus-visible,
+  .nav-mobile-links a.active {
     color: #fff;
   }
 }

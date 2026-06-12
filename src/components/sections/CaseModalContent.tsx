@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import type { CaseCardData } from "@/features/profile/data/case-details";
 
@@ -32,6 +33,11 @@ function PlatformRadialDiagram() {
   return (
     <div className="diagram-radial">
       <div className="diagram-radial-center">校区品牌内容</div>
+      <div className="diagram-radial-lines">
+        <span className="diagram-radial-line diagram-radial-line--left" />
+        <span className="diagram-radial-line diagram-radial-line--center" />
+        <span className="diagram-radial-line diagram-radial-line--right" />
+      </div>
       <div className="diagram-radial-nodes">
         <div className="diagram-radial-node">
           <span className="diagram-radial-dot" />
@@ -57,17 +63,19 @@ function PlatformRadialDiagram() {
 function BrandAssetsDiagram() {
   return (
     <div className="diagram-brand">
-      <div className="diagram-brand-logo">Logo System</div>
+      <span className="diagram-brand-section-title diagram-brand-section-title--large">品牌颜色</span>
       <div className="diagram-brand-colors">
         <span className="diagram-brand-swatch" style={{ background: "#11332F" }} />
         <span className="diagram-brand-swatch" style={{ background: "#1a5c4a" }} />
         <span className="diagram-brand-swatch" style={{ background: "#A3BABB" }} />
         <span className="diagram-brand-swatch" style={{ background: "#CFB581" }} />
       </div>
+      <span className="diagram-brand-section-title diagram-brand-section-title--large">字体颜色</span>
       <div className="diagram-brand-text-colors">
         <span className="diagram-brand-text-swatch" style={{ background: "#111111" }} />
         <span className="diagram-brand-text-swatch" style={{ background: "#333333" }} />
         <span className="diagram-brand-text-swatch" style={{ background: "#555555" }} />
+        <span className="diagram-brand-text-swatch" style={{ background: "#777777" }} />
         <span className="diagram-brand-text-swatch" style={{ background: "#999999" }} />
       </div>
       <div className="diagram-brand-templates">
@@ -149,34 +157,25 @@ function SystemBuildModule({ caseData }: Props) {
 /* ── Cycle Module ── */
 function CycleModule({ caseData }: Props) {
   if (!caseData.cycleNodes) return null;
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = caseData.cycleNodes[activeIdx];
   return (
     <div className="case-cycle">
-      <div className="case-cycle-ring">
-        <div className="case-cycle-center">持续运营机制</div>
-        <div className="case-cycle-nodes">
-          {caseData.cycleNodes.map((node, i) => (
-            <div
-              key={node.title}
-              className="case-cycle-node"
-              style={{ "--idx": i, "--total": caseData.cycleNodes!.length } as React.CSSProperties}
-            >
-              <span className="case-cycle-node-title">{node.title}</span>
-              <span className="case-cycle-node-desc">{node.description}</span>
-            </div>
-          ))}
-        </div>
+      <div className="case-cycle-tabs">
+        {caseData.cycleNodes.map((node, i) => (
+          <button
+            key={node.title}
+            className={`case-cycle-tab${i === activeIdx ? " is-active" : ""}`}
+            onClick={() => setActiveIdx(i)}
+            onMouseEnter={() => setActiveIdx(i)}
+          >
+            {node.title}
+          </button>
+        ))}
       </div>
-      {caseData.cycleSummary && (
-        <div className="case-cycle-summary">
-          <h4>{caseData.cycleSummary.title}</h4>
-          <p>{caseData.cycleSummary.content}</p>
-          <div className="case-cycle-tags">
-            {caseData.cycleSummary.tags.map((t) => (
-              <span key={t}>{t}</span>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className="case-cycle-desc">
+        <p>{active.description}</p>
+      </div>
     </div>
   );
 }
@@ -192,16 +191,23 @@ function ResultModule({ caseData }: Props) {
         <p>{r.content}</p>
         {r.highlight && <span className="case-result-highlight">{r.highlight}</span>}
       </div>
-      <div className="case-result-metrics">
-        {r.metrics.map((m) => (
-          <div key={m.label} className="case-result-metric">
-            <span className="case-result-value">{m.value}</span>
-            <span className="case-result-label">{m.label}</span>
-            {m.description && (
-              <span className="case-result-desc">{m.description}</span>
-            )}
+      <div className="case-result-right">
+        <div className="case-result-qrcodes">
+          <div className="case-result-qrcode">
+            <span>视频号</span>
           </div>
-        ))}
+          <div className="case-result-qrcode">
+            <span>公众号</span>
+          </div>
+        </div>
+        <div className="case-result-metrics">
+          {r.metrics.map((m) => (
+            <div key={m.label} className="case-result-metric">
+              <span className="case-result-value">{m.value}</span>
+              <span className="case-result-label">{m.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -278,13 +284,42 @@ function StrategyModule({ caseData }: Props) {
           </div>
         ))}
       </div>
-      <div className="case-strategy-images">
-        {(caseData.strategyImages ?? []).map((img) => (
-          <div key={img.label} className="case-strategy-img-placeholder">
-            <span>{img.label}</span>
-          </div>
-        ))}
-      </div>
+      {caseData.strategyTable ? (
+        <div className="case-strategy-table-wrap">
+          <table className="case-strategy-table">
+            <thead>
+              <tr>
+                <th>镜头</th>
+                <th>时间轴</th>
+                <th>景别</th>
+                <th>运镜</th>
+                <th>画面描述</th>
+                <th>屏幕花字</th>
+              </tr>
+            </thead>
+            <tbody>
+              {caseData.strategyTable.map((row) => (
+                <tr key={row.shot}>
+                  <td>{row.shot}</td>
+                  <td>{row.timeline}</td>
+                  <td>{row.shotSize}</td>
+                  <td>{row.camera}</td>
+                  <td>{row.description}</td>
+                  <td>{row.screenText}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <div className="case-strategy-images">
+          {(caseData.strategyImages ?? []).map((img) => (
+            <div key={img.label} className="case-strategy-img-placeholder">
+              <span>{img.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -410,18 +445,61 @@ function VideoLinkModule({ caseData }: Props) {
   );
 }
 
+/* ── Lazy Image Segment ── */
+function LazyImageSegment({ src, alt, width, height }: { src: string; alt: string; width: number; height: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [loaded, setLoaded] = useState(false);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setInView(true); io.disconnect(); } },
+      { threshold: 0.1 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="case-image-segment" style={{ aspectRatio: `${width} / ${height}` }}>
+      {!loaded && (
+        <svg className="case-image-skeleton" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="xMidYMid meet">
+          <rect x="60" y={height * 0.1} width={width * 0.4} height="24" rx="4" />
+          <rect x="60" y={height * 0.25} width={width * 0.9} height={height * 0.3} rx="8" />
+          <rect x="60" y={height * 0.65} width={width * 0.6} height="18" rx="4" />
+          <rect x="60" y={height * 0.78} width={width * 0.9} height={height * 0.15} rx="8" />
+        </svg>
+      )}
+      {inView && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          className={`case-image-showcase-img ${loaded ? "is-loaded" : ""}`}
+          onLoad={() => setLoaded(true)}
+        />
+      )}
+    </div>
+  );
+}
+
 /* ── Image Showcase Module ── */
 function ImageShowcaseModule({ caseData }: Props) {
   if (!caseData.showcaseImage) return null;
   return (
     <div className="case-image-showcase">
       <div className="case-image-showcase-container">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={caseData.showcaseImage.src}
-          alt={caseData.showcaseImage.alt}
-          className="case-image-showcase-img"
-        />
+        {caseData.showcaseImage.segments.map((seg) => (
+          <LazyImageSegment
+            key={seg.src}
+            src={seg.src}
+            alt={caseData.showcaseImage!.alt}
+            width={seg.width}
+            height={seg.height}
+          />
+        ))}
       </div>
     </div>
   );

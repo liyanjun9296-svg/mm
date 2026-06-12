@@ -72,6 +72,15 @@ export type ImagePlaceholder = {
   src?: string;
 };
 
+export type StrategyTableRow = {
+  shot: string;
+  timeline: string;
+  shotSize: string;
+  camera: string;
+  description: string;
+  screenText: string;
+};
+
 export type VideoDirectionCard = {
   title: string;
   keywords: string[];
@@ -113,8 +122,13 @@ export type CaseCardData = {
   insightConclusion?: { title: string; content: string };
   strategyNodes?: StrategyNode[];
   strategyImages?: ImagePlaceholder[];
+  strategyTable?: StrategyTableRow[];
   resultDeposits?: string[];
-  showcaseImage?: { src: string; alt: string; caption?: string };
+  showcaseImage?: {
+    segments: { src: string; width: number; height: number }[];
+    alt: string;
+    caption?: string;
+  };
   videoDirections?: VideoDirectionCard[];
   problemCards?: PainPoint[];
   horizontalFlow?: { title: string; description: string }[];
@@ -131,7 +145,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       tagExtra: "教育品牌增长",
       title: "内容运营系统搭建",
       subtitle:
-        "围绕教育品牌「曝光、信任、承接、转化」四个关键问题，搭建内容矩阵、品牌视觉、私域协作与运营复盘机制，让学校宣传从零散内容发布，升级为可持续运行的招生增长系统。",
+        '围绕教育品牌「<strong>曝光</strong>、<strong>信任</strong>、<strong>承接</strong>、<strong>转化</strong>」四个关键问题，搭建内容矩阵、品牌视觉、私域协作与运营复盘机制，让学校宣传从零散内容发布，升级为可持续运行的招生增长系统。',
       projectInfo: "武汉藏龙高级中学｜品牌宣传 / AI视频创作",
       metrics: [
         { value: "9700+", label: "精准涨粉" },
@@ -143,7 +157,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
         {
           index: "01",
           title: "业务痛点",
-          subtitle: "学校宣传不只是曝光，核心是建立家长信任并推动招生转化。",
+          subtitle: "目标：学校宣传不只是曝光，核心是建立家长信任并推动招生转化。",
           content:
             "教育品牌的转化链路长，家长不会因为一条内容立刻报名。项目初期真正要解决的，不是单纯「发什么内容」，而是如何让学校<strong>被持续看见、被持续信任</strong>，并让内容带来的咨询能够被有效<strong>承接和转化</strong>。",
           type: "pain-points",
@@ -153,7 +167,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
           title: "系统搭建",
           subtitle: "运营系统模型",
           content:
-            "将学校内容运营拆成三组核心解决方案：用平台矩阵解决曝光问题，用品牌感打造解决信任问题，用私域招生协作解决承接与转化问题。构成校区品牌传播与招生增长链路。",
+            "将学校内容运营拆成三组核心解决方案：用<strong>平台矩阵</strong>解决曝光问题，用<strong>打造品牌感</strong>解决信任问题，用<strong>私域招生协作</strong>解决承接与转化问题。构成校区品牌传播与招生增长链路。",
           type: "system-build",
         },
         {
@@ -161,7 +175,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
           title: "运营节奏与执行闭环",
           subtitle: "让内容运营从临时发布，变成持续运转机制。",
           content:
-            "解决方案搭建完成后，更重要的是让它稳定跑起来。通过月度规划、周度排期、内容生产、数据反馈和选题复盘，把校园内容运营从临时想选题、临时发内容，变成一套可持续推进的运营机制。",
+            "解决方案搭建完成后，更重要的是让它稳定跑起来。通过<strong>月度规划</strong>、<strong>周度排期</strong>、<strong>内容生产</strong>、<strong>数据反馈</strong>和<strong>选题复盘</strong>，把校园内容运营从临时想选题、临时发内容，变成一套可持续推进的运营机制。",
           type: "cycle",
         },
         {
@@ -209,7 +223,7 @@ const casesData: Record<Locale, CaseCardData[]> = {
       ],
       cycleSummary: {
         title: "持续运营机制",
-        content: "通过月度规划、周度排期、内容执行、数据反馈和选题复盘，让校园内容运营从临时发布变成持续运转机制，保证内容不断供、品牌表达不散、招生反馈能反哺下一轮内容。",
+        content: "通过<strong>月度规划</strong>、<strong>周度排期</strong>、<strong>内容执行</strong>、<strong>数据反馈</strong>和<strong>选题复盘</strong>，让校园内容运营从临时发布变成持续运转机制，保证内容不断供、品牌表达不散、招生反馈能反哺下一轮内容。",
         tags: ["月度规划", "周度排期", "数据复盘", "选题优化"],
       },
       resultSummary: {
@@ -299,9 +313,14 @@ const casesData: Record<Locale, CaseCardData[]> = {
         { title: "产品介入", description: "产品作为解决问题的工具自然出现" },
         { title: "结果反馈", description: "展示前后变化和用户满意反馈" },
       ],
-      strategyImages: [
-        { label: "脚本输出截图" },
-        { label: "分镜表截图" },
+      strategyTable: [
+        { shot: "1", timeline: "0-5s", shotSize: "近景", camera: "固定", description: "黑底黄字/黄底黑字的纯文本画面，作为视频封面和开头，快速切换，交代视频主题，吸引观众注意力。", screenText: "发现一个 超超超写实设计app\n玩了一下午 省了上百万装修费" },
+        { shot: "2", timeline: "6-10s", shotSize: "近景", camera: "固定", description: `镜头对准放在木桌上的iPad。iPad画面显示一个3D客餐厅。一只手出镜，点击屏幕右侧的菜单栏，调出"餐椅"列表，并点击切换了不同的椅子款式。`, screenText: "好多种椅子，都来试试看" },
+        { shot: "3", timeline: "11-14s", shotSize: "近景", camera: "固定", description: "选中一把餐椅后，手在屏幕上拖拽该椅子调整位置。细节亮点：拖拽时画面中出现了实时的绿色尺寸线（如170cm, 34cm等），展示家具与墙面/其他物体的精确距离。", screenText: "这个好喜欢，拯救强迫症" },
+        { shot: "4", timeline: "15-20s", shotSize: "近景", camera: "固定", description: `手指在屏幕上滑动，控制APP内的第一人称视角在虚拟房间内"走动"。从餐厅穿过走廊，路过干湿分离的洗手台/洗衣区，最后进入一间卧室。展示APP内流畅漫游功能。`, screenText: "我设计的不错吧，哈哈哈哈哈哈" },
+        { shot: "5", timeline: "20-22s", shotSize: "近景", camera: "固定", description: `视角停留在卧室。手再次点击右侧菜单，调出"双人床"的替换列表，点击其中一款，卧室里的床瞬间完成了一键替换。`, screenText: "床也换一下" },
+        { shot: "6", timeline: "23-26s", shotSize: "近景", camera: "固定", description: `手调"木地板"材质菜单，连续点击了两种不同颜色和纹理的木地板。点击后，卧室地面的材质实时发生变化，展示逼真的光影和材质效果。`, screenText: "地板也来下" },
+        { shot: "7", timeline: "27-31s", shotSize: "全屏", camera: "固定", description: "片尾画面，显示创作者的头像、搜索框及抖音号。（引导关注）", screenText: "" },
       ],
       resultSummary: {
         title: "首个爆款完成冷启动验证",
@@ -436,7 +455,16 @@ const casesData: Record<Locale, CaseCardData[]> = {
         },
       ],
       showcaseImage: {
-        src: "/images/articles/article-data.svg",
+        segments: [
+          { src: "/images/articles/article-data-1.jpg", width: 2400, height: 810 },
+          { src: "/images/articles/article-data-2.jpg", width: 2400, height: 876 },
+          { src: "/images/articles/article-data-3.jpg", width: 2400, height: 684 },
+          { src: "/images/articles/article-data-4.jpg", width: 2400, height: 684 },
+          { src: "/images/articles/article-data-5.jpg", width: 2400, height: 934 },
+          { src: "/images/articles/article-data-6.jpg", width: 2400, height: 810 },
+          { src: "/images/articles/article-data-7.jpg", width: 2400, height: 934 },
+          { src: "/images/articles/article-data-8.jpg", width: 2400, height: 1244 },
+        ],
         alt: "教育类图文内容多平台数据展示",
       },
     },
@@ -755,7 +783,16 @@ const casesData: Record<Locale, CaseCardData[]> = {
         },
       ],
       showcaseImage: {
-        src: "/images/articles/article-data.svg",
+        segments: [
+          { src: "/images/articles/article-data-1.jpg", width: 2400, height: 810 },
+          { src: "/images/articles/article-data-2.jpg", width: 2400, height: 876 },
+          { src: "/images/articles/article-data-3.jpg", width: 2400, height: 684 },
+          { src: "/images/articles/article-data-4.jpg", width: 2400, height: 684 },
+          { src: "/images/articles/article-data-5.jpg", width: 2400, height: 934 },
+          { src: "/images/articles/article-data-6.jpg", width: 2400, height: 810 },
+          { src: "/images/articles/article-data-7.jpg", width: 2400, height: 934 },
+          { src: "/images/articles/article-data-8.jpg", width: 2400, height: 1244 },
+        ],
         alt: "Educational content multi-platform data showcase",
       },
     },

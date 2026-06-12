@@ -42,6 +42,7 @@
   justify-content: center;
   pointer-events: none;
   transform: translateY(calc(var(--hero-offset-y) + 36px));
+  isolation: isolate;
 }
 
 /* 图片 + 按钮容器（按钮定位参照父级）*/
@@ -59,6 +60,16 @@
   display: block;
   /* 修复透明 PNG 在缩放时底部出现的 1-2px 亮边 */
   clip-path: inset(0 0 2px 0);
+}
+
+/* Hero 视频（鼠标控制正放/倒放） */
+.hero-video {
+  width: min(78.21vw, 1008px);
+  height: auto;
+  max-height: 74.03vh;
+  display: block;
+  object-fit: contain;
+  pointer-events: none;
 }
 
 /* 按钮：单独恢复可点击 */
@@ -448,6 +459,11 @@
     width: min(84.37vw, 782px);
     max-height: 63.8vh;
   }
+
+  .hero-video {
+    width: min(84.37vw, 782px);
+    max-height: 63.8vh;
+  }
 }
 
 /* ≤900 移动端定稿（375/390 锚点 + 320–900 流体缩放） */
@@ -597,6 +613,10 @@
   }
 
   .hero-portrait-img {
+    display: none;
+  }
+
+  .hero-video {
     display: none;
   }
 

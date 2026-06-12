@@ -3,13 +3,26 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import VideoDetailGallery from "@/components/works/VideoDetailGallery";
 import WorkVideoPlayer from "@/components/works/WorkVideoPlayer";
-import { getWorks } from "@/features/portfolio/data/works-store";
-import { getWorkBySlug } from "@/features/portfolio/utils/filterWorks";
+import { getWorkWithRelated } from "@/features/portfolio/data/works-store";
+import { fetchWorksIndexFromCos } from "@/features/portfolio/data/works-store";
+import { SUPPORTED_LOCALES } from "@/lib/i18n";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
 import { getMessages } from "@/i18n/messages";
 import { isLocale } from "@/lib/i18n";
 
 export const revalidate = 3600;
+
+// build 时从 COS index 预生成全部 slug x locale 的静态详情页;
+// index 不可用(COS 故障/本地无凭据)时回退为空 → 按需 ISR,不阻断 build。
+export async function generateStaticParams() {
+  const index = await fetchWorksIndexFromCos();
+  if (!index) {
+    return [];
+  }
+  return SUPPORTED_LOCALES.flatMap((locale) =>
+    index.slugs.map((slug) => ({ locale, slug })),
+  );
+}
 
 type WorkDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
@@ -22,13 +35,10 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
   }
 
   const messages = getMessages(locale);
-  const works = await getWorks();
-  const work = getWorkBySlug(works, slug);
+  const { work, related } = await getWorkWithRelated(slug);
   if (!work) {
     notFound();
   }
-
-  const related = works.filter((item) => item.slug !== work.slug).slice(0, 2);
   const displayTitle = getWorkDisplayTitle(work, locale, messages);
 
   return (

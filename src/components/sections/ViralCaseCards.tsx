@@ -1,9 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CaseCardData } from "@/features/profile/data/case-details";
-import CaseModalContent from "./CaseModalContent";
+
+// 弹窗内容(534 行)只在点击案例卡后需要,懒加载移出首屏 bundle
+const CaseModalContent = dynamic(() => import("./CaseModalContent"), {
+  loading: () => (
+    <p className="admin-desc" role="status">
+      加载中…
+    </p>
+  ),
+});
 
 type Props = {
   cases: CaseCardData[];
@@ -43,7 +52,7 @@ export default function ViralCaseCards({ cases }: Props) {
             <h3 className="viral-case-title">
               {c.title}
             </h3>
-            <p className="viral-case-subtitle">{c.subtitle}</p>
+            <p className="viral-case-subtitle" dangerouslySetInnerHTML={{ __html: c.subtitle }} />
             {c.metrics.length > 0 && (
               <div className="viral-case-metrics">
                 {c.metrics.map((m) => (
@@ -83,6 +92,15 @@ export default function ViralCaseCards({ cases }: Props) {
                 layoutId={`case-card-${activeCase.id}`}
                 className="case-modal"
               >
+                {/* Close button - sticky inside modal */}
+                <button
+                  className="case-modal-close"
+                  onClick={() => setActiveId(null)}
+                  aria-label="关闭"
+                >
+                  ✕
+                </button>
+
                 {/* Modal header */}
                 <div className="case-modal-header">
                   <div className="case-modal-header-left">
@@ -92,9 +110,7 @@ export default function ViralCaseCards({ cases }: Props) {
                     <h2 className="case-modal-title">
                       {activeCase.title}
                     </h2>
-                    <p className="case-modal-subtitle">
-                      {activeCase.subtitle}
-                    </p>
+                    <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
                     {activeCase.projectInfo && (
                       <p className="case-modal-project">
                         {activeCase.projectInfo}
@@ -102,15 +118,6 @@ export default function ViralCaseCards({ cases }: Props) {
                     )}
                   </div>
                 </div>
-
-                {/* Close button */}
-                <button
-                  className="case-modal-close"
-                  onClick={() => setActiveId(null)}
-                  aria-label="关闭"
-                >
-                  ✕
-                </button>
 
                 {/* Content */}
                 <div className="case-modal-body">

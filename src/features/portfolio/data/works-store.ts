@@ -22,6 +22,7 @@ import { deleteCosObject, putCosJson } from "./works-store/cos-io";
 import {
   buildIndex,
   fetchLegacyWorksFromCos,
+  fetchWorkItemFromCos,
   fetchWorksFromCos,
   fetchWorksIndexFromCos,
   getOrCreateIndex,
@@ -40,6 +41,44 @@ export {
 export async function getWorks(): Promise<WorkItem[]> {
   const raw = await getWorksRaw();
   return applyDevMediaUrlsToWorks(raw);
+}
+
+/**
+ * 详情页专用：只拉目标作品 + 前 2 条相关作品（按 index 顺序），
+ * 把冷缓存时的 COS 请求从「1 index + N 全量」降到 ≤ 4 次。
+ * dev 快照模式与 index 缺失（legacy）时回退到全量读取。
+ */
+export async function getWorkWithRelated(
+  slug: string,
+): Promise<{ work: WorkItem | null; related: WorkItem[] }> {
+  const fromAll = async () => {
+    const all = await getWorks();
+    const work = all.find((w) => w.slug === slug) ?? null;
+    const related = all.filter((w) => w.slug !== slug).slice(0, 2);
+    return { work, related };
+  };
+
+  if (isDevLocalSnapshotEnabled()) {
+    return fromAll();
+  }
+
+  const index = await fetchWorksIndexFromCos();
+  if (!index || index.slugs.length === 0) {
+    return fromAll();
+  }
+
+  const relatedSlugs = index.slugs.filter((s) => s !== slug).slice(0, 2);
+  const [workRaw, ...relatedRaw] = await Promise.all([
+    fetchWorkItemFromCos(slug),
+    ...relatedSlugs.map((s) => fetchWorkItemFromCos(s)),
+  ]);
+
+  const work =
+    workRaw && workRaw.slug ? applyDevMediaUrlsToWorks([workRaw])[0]! : null;
+  const related = applyDevMediaUrlsToWorks(
+    relatedRaw.filter((item): item is WorkItem => item !== null && !!item.slug),
+  );
+  return { work, related };
 }
 
 // 进程内最近成功缓存：COS 失败（如欠费 451、网络故障）时的兜底层。

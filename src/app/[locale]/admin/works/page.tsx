@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import WorksListClient from "@/components/admin/WorksListClient";
+import HeroModeToggle from "@/components/admin/HeroModeToggle";
 import { isLocale } from "@/lib/i18n";
 
 type AdminWorksPageProps = {
@@ -15,6 +16,7 @@ export default async function AdminWorksPage({ params }: AdminWorksPageProps) {
   return (
     <main className="section admin-page">
       <div className="container">
+        <HeroModeToggle />
         <WorksListClient locale={locale} />
       </div>
     </main>

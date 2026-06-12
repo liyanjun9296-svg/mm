@@ -4,7 +4,9 @@ const en = {
     "A premium minimalist portfolio featuring video and photography projects.",
   nav: {
     home: "About",
-    works: "Featured Works",
+    homePage: "Home",
+    works: "Featured",
+    allWorks: "All Works",
     about: "Experience",
     contact: "Contact",
     capabilities: "Services",
