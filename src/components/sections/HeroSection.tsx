@@ -1,18 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useSyncExternalStore } from "react";
 import MagneticButton from "@/components/motion/MagneticButton";
 import HeroVideo from "@/components/sections/HeroVideo";
-import { getHeroMode, type HeroMode } from "@/components/admin/HeroModeToggle";
 import type { HeroDisplayFontPreset } from "@/config/hero-display-font";
 import type { Messages } from "@/i18n/messages";
 import type { Locale } from "@/lib/i18n";
-
-function subscribeHeroMode(cb: () => void) {
-  window.addEventListener("storage", cb);
-  return () => window.removeEventListener("storage", cb);
-}
 
 type HeroSectionProps = {
   messages: Messages;
@@ -21,8 +14,6 @@ type HeroSectionProps = {
 };
 
 export default function HeroSection({ messages, locale, displayFont = "helvetica" }: HeroSectionProps) {
-  const mode = useSyncExternalStore(subscribeHeroMode, getHeroMode, () => "static" as HeroMode);
-
   return (
     <section id="home" className={`hero hero-display--${displayFont}`}>
       <div className="hero-avatar" aria-hidden="true">
@@ -63,20 +54,9 @@ export default function HeroSection({ messages, locale, displayFont = "helvetica
         </div>
       </div>
 
-      {/* 层 2（z-3）：人物图片/视频，底部对齐居中，压在文字前面 */}
+      {/* 层 2（z-3）：Lottie 动效，底部对齐居中，压在文字前面 */}
       <div className="hero-portrait-layer">
-        {mode === "video" && <HeroVideo />}
-        <div className="hero-portrait-wrap" style={mode === "video" ? { display: "none" } : undefined}>
-          <Image
-            src="/images/portrait.png"
-            alt="portrait"
-            width={2112}
-            height={1188}
-            priority
-            unoptimized
-            className="hero-portrait-img"
-          />
-        </div>
+        <HeroVideo />
         <div className="hero-cta hero-anim" style={{ animationDelay: "500ms" }}>
           <MagneticButton as="a" href={`/${locale}/portfolio`}>
             {messages.hero.ctaPrimary}

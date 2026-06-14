@@ -3,12 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import lottie, { type AnimationItem } from "lottie-web";
-import { setHeroMode } from "@/components/admin/HeroModeToggle";
-
 export default function HeroVideo() {
   const containerRef = useRef<HTMLDivElement>(null);
   const animRef = useRef<AnimationItem | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -28,7 +27,7 @@ export default function HeroVideo() {
       anim.goToAndStop(Math.round(ratio * (anim.totalFrames - 1)), true);
     };
 
-    anim.addEventListener("data_failed", () => setHeroMode("static"));
+    anim.addEventListener("data_failed", () => setFailed(true));
 
     anim.addEventListener("DOMLoaded", () => {
       anim.goToAndStop(anim.totalFrames - 1, true);
@@ -44,7 +43,7 @@ export default function HeroVideo() {
 
   return (
     <>
-      {!loaded && (
+      {(!loaded || failed) && (
         <Image
           src="/lottie/images/seq_0_0.png"
           alt=""
@@ -56,11 +55,13 @@ export default function HeroVideo() {
           style={{ objectFit: "contain" }}
         />
       )}
-      <div
-        ref={containerRef}
-        className="hero-video"
-        style={{ background: "transparent", display: loaded ? undefined : "none" }}
-      />
+      {!failed && (
+        <div
+          ref={containerRef}
+          className="hero-video"
+          style={{ background: "transparent", display: loaded ? undefined : "none" }}
+        />
+      )}
     </>
   );
 }
