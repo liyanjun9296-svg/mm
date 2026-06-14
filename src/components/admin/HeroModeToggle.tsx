@@ -7,7 +7,7 @@ const HERO_MODE_KEY = "portfolio-hero-mode";
 export type HeroMode = "static" | "video";
 
 function getSnapshot(): HeroMode {
-  return (localStorage.getItem(HERO_MODE_KEY) as HeroMode) || "video";
+  return (localStorage.getItem(HERO_MODE_KEY) as HeroMode) || "static";
 }
 
 function subscribe(cb: () => void) {
@@ -16,7 +16,7 @@ function subscribe(cb: () => void) {
 }
 
 export function getHeroMode(): HeroMode {
-  if (typeof window === "undefined") return "video";
+  if (typeof window === "undefined") return "static";
   return getSnapshot();
 }
 

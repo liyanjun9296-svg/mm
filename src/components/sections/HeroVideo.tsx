@@ -1,40 +1,66 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import lottie, { type AnimationItem } from "lottie-web";
+import { setHeroMode } from "@/components/admin/HeroModeToggle";
 
 export default function HeroVideo() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animRef = useRef<AnimationItem | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    if (!containerRef.current) return;
 
-    const setInitial = () => { video.currentTime = 1; };
-    video.addEventListener("loadedmetadata", setInitial);
-    if (video.readyState >= 1) video.currentTime = 1;
+    const anim = lottie.loadAnimation({
+      container: containerRef.current,
+      renderer: "svg",
+      loop: false,
+      autoplay: false,
+      path: "/lottie/hero.json",
+    });
+    animRef.current = anim;
 
     const onMouseMove = (e: MouseEvent) => {
-      if (!video.duration) return;
+      if (!anim.totalFrames) return;
       const ratio = 1 - e.clientX / window.innerWidth;
-      video.currentTime = ratio * video.duration;
+      anim.goToAndStop(Math.round(ratio * (anim.totalFrames - 1)), true);
     };
 
-    window.addEventListener("mousemove", onMouseMove);
+    anim.addEventListener("data_failed", () => setHeroMode("static"));
+
+    anim.addEventListener("DOMLoaded", () => {
+      anim.goToAndStop(anim.totalFrames - 1, true);
+      setLoaded(true);
+      window.addEventListener("mousemove", onMouseMove);
+    });
 
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      video.removeEventListener("loadedmetadata", setInitial);
+      anim.destroy();
     };
   }, []);
 
   return (
-    <video
-      ref={videoRef}
-      className="hero-video"
-      src="/videos/hero-scroll.mp4"
-      muted
-      playsInline
-      preload="auto"
-    />
+    <>
+      {!loaded && (
+        <Image
+          src="/lottie/images/seq_0_0.png"
+          alt=""
+          width={2112}
+          height={1188}
+          priority
+          unoptimized
+          className="hero-video"
+          style={{ objectFit: "contain" }}
+        />
+      )}
+      <div
+        ref={containerRef}
+        className="hero-video"
+        style={{ background: "transparent", display: loaded ? undefined : "none" }}
+      />
+    </>
   );
 }

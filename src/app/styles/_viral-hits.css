@@ -339,13 +339,9 @@
 
 /* ── Close button ── */
 .case-modal-close {
-  position: sticky;
-  top: 0;
-  margin-left: auto;
-  margin-right: -40px;
-  margin-top: -56px;
-  margin-bottom: -36px;
-  display: block;
+  position: absolute;
+  top: 20px;
+  right: 20px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -355,8 +351,9 @@
   color: var(--muted);
   font-size: 1rem;
   cursor: pointer;
-  text-align: center;
-  line-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: color var(--motion-fast), border-color var(--motion-fast);
   z-index: 10;
 }

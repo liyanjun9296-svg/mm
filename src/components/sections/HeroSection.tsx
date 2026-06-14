@@ -21,7 +21,7 @@ type HeroSectionProps = {
 };
 
 export default function HeroSection({ messages, locale, displayFont = "helvetica" }: HeroSectionProps) {
-  const mode = useSyncExternalStore(subscribeHeroMode, getHeroMode, () => "video" as HeroMode);
+  const mode = useSyncExternalStore(subscribeHeroMode, getHeroMode, () => "static" as HeroMode);
 
   return (
     <section id="home" className={`hero hero-display--${displayFont}`}>
