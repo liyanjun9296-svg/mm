@@ -35,6 +35,7 @@ export default function FeaturedWorkCard({
     <Link
       href={`/${locale}/works/${work.slug}`}
       className={`featured-card featured-card--${layout}`}
+      prefetch={false}
     >
       <div className="featured-card-thumb" style={layout === "large" ? { height: thumbHeight } : undefined}>
         <MediaVariantImage

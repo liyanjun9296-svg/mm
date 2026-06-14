@@ -75,6 +75,7 @@ export default function FeaturedVideoCard({
         className={`featured-card featured-card--${layout}${previewActive ? " is-preview-active" : ""}`}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        prefetch={false}
       >
         <div className="featured-card-thumb" style={{ height: thumbHeight }}>
           <MediaVariantImage

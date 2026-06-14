@@ -102,7 +102,7 @@ export default function PortfolioHubClient({
           </div>
           <div className="video-grid">
             {filteredVideos.map((work) => (
-              <Link key={work.slug} href={`/${locale}/works/${work.slug}`} className="video-card">
+              <Link key={work.slug} href={`/${locale}/works/${work.slug}`} className="video-card" prefetch={false}>
                 <div className="video-card-thumb">
                   <MediaVariantImage
                     src={work.coverImage}
@@ -183,7 +183,7 @@ export default function PortfolioHubClient({
                     {messages.contact.openLink}
                   </a>
                 ) : (
-                  <Link href={`/${locale}/works/${work.slug}`} className="work-link">
+                  <Link href={`/${locale}/works/${work.slug}`} className="work-link" prefetch={false}>
                     {messages.works.openDetail}
                   </Link>
                 )}

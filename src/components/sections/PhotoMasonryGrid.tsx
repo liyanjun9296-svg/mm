@@ -85,6 +85,7 @@ export default function PhotoMasonryGrid({ works, locale, messages }: PhotoMason
                 key={work.slug}
                 href={`/${locale}/works/${work.slug}`}
                 className="photo-masonry-item"
+                prefetch={false}
               >
                 <div className={`photo-masonry-frame photo-masonry-frame--${variant}`}>
                   <MediaVariantImage
