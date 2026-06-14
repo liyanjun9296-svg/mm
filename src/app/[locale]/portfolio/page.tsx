@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import SectionHeader from "@/components/ui/SectionHeader";
 import RevealText from "@/components/motion/RevealText";
@@ -6,32 +5,17 @@ import PortfolioHubClient from "@/components/sections/PortfolioHubClient";
 import { getPhotoCategories, getVideoCategories } from "@/features/portfolio/data/categories-store";
 import { getWorks } from "@/features/portfolio/data/works-store";
 import { getMessages } from "@/i18n/messages";
-import { isLocale, type Locale } from "@/lib/i18n";
-import PortfolioLoading from "./loading";
+import { isLocale, type Locale, SUPPORTED_LOCALES } from "@/lib/i18n";
 
-export const revalidate = 3600;
+// SSG：build 时预生成 /zh/portfolio 和 /en/portfolio
+// 后台保存作品后 revalidatePath("/zh/portfolio") + revalidatePath("/en/portfolio") 主动重建
+export async function generateStaticParams() {
+  return SUPPORTED_LOCALES.map((locale) => ({ locale }));
+}
 
 type PortfolioPageProps = {
   params: Promise<{ locale: string }>;
 };
-
-// async wrapper，解除 COS 调用对 HTML shell 的阻塞
-async function PortfolioAsync({ locale, messages }: { locale: Locale; messages: ReturnType<typeof getMessages> }) {
-  const [works, videoCategories, photoCategories] = await Promise.all([
-    getWorks(),
-    getVideoCategories(),
-    getPhotoCategories(),
-  ]);
-  return (
-    <PortfolioHubClient
-      works={works}
-      videoCategories={videoCategories}
-      photoCategories={photoCategories}
-      messages={messages}
-      locale={locale}
-    />
-  );
-}
 
 export default async function PortfolioPage({ params }: PortfolioPageProps) {
   const { locale } = await params;
@@ -40,14 +24,23 @@ export default async function PortfolioPage({ params }: PortfolioPageProps) {
   }
 
   const messages = getMessages(locale as Locale);
+  const [works, videoCategories, photoCategories] = await Promise.all([
+    getWorks(),
+    getVideoCategories(),
+    getPhotoCategories(),
+  ]);
 
   return (
     <main className="portfolio-hub-page">
       <div className="container">
         <SectionHeader index="01" title={<RevealText text={messages.works.sectionTitle} />} />
-        <Suspense fallback={<PortfolioLoading bare />}>
-          <PortfolioAsync locale={locale as Locale} messages={messages} />
-        </Suspense>
+        <PortfolioHubClient
+          works={works}
+          videoCategories={videoCategories}
+          photoCategories={photoCategories}
+          messages={messages}
+          locale={locale as Locale}
+        />
       </div>
     </main>
   );
