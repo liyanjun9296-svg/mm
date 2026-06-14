@@ -18,12 +18,11 @@ export default function HeroSection({ messages, locale, displayFont = "helvetica
     <section id="home" className={`hero hero-display--${displayFont}`}>
       <div className="hero-avatar" aria-hidden="true">
         <Image
-          src="/images/hero-avatar-375.png?v=2"
+          src="/images/hero-avatar-375.png"
           alt=""
           width={500}
           height={500}
           priority
-          unoptimized
           className="hero-avatar-img"
         />
       </div>
