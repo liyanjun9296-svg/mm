@@ -27,7 +27,7 @@
 .section-title {
   order: 1;
   margin: 0;
-  font-size: clamp(24px, 3.2vw, 34px);
+  font-size: 34px;
   font-weight: 500;
   letter-spacing: -0.01em;
   text-align: left;
@@ -273,7 +273,7 @@
 
 .photos-page-title {
   margin: 16px 0 0;
-  font-size: clamp(28px, 4vw, 48px);
+  font-size: 48px;
   font-weight: 400;
   letter-spacing: -0.02em;
 }
@@ -365,7 +365,7 @@
 
 .detail-title {
   margin: 12px 0 8px;
-  font-size: clamp(34px, 5vw, 56px);
+  font-size: 56px;
   font-weight: 500;
   letter-spacing: -0.02em;
 }
@@ -557,7 +557,7 @@
 
 .related .section-title {
   margin: 20px 0 16px;
-  font-size: clamp(24px, 2.4vw, 30px);
+  font-size: 30px;
 }
 
 .info-card {
@@ -958,18 +958,7 @@
   line-height: 1.75;
 }
 
-/* 响应式 */
-@media (min-width: 901px) and (max-width: 1200px) {
-  .photo-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .video-grid,
   .photo-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1014,7 +1003,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .portfolio-featured-section {
     margin-top: 0;
     padding-top: var(--section-padding-y);
@@ -1044,13 +1033,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    padding: 12px 8px;
   }
 
   .featured-row--large .featured-card--large .featured-card-title {
     flex: 1 1 auto;
     width: auto;
     min-width: 0;
+    font-size: 12px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
     -webkit-line-clamp: 1;
+    overflow: hidden;
   }
 
   .featured-row--large .featured-card--large .featured-card-tag {

@@ -2,8 +2,8 @@
 .nav {
   position: fixed;
   top: calc(var(--nav-progress, 0) * var(--nav-capsule-top-max));
-  left: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
-  right: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
+  left: min(calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max)), calc(50% - 290px));
+  right: min(calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max)), calc(50% - 290px));
   z-index: 100;
   overflow: hidden;
   background: transparent;
@@ -87,12 +87,12 @@
   display: block;
   width: auto;
   height: 22px;
-  max-width: min(132px, 36vw);
+  max-width: 132px;
 }
 
 .menu {
   display: flex;
-  gap: 40px;
+  gap: 24px;
   color: var(--muted);
 }
 
@@ -108,7 +108,7 @@
 .nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .lang-switch {
@@ -136,7 +136,7 @@
 .nav-cta {
   border: 1px solid #333;
   border-radius: 2px;
-  padding: 10px 20px;
+  padding: 10px 14px;
   font-family: var(--font-geist-mono), monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
@@ -211,12 +211,15 @@
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   :root {
     --nav-capsule-inset-max: 12%;
   }
 
   .nav {
+    left: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
+    right: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
+    top: calc(var(--nav-progress, 0) * (env(safe-area-inset-top, 0px) + 40px));
     overflow: visible;
   }
 
