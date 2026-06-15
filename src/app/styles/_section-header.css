@@ -27,7 +27,7 @@
 
 .section-header-title {
   margin: 0;
-  font-size: clamp(36px, 5vw, 56px);
+  font-size: 56px;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
@@ -58,7 +58,7 @@
   color: var(--text);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .section-header {
     flex-direction: row;
     align-items: flex-end;

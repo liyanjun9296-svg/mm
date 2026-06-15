@@ -84,7 +84,7 @@ main {
 }
 
 .container {
-  width: min(1200px, 90vw);
+  width: 1200px;
   margin: 0 auto;
 }
 
@@ -130,7 +130,19 @@ main {
   transform: translateY(0);
 }
 
-@media (max-width: 900px) {
+/* ── 小屏桌面缩放（1024–1439px）─── */
+@media (min-width: 1024px) and (max-width: 1199px) {
+  html {
+    zoom: 0.75 !important;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1439px) {
+  html {
+    zoom: 0.88 !important;
+  }
+}
+
+@media (max-width: 1023px) {
   :root {
     --nav-edge-padding: var(--content-mobile-pad);
     /* 相邻大板块 / Hero↔section：约 20+20=40px；391–900 随宽度微增 */

@@ -14,7 +14,7 @@ export default function SectionHeader({ index, title, right }: SectionHeaderProp
           <span className="section-header-index">{index}</span>
           <h2 className="section-header-title">{title}</h2>
         </div>
-        {right ?? <span className="section-header-line" aria-hidden="true" />}
+        {right ?? null}
       </RevealOnScroll>
       <div className="section-divider" />
     </>
