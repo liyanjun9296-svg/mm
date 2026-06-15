@@ -60,7 +60,7 @@ const zh = {
     relatedTitle: "相关作品",
   },
   viralHits: {
-    sectionTitle: "数据成果与执行路径",
+    sectionTitle: "内容增长策略",
     sectionDesc: "用数据说话，证明打造爆款的能力。",
   },
   about: {

@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import AboutSection from "@/components/sections/AboutSection";
 import CapabilitiesSection from "@/components/sections/CapabilitiesSection";
@@ -20,12 +19,6 @@ type LocaleHomePageProps = {
   searchParams: Promise<{ heroFont?: string }>;
 };
 
-// async wrapper，让 COS 请求不阻塞 Hero/Capabilities 的 HTML shell 返回
-async function PortfolioAsync({ messages, locale }: { messages: ReturnType<typeof getMessages>; locale: Locale }) {
-  const works = await getWorks();
-  return <PortfolioSection works={works} messages={messages} locale={locale} />;
-}
-
 export default async function LocaleHomePage({ params, searchParams }: LocaleHomePageProps) {
   const { locale } = await params;
   const { heroFont } = await searchParams;
@@ -35,15 +28,14 @@ export default async function LocaleHomePage({ params, searchParams }: LocaleHom
 
   const messages = getMessages(locale as Locale);
   const displayFont = resolveHeroDisplayFont(heroFont);
+  const works = await getWorks();
 
   return (
     <main id="home">
       <HeroSection messages={messages} locale={locale as Locale} displayFont={displayFont} />
       <CapabilitiesSection messages={messages} />
       <PortfolioSectionShell messages={messages} locale={locale as Locale}>
-        <Suspense fallback={null}>
-          <PortfolioAsync messages={messages} locale={locale as Locale} />
-        </Suspense>
+        <PortfolioSection works={works} messages={messages} locale={locale as Locale} />
       </PortfolioSectionShell>
       <ViralHitsSection messages={messages} locale={locale as Locale} />
       <AboutSection messages={messages} locale={locale as Locale} />

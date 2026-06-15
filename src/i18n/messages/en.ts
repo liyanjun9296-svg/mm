@@ -61,7 +61,7 @@ const en = {
     relatedTitle: "Related Works",
   },
   viralHits: {
-    sectionTitle: "Results & Execution Path",
+    sectionTitle: "Content Growth Strategy",
     sectionDesc: "Data-backed proof of creating viral content at scale.",
   },
   about: {
