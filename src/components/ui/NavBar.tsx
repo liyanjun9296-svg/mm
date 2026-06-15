@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, type CSSProperties } from "react";
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import LanguageSwitch from "@/components/ui/LanguageSwitch";
 import type { Messages } from "@/i18n/messages";

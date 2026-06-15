@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import lottie, { type AnimationItem } from "lottie-web";
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import lottie from "lottie-web/build/player/lottie_light";
+import type { AnimationItem } from "lottie-web";
 
 // 40×23px 模糊占位图（来自 seq_0_0.png），避免 263KB 网络请求
 const PLACEHOLDER =
@@ -35,8 +37,13 @@ export default function HeroVideo() {
 
     anim.addEventListener("DOMLoaded", () => {
       anim.goToAndStop(anim.totalFrames - 1, true);
-      setLoaded(true);
-      window.addEventListener("mousemove", onMouseMove);
+      // Wait two rAF cycles so the first frame finishes painting before fade-in
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setLoaded(true);
+          window.addEventListener("mousemove", onMouseMove);
+        });
+      });
     });
 
     return () => {
