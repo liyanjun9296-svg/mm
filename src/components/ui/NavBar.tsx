@@ -17,12 +17,11 @@ const DEFAULT_SCROLL_DISTANCE = 200;
 
 const SECTION_IDS = ["home", "works", "about", "contact"] as const;
 
-type NavKey = "home" | "works" | "allWorks" | "about" | "contact";
+type NavKey = "home" | "works" | "about" | "contact";
 
 const NAV_LINKS: { key: NavKey; section?: string; route?: boolean }[] = [
   { key: "home", section: "home" },
   { key: "works", section: "works" },
-  { key: "allWorks", route: true },
   { key: "about", section: "about" },
   { key: "contact", section: "contact" },
 ];
@@ -214,15 +213,9 @@ export default function NavBar({ messages, locale }: NavBarProps) {
         </nav>
         <div className="nav-right">
           <LanguageSwitch locale={locale} />
-          {isHomePage ? (
-            <a className="nav-cta" href="#contact">
-              {messages.nav.contact}
-            </a>
-          ) : (
-            <Link className="nav-cta" href={`/${locale}/contact`}>
-              {messages.nav.contact}
-            </Link>
-          )}
+          <Link className="nav-cta" href={`/${locale}/portfolio`}>
+            {messages.nav.allWorks}
+          </Link>
           <button
             type="button"
             className="nav-menu-toggle"
