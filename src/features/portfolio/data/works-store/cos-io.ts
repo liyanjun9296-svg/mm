@@ -16,10 +16,9 @@ export async function fetchJsonFromCos<T>(key: string): Promise<T | null> {
     return null;
   }
   try {
-    // revalidate 交由页面级声明控制(首页/portfolio 300s,详情页 3600s),
-    // 后台保存时 revalidateTag(WORKS_CACHE_TAG) 主动失效,不会滞留旧数据。
+    // revalidate: 300s 兜底；后台保存时 revalidateTag(WORKS_CACHE_TAG) 主动失效，实际延迟接近 0。
     const res = await fetch(url, {
-      next: { tags: [WORKS_CACHE_TAG] },
+      next: { tags: [WORKS_CACHE_TAG], revalidate: 300 },
     });
     if (!res.ok) {
       return null;
