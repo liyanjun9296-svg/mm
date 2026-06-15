@@ -25,25 +25,6 @@ async function PortfolioAsync({ messages, locale }: { messages: ReturnType<typeo
   return <PortfolioSection works={works} messages={messages} locale={locale} />;
 }
 
-// Portfolio 骨架屏：section 高度占位，shimmer 动画
-function PortfolioSkeleton() {
-  return (
-    <section className="section" aria-hidden="true">
-      <div className="container">
-        <div className="skeleton" style={{ width: 160, height: 20, marginBottom: 32 }} />
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(2,1fr)", gap: 16, marginBottom: 16 }}>
-          <div className="skeleton" style={{ aspectRatio: "16/9" }} />
-          <div className="skeleton" style={{ aspectRatio: "16/9" }} />
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12 }}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="skeleton" style={{ aspectRatio: "4/3" }} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
 
 export default async function LocaleHomePage({ params, searchParams }: LocaleHomePageProps) {
   const { locale } = await params;
@@ -59,7 +40,7 @@ export default async function LocaleHomePage({ params, searchParams }: LocaleHom
     <main id="home">
       <HeroSection messages={messages} locale={locale as Locale} displayFont={displayFont} />
       <CapabilitiesSection messages={messages} />
-      <Suspense fallback={<PortfolioSkeleton />}>
+      <Suspense fallback={null}>
         <PortfolioAsync messages={messages} locale={locale as Locale} />
       </Suspense>
       <ViralHitsSection messages={messages} locale={locale as Locale} />
