@@ -16,20 +16,17 @@ type HeroSectionProps = {
 export default function HeroSection({ messages, locale, displayFont = "helvetica" }: HeroSectionProps) {
   return (
     <section id="home" className={`hero hero-display--${displayFont}`}>
-      <div className="hero-avatar" aria-hidden="true">
-        <Image
-          src="/images/hero-avatar-375.png"
-          alt=""
-          width={500}
-          height={500}
-          priority
-          className="hero-avatar-img"
-        />
-      </div>
-
       {/* 层 1（z-1）：所有文字，居中对齐，人物后面 */}
       <div className="hero-text-layer">
         <div className="container">
+          <Image
+            src="/images/hero-avatar-375.png?v=3"
+            alt=""
+            width={64}
+            height={64}
+            className="hero-avatar-mobile"
+            priority
+          />
           <p className="hero-eyebrow hero-anim" style={{ animationDelay: "0ms" }}>
             {messages.hero.eyebrow}
           </p>

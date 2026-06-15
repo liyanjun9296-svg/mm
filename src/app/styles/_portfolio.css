@@ -1140,3 +1140,39 @@
     transition: none;
   }
 }
+
+@media (max-width: 1023px) {
+  .portfolio-hub-page {
+    padding-top: 24px;
+  }
+
+  .portfolio-hub-page .video-tab-bar {
+    display: none;
+  }
+
+  .portfolio-hub-page .section-header-index {
+    display: none;
+  }
+
+  .portfolio-hub-page .video-card-info {
+    padding: 10px 0 10px 10px;
+    gap: 4px;
+    text-align: left;
+  }
+
+  .portfolio-hub-page .video-card-title {
+    font-size: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .portfolio-hub-page .video-card-platform {
+    display: none;
+  }
+
+  .portfolio-hub-page .video-card-tag {
+    color: var(--muted);
+  }
+}

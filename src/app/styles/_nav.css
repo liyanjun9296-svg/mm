@@ -5,7 +5,7 @@
   left: min(calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max)), calc(50% - 290px));
   right: min(calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max)), calc(50% - 290px));
   z-index: 100;
-  overflow: hidden;
+  overflow: clip;
   background: transparent;
   border-bottom: 1px solid var(--line);
   border-radius: calc(var(--nav-progress, 0) * 999px);

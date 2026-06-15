@@ -26,10 +26,10 @@
   --nav-progress: 0;
 
   /* 胶囊态毛玻璃 */
-  --nav-glass-bg-solid: 0.88;
-  --nav-glass-bg-capsule: 0.78;
-  --nav-glass-blur-min: 12px;
-  --nav-glass-blur-max: 32px;
+  --nav-glass-bg-solid: 0.75;
+  --nav-glass-bg-capsule: 0.65;
+  --nav-glass-blur-min: 40px;
+  --nav-glass-blur-max: 64px;
   --nav-glass-saturate-max: 1.5;
   --nav-glass-frost: 0.08;
   --nav-glass-rim: rgba(255, 255, 255, 0.18);
@@ -190,5 +190,41 @@ main {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+
+/* ── 触屏设备：禁用 hover 粘连 + 统一按压态 ──── */
+@media (hover: none) and (pointer: coarse) {
+  /* 禁用所有 hover 位移/变色（防止 iOS 点击后粘住） */
+  a:hover,
+  button:hover,
+  [role="button"]:hover,
+  .btn:hover,
+  .nav-cta:hover,
+  .nav-mobile-links a:hover,
+  .featured-card:hover .featured-card-img,
+  .featured-card:hover,
+  .cap-gravity-card:hover,
+  .viral-case-card.has-detail:hover,
+  .contact-platform-item:hover,
+  .faq-question:hover {
+    transform: none;
+    border-color: inherit;
+    box-shadow: none;
+  }
+
+  /* 统一按压态：所有可点击热区 */
+  a:active,
+  button:active,
+  [role="button"]:active,
+  .btn:active,
+  .nav-cta:active,
+  .featured-card:active,
+  .viral-case-card:active,
+  .cap-gravity-card:active,
+  .contact-platform-item:active,
+  .faq-question:active {
+    opacity: 0.65;
+    transition: opacity 0.08s ease;
   }
 }

@@ -1,4 +1,8 @@
 /* ── Hero 全屏区 ─────────────────────────────── */
+.hero-avatar-mobile {
+  display: none;
+}
+
 .hero {
   position: relative;
   height: 100vh;
@@ -6,14 +10,6 @@
   overflow: hidden;
   background: var(--bg);
   --hero-offset-y: -140px;
-}
-
-.hero-avatar {
-  display: none;
-}
-
-.hero-avatar-img {
-  display: none;
 }
 
 /* 文字层：居中对齐，人物后面 */
@@ -449,7 +445,7 @@
     align-items: stretch;
     height: auto;
     min-height: 0;
-    padding: 8px var(--content-mobile-pad) 20px;
+    padding: 93px var(--content-mobile-pad) 20px;
     overflow: visible;
   }
 
@@ -458,24 +454,13 @@
     margin: 0 8px;
   }
 
-  .hero-avatar {
+  .hero-avatar-mobile {
     display: block;
-    order: 1;
-    flex-shrink: 0;
-    width: clamp(90px, 23.08vw, 120px);
-    height: clamp(90px, 23.08vw, 120px);
-    margin-top: clamp(78px, 20vw, 120px);
-    margin-bottom: 12px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
-    overflow: hidden;
-    background: #1c1c1c;
-  }
-
-  .hero-avatar-img {
-    display: block;
-    width: 100%;
-    height: 100%;
     object-fit: cover;
+    margin-bottom: 16px;
   }
 
   .hero-text-layer {
