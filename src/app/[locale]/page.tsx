@@ -5,6 +5,7 @@ import CapabilitiesSection from "@/components/sections/CapabilitiesSection";
 import ContactSection from "@/components/sections/ContactSection";
 import HeroSection from "@/components/sections/HeroSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
+import PortfolioSectionShell from "@/components/sections/PortfolioSectionShell";
 import ViralHitsSection from "@/components/sections/ViralHitsSection";
 import { resolveHeroDisplayFont } from "@/config/hero-display-font";
 import { getWorks } from "@/features/portfolio/data/works-store";
@@ -25,7 +26,6 @@ async function PortfolioAsync({ messages, locale }: { messages: ReturnType<typeo
   return <PortfolioSection works={works} messages={messages} locale={locale} />;
 }
 
-
 export default async function LocaleHomePage({ params, searchParams }: LocaleHomePageProps) {
   const { locale } = await params;
   const { heroFont } = await searchParams;
@@ -40,9 +40,11 @@ export default async function LocaleHomePage({ params, searchParams }: LocaleHom
     <main id="home">
       <HeroSection messages={messages} locale={locale as Locale} displayFont={displayFont} />
       <CapabilitiesSection messages={messages} />
-      <Suspense fallback={null}>
-        <PortfolioAsync messages={messages} locale={locale as Locale} />
-      </Suspense>
+      <PortfolioSectionShell messages={messages} locale={locale as Locale}>
+        <Suspense fallback={null}>
+          <PortfolioAsync messages={messages} locale={locale as Locale} />
+        </Suspense>
+      </PortfolioSectionShell>
       <ViralHitsSection messages={messages} locale={locale as Locale} />
       <AboutSection messages={messages} locale={locale as Locale} />
       <ContactSection messages={messages} locale={locale as Locale} />
