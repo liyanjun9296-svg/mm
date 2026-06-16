@@ -100,7 +100,17 @@ export default function ViralCaseCards({ cases }: Props) {
               exit={{ opacity: 0 }}
               onClick={() => setActiveId(null)}
             />
-            <div className="case-modal-wrapper">
+            <motion.div
+              className="case-modal-wrapper"
+              {...(isMobileSheet
+                ? {
+                    initial: { y: "100%" },
+                    animate: { y: 0 },
+                    exit: { y: "100%" },
+                    transition: { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
+                  }
+                : {})}
+            >
               <motion.div
                 layoutId={isMobileSheet ? undefined : `case-card-${activeCase.id}`}
                 className="case-modal"
@@ -145,7 +155,7 @@ export default function ViralCaseCards({ cases }: Props) {
                   <CaseModalContent caseData={activeCase} />
                 </div>
               </motion.div>
-            </div>
+            </motion.div>
           </>
         )}
       </AnimatePresence>

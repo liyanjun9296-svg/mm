@@ -1709,16 +1709,6 @@
     box-shadow: none;
   }
 
-  @keyframes caseSheetIn {
-    from {
-      transform: translateY(100%);
-    }
-
-    to {
-      transform: translateY(0);
-    }
-  }
-
   /* Modal mobile */
   .case-modal-backdrop {
     background: rgba(0, 0, 0, 0.58);
@@ -1744,7 +1734,6 @@
     border-bottom: 0;
     border-left: 0;
     border-radius: 20px 20px 0 0;
-    animation: caseSheetIn 260ms var(--motion-ease) both;
   }
 
   .case-modal::before,
@@ -1775,7 +1764,13 @@
     width: 34px;
     height: 34px;
     margin: 0;
+    border: 0;
     background: rgba(255, 255, 255, 0.06);
+  }
+
+  .case-modal-close:hover,
+  .case-modal-close:active {
+    border: 0;
   }
 
   .case-modal-title {
