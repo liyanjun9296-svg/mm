@@ -88,8 +88,8 @@ const profileSource = {
         en: "When can you start?",
       },
       answer: {
-        zh: "随时可以，目前处于gap期，欢迎联系：15607835498（同v）",
-        en: "Available immediately. Currently in a gap period — feel free to reach out: 15607835498 (also WeChat).",
+        zh: "随时可以，目前处于gap期，欢迎联系：15607835498",
+        en: "Available immediately. Currently in a gap period — feel free to reach out: 15607835498.",
       },
     },
     {
