@@ -36,15 +36,38 @@ export default function ViralCaseCards({ cases }: Props) {
   }, []);
 
   useEffect(() => {
-    if (activeId) {
-      document.documentElement.style.overflow = "hidden";
-    } else {
-      document.documentElement.style.overflow = "";
+    if (!activeId) {
+      return;
     }
+
+    const scrollY = window.scrollY;
+    const htmlOverflow = document.documentElement.style.overflow;
+    const bodyOverflow = document.body.style.overflow;
+    const bodyPosition = document.body.style.position;
+    const bodyTop = document.body.style.top;
+    const bodyWidth = document.body.style.width;
+
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+
+    if (isMobileSheet) {
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+    }
+
     return () => {
-      document.documentElement.style.overflow = "";
+      document.documentElement.style.overflow = htmlOverflow;
+      document.body.style.overflow = bodyOverflow;
+      document.body.style.position = bodyPosition;
+      document.body.style.top = bodyTop;
+      document.body.style.width = bodyWidth;
+
+      if (isMobileSheet) {
+        window.scrollTo(0, scrollY);
+      }
     };
-  }, [activeId]);
+  }, [activeId, isMobileSheet]);
 
   return (
     <>
@@ -100,20 +123,19 @@ export default function ViralCaseCards({ cases }: Props) {
               exit={{ opacity: 0 }}
               onClick={() => setActiveId(null)}
             />
-            <motion.div
-              className="case-modal-wrapper"
-              {...(isMobileSheet
-                ? {
-                    initial: { y: "100%" },
-                    animate: { y: 0 },
-                    exit: { y: "100%" },
-                    transition: { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
-                  }
-                : {})}
-            >
+            <div className="case-modal-wrapper" onClick={() => setActiveId(null)}>
               <motion.div
                 layoutId={isMobileSheet ? undefined : `case-card-${activeCase.id}`}
                 className="case-modal"
+                onClick={(event) => event.stopPropagation()}
+                {...(isMobileSheet
+                  ? {
+                      initial: { y: "100%" },
+                      animate: { y: 0 },
+                      exit: { y: "100%" },
+                      transition: { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
+                    }
+                  : {})}
               >
                 {/* Close button - sticky inside modal */}
                 <button
@@ -155,7 +177,7 @@ export default function ViralCaseCards({ cases }: Props) {
                   <CaseModalContent caseData={activeCase} />
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
