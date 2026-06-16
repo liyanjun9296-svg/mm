@@ -23,8 +23,8 @@ const zh = {
     tagPhoto: "PHOTO",
     tagArticle: "ARTICLE",
     photoDisplayTitle: "摄影作品精选",
-    featuredVideoTitle: "Video Create",
-    featuredPhotoTitle: "Photography Collection",
+    featuredVideoTitle: "视频创作",
+    featuredPhotoTitle: "摄影作品",
     noArticles: "暂无文章类作品",
   },
   dock: {
@@ -57,7 +57,7 @@ const zh = {
     relatedTitle: "相关作品",
   },
   viralHits: {
-    sectionTitle: "内容增长策略",
+    sectionTitle: "数据及路径展示",
     sectionDesc: "用数据说话，证明打造爆款的能力。",
   },
   about: {

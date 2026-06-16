@@ -165,6 +165,14 @@
   gap: 8px;
 }
 
+.video-card--no-platform .video-card-info {
+  align-items: flex-start;
+}
+
+.video-card--no-platform .video-card-meta {
+  justify-content: flex-start;
+}
+
 .video-card-title {
   margin: 0;
   color: #fff;

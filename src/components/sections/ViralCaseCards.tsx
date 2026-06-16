@@ -189,7 +189,9 @@ export default function ViralCaseCards({ cases }: Props) {
             )}
             {c.modules.length > 0 && (
               <span className="viral-case-arrow" aria-hidden="true">
-                →
+                <svg viewBox="0 0 30 30" focusable="false">
+                  <path d="M11.9876 3.276L23.7116 15L11.9876 26.724" />
+                </svg>
               </span>
             )}
           </motion.div>

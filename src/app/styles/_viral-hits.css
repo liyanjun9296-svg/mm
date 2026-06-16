@@ -194,18 +194,26 @@
 
 .viral-case-arrow {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
-  font-size: 1.2rem;
-  color: var(--muted);
-  opacity: 0;
-  transition: opacity var(--motion-fast) var(--motion-ease),
-    transform var(--motion-fast) var(--motion-ease);
+  right: 18px;
+  bottom: 18px;
+  display: none;
+  width: 15px;
+  height: 15px;
+  color: rgba(255, 255, 255, 0.7);
 }
 
-.viral-case-card.has-detail:hover .viral-case-arrow {
-  opacity: 1;
-  transform: translateX(4px);
+.viral-case-arrow svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.viral-case-arrow path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* ── Modal backdrop ── */
@@ -1700,7 +1708,11 @@
   }
 
   .viral-case-card {
-    padding: 24px 20px;
+    padding: 24px 48px 24px 20px;
+  }
+
+  .viral-case-arrow {
+    display: block;
   }
 
   .viral-case-card.has-detail:hover,

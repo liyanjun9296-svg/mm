@@ -298,6 +298,9 @@ WorksListClient mount
 - **Props**: `items`, `getItemId(item, index)`, `onReorder(newItems)`, `renderItem`
 - **key 生成**: `getItemId` 返回值作为 React key 和 dnd-kit ID
 - **当前实现**: 详情素材用 `${url}__${index}` 避免重复 URL 冲突
+- **作品列表排序**: `WorksListClient` 在「视频」和「摄影」tab 复用 `SortableList`；拖拽后通过 `reorderVideosInWorks` / `reorderPhotosInWorks` 只重排对应分类，保留其它分类相对位置
+- **持久化**: 作品排序调用 `saveWorksAdmin(token, merged)` → `PUT /api/admin/works` → `saveAllWorkItemsToCos()`，写回 per-slug JSON、`site/works/index.json` 和 legacy mirror；这是 COS JSON 写入/上行，不下载媒体
+- **前台影响**: `/[locale]/portfolio` 视频与摄影列表都按 `getWorks()` 返回顺序展示；后台保存排序后，线上在 revalidate/缓存刷新后同步体现
 - **注意**: `onReorder` 回调直接传新数组，组件不管持久化
 
 ## 十一、已知问题与技术债

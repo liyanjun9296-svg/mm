@@ -102,7 +102,12 @@ export default function PortfolioHubClient({
           </div>
           <div className="video-grid">
             {filteredVideos.map((work) => (
-              <Link key={work.slug} href={`/${locale}/works/${work.slug}`} className="video-card" prefetch={false}>
+              <Link
+                key={work.slug}
+                href={`/${locale}/works/${work.slug}`}
+                className={`video-card${work.platform ? "" : " video-card--no-platform"}`}
+                prefetch={false}
+              >
                 <div className="video-card-thumb">
                   <MediaVariantImage
                     src={work.coverImage}
@@ -119,7 +124,9 @@ export default function PortfolioHubClient({
                 <div className="video-card-info">
                   <p className="video-card-title">{work.title}</p>
                   <div className="video-card-meta">
-                    <span className="video-card-platform">{work.platform}</span>
+                    {work.platform ? (
+                      <span className="video-card-platform">{work.platform}</span>
+                    ) : null}
                     {work.subcategory ? (
                       <span className="video-card-tag">{work.subcategory}</span>
                     ) : null}

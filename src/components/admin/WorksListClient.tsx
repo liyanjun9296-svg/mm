@@ -16,7 +16,7 @@ import {
   pullFromCosAdmin,
   saveWorksAdmin,
 } from "@/lib/admin/api";
-import { reorderPhotosInWorks } from "@/lib/admin/reorder-works";
+import { reorderPhotosInWorks, reorderVideosInWorks } from "@/lib/admin/reorder-works";
 
 /** 去掉用户粘贴路径首尾的引号 */
 function stripQuotes(s: string): string {
@@ -211,14 +211,13 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
     }
   }
 
-  async function handlePhotoReorder(newPhotoOrder: WorkItem[]) {
+  async function saveReorderedWorks(nextWorks: WorkItem[]) {
     const previousWorks = works;
-    const merged = reorderPhotosInWorks(previousWorks, newPhotoOrder);
-    setWorks(merged);
+    setWorks(nextWorks);
     setReordering(true);
     setStatus("正在保存排序…");
     try {
-      await saveWorksAdmin(token, merged);
+      await saveWorksAdmin(token, nextWorks);
       setStatus("排序已保存");
     } catch (err) {
       setWorks(previousWorks);
@@ -226,6 +225,14 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
     } finally {
       setReordering(false);
     }
+  }
+
+  async function handleVideoReorder(newVideoOrder: WorkItem[]) {
+    await saveReorderedWorks(reorderVideosInWorks(works, newVideoOrder));
+  }
+
+  async function handlePhotoReorder(newPhotoOrder: WorkItem[]) {
+    await saveReorderedWorks(reorderPhotosInWorks(works, newPhotoOrder));
   }
 
   function handleLogout() {
@@ -348,15 +355,16 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
       </div>
 
       {status ? <p className="admin-status">{status}</p> : null}
-      {activeTab === "摄影" && filteredWorks.length > 0 ? (
+      {(activeTab === "视频" || activeTab === "摄影") && filteredWorks.length > 0 ? (
         <>
           <p className="admin-desc admin-sort-hint">
-            拖拽左侧手柄可调整前台摄影区展示顺序{reordering ? "（保存中…）" : ""}
+            拖拽左侧手柄可调整前台{activeTab === "视频" ? "全部作品视频" : "摄影区"}展示顺序
+            {reordering ? "（保存中…）" : ""}
           </p>
           <SortableList
             items={filteredWorks}
             getItemId={(work) => work.slug}
-            onReorder={handlePhotoReorder}
+            onReorder={activeTab === "视频" ? handleVideoReorder : handlePhotoReorder}
             className="admin-works-list"
             itemClassName="admin-works-item admin-sortable-row"
             renderItem={(work, _index, dragHandle) => renderWorkRow(work, dragHandle)}
