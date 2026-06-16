@@ -1728,8 +1728,8 @@
     flex-direction: column;
     width: 100%;
     max-width: none;
-    height: 90vh;
-    max-height: 90vh;
+    height: var(--case-sheet-height, 90svh);
+    max-height: var(--case-sheet-height, 90svh);
     padding: 0;
     overflow: hidden;
     touch-action: pan-y;

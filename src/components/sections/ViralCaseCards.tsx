@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import type { CaseCardData } from "@/features/profile/data/case-details";
@@ -40,34 +41,117 @@ export default function ViralCaseCards({ cases }: Props) {
       return;
     }
 
-    const scrollY = window.scrollY;
     const htmlOverflow = document.documentElement.style.overflow;
     const bodyOverflow = document.body.style.overflow;
-    const bodyPosition = document.body.style.position;
-    const bodyTop = document.body.style.top;
-    const bodyWidth = document.body.style.width;
 
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
 
-    if (isMobileSheet) {
-      document.body.style.position = "fixed";
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = "100%";
-    }
-
     return () => {
       document.documentElement.style.overflow = htmlOverflow;
       document.body.style.overflow = bodyOverflow;
-      document.body.style.position = bodyPosition;
-      document.body.style.top = bodyTop;
-      document.body.style.width = bodyWidth;
+    };
+  }, [activeId]);
 
-      if (isMobileSheet) {
-        window.scrollTo(0, scrollY);
-      }
+  useEffect(() => {
+    if (!isMobileSheet || !activeId) {
+      return;
+    }
+
+    const setSheetHeight = () => {
+      document.documentElement.style.setProperty("--case-sheet-height", `${window.innerHeight * 0.9}px`);
+    };
+
+    setSheetHeight();
+    window.addEventListener("resize", setSheetHeight);
+    window.visualViewport?.addEventListener("resize", setSheetHeight);
+
+    return () => {
+      window.removeEventListener("resize", setSheetHeight);
+      window.visualViewport?.removeEventListener("resize", setSheetHeight);
+      document.documentElement.style.removeProperty("--case-sheet-height");
     };
   }, [activeId, isMobileSheet]);
+
+  const modalOverlay = (
+    <AnimatePresence>
+      {activeCase && (
+        <>
+          <motion.div
+            className="case-modal-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setActiveId(null)}
+            onTouchMove={(event) => event.preventDefault()}
+          />
+          <div
+            className="case-modal-wrapper"
+            onClick={() => setActiveId(null)}
+            onTouchMove={(event) => {
+              if (event.target === event.currentTarget) {
+                event.preventDefault();
+              }
+            }}
+          >
+            <motion.div
+              layoutId={isMobileSheet ? undefined : `case-card-${activeCase.id}`}
+              className="case-modal"
+              onClick={(event) => event.stopPropagation()}
+              {...(isMobileSheet
+                ? {
+                    initial: { y: "100%" },
+                    animate: { y: 0 },
+                    exit: { y: "100%" },
+                    transition: { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
+                  }
+                : {})}
+            >
+              {/* Close button - sticky inside modal */}
+              <button
+                className="case-modal-close"
+                onClick={() => setActiveId(null)}
+                aria-label="关闭"
+              >
+                ✕
+              </button>
+
+              {/* Modal header */}
+              <div className="case-modal-header">
+                <div className="case-modal-header-left">
+                  <span className="case-modal-index">
+                    {activeCase.index} / {activeCase.tag}{activeCase.tagExtra ? ` / ${activeCase.tagExtra}` : ""}
+                  </span>
+                  <h2 className="case-modal-title">
+                    {activeCase.title}
+                  </h2>
+                  <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
+                  {activeCase.projectInfo && (
+                    <p className="case-modal-project">
+                      {activeCase.projectInfo}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="case-modal-body">
+                <div className="case-modal-mobile-intro">
+                  <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
+                  {activeCase.projectInfo && (
+                    <p className="case-modal-project">
+                      {activeCase.projectInfo}
+                    </p>
+                  )}
+                </div>
+                <CaseModalContent caseData={activeCase} />
+              </div>
+            </motion.div>
+          </div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 
   return (
     <>
@@ -112,75 +196,7 @@ export default function ViralCaseCards({ cases }: Props) {
         ))}
       </div>
 
-      {/* Modal overlay */}
-      <AnimatePresence>
-        {activeCase && (
-          <>
-            <motion.div
-              className="case-modal-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveId(null)}
-            />
-            <div className="case-modal-wrapper" onClick={() => setActiveId(null)}>
-              <motion.div
-                layoutId={isMobileSheet ? undefined : `case-card-${activeCase.id}`}
-                className="case-modal"
-                onClick={(event) => event.stopPropagation()}
-                {...(isMobileSheet
-                  ? {
-                      initial: { y: "100%" },
-                      animate: { y: 0 },
-                      exit: { y: "100%" },
-                      transition: { duration: 0.26, ease: [0.22, 1, 0.36, 1] },
-                    }
-                  : {})}
-              >
-                {/* Close button - sticky inside modal */}
-                <button
-                  className="case-modal-close"
-                  onClick={() => setActiveId(null)}
-                  aria-label="关闭"
-                >
-                  ✕
-                </button>
-
-                {/* Modal header */}
-                <div className="case-modal-header">
-                  <div className="case-modal-header-left">
-                    <span className="case-modal-index">
-                      {activeCase.index} / {activeCase.tag}{activeCase.tagExtra ? ` / ${activeCase.tagExtra}` : ""}
-                    </span>
-                    <h2 className="case-modal-title">
-                      {activeCase.title}
-                    </h2>
-                    <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
-                    {activeCase.projectInfo && (
-                      <p className="case-modal-project">
-                        {activeCase.projectInfo}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="case-modal-body">
-                  <div className="case-modal-mobile-intro">
-                    <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
-                    {activeCase.projectInfo && (
-                      <p className="case-modal-project">
-                        {activeCase.projectInfo}
-                      </p>
-                    )}
-                  </div>
-                  <CaseModalContent caseData={activeCase} />
-                </div>
-              </motion.div>
-            </div>
-          </>
-        )}
-      </AnimatePresence>
+      {isMobileSheet && typeof document !== "undefined" ? createPortal(modalOverlay, document.body) : modalOverlay}
     </>
   );
 }
