@@ -13,6 +13,7 @@ type FeaturedWorkCardProps = {
   locale: Locale;
   messages: Messages;
   reveal?: boolean;
+  interactive?: boolean;
 };
 
 export default function FeaturedWorkCard({
@@ -21,6 +22,7 @@ export default function FeaturedWorkCard({
   locale,
   messages,
   reveal = true,
+  interactive = true,
 }: FeaturedWorkCardProps) {
   if (work.category === "video") {
     return (
@@ -31,12 +33,8 @@ export default function FeaturedWorkCard({
   const thumbHeight = layout === "large" ? 260 : 200;
   const displayTitle = getWorkDisplayTitle(work, locale, messages);
 
-  const card = (
-    <Link
-      href={`/${locale}/works/${work.slug}`}
-      className={`featured-card featured-card--${layout}`}
-      prefetch={false}
-    >
+  const cardContent = (
+    <>
       <div className="featured-card-thumb" style={layout === "large" ? { height: thumbHeight } : undefined}>
         <MediaVariantImage
           src={work.coverImage}
@@ -57,7 +55,19 @@ export default function FeaturedWorkCard({
             : messages.portfolio.tagArticle}
         </span>
       </div>
+    </>
+  );
+
+  const card = interactive ? (
+    <Link
+      href={`/${locale}/works/${work.slug}`}
+      className={`featured-card featured-card--${layout}`}
+      prefetch={false}
+    >
+      {cardContent}
     </Link>
+  ) : (
+    <div className={`featured-card featured-card--${layout}`}>{cardContent}</div>
   );
 
   if (!reveal) {

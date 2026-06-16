@@ -17,9 +17,6 @@ const en = {
   portfolio: {
     allProjects: "All Projects",
     exploreAll: "Explore All",
-    emptyFeatured: "No featured works yet. Mark items in the admin panel.",
-    featuredFallbackHint:
-      "Showing default items (no featured items marked). Customize in admin by checking Featured.",
     hubVideo: "Film & Video",
     hubPhoto: "Photography",
     hubArticle: "Articles",

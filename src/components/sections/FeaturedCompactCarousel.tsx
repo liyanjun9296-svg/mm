@@ -10,6 +10,7 @@ type FeaturedCompactCarouselProps = {
   works: WorkItem[];
   locale: Locale;
   messages: Messages;
+  interactive?: boolean;
 };
 
 /** 半轨滚动像素速度，各断点体感一致 */
@@ -20,6 +21,7 @@ export default function FeaturedCompactCarousel({
   works,
   locale,
   messages,
+  interactive = true,
 }: FeaturedCompactCarouselProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [durationSeconds, setDurationSeconds] = useState(
@@ -78,6 +80,7 @@ export default function FeaturedCompactCarousel({
                 locale={locale}
                 messages={messages}
                 reveal={false}
+                interactive={interactive}
               />
             </div>
           ))}

@@ -16,9 +16,6 @@ const zh = {
   portfolio: {
     allProjects: "全部项目",
     exploreAll: "查看全部",
-    emptyFeatured: "暂无首页精品，请在后台勾选「首页精品」",
-    featuredFallbackHint:
-      "当前为默认展示（未勾选首页精品）。可在后台勾选后自定义首页作品。",
     hubVideo: "影视类",
     hubPhoto: "摄影类",
     hubArticle: "文章类",

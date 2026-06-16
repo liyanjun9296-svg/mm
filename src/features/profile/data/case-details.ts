@@ -394,11 +394,11 @@ const casesData: Record<Locale, CaseCardData[]> = {
         },
       ],
       videoDirections: [
-        { title: "校园宣传视频", keywords: ["真实素材", "延时摄影", "品牌包装"], description: "用于校园宣传与活动包装，让真实素材具备更强的节奏感和传播质感。", placeholder: "校园视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/campus.mp4" },
-        { title: "真人产品视频", keywords: ["场景代入", "产品表达", "商业短片"], description: "用于产品展示与营销传播，让产品自然进入场景，而不是生硬露出。", placeholder: "真人产品视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/product.mp4" },
-        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260607" },
-        { title: "无人驾驶系列", keywords: ["科技视觉", "场景逻辑", "未来交通"], description: "用于智能驾驶与科技产品表达，重点建立清晰的场景逻辑和未来感视觉。", placeholder: "无人驾驶系列循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/autonomous.mp4" },
-        { title: "卡通游戏CG", keywords: ["角色风格", "趣味叙事", "游戏感"], description: "用于游戏化与动漫化内容表达，重点统一角色风格、动作表现和娱乐化情绪。", placeholder: "卡通游戏CG循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/game-cg.mp4" },
+        { title: "校园宣传视频", keywords: ["真实素材", "延时摄影", "品牌包装"], description: "用于校园宣传与活动包装，让真实素材具备更强的节奏感和传播质感。", placeholder: "校园视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/campus.mp4?v=20260616-500k" },
+        { title: "真人产品视频", keywords: ["场景代入", "产品表达", "商业短片"], description: "用于产品展示与营销传播，让产品自然进入场景，而不是生硬露出。", placeholder: "真人产品视频循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/product.mp4?v=20260616-500k" },
+        { title: "3D动画短片", keywords: ["分镜控制", "角色一致", "叙事节奏"], description: "用于剧情型视觉内容，重点控制角色、空间、动作因果和镜头节奏。", placeholder: "3D动画短片循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260616-500k" },
+        { title: "无人驾驶系列", keywords: ["科技视觉", "场景逻辑", "未来交通"], description: "用于智能驾驶与科技产品表达，重点建立清晰的场景逻辑和未来感视觉。", placeholder: "无人驾驶系列循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/autonomous.mp4?v=20260616-500k" },
+        { title: "卡通游戏CG", keywords: ["角色风格", "趣味叙事", "游戏感"], description: "用于游戏化与动漫化内容表达，重点统一角色风格、动作表现和娱乐化情绪。", placeholder: "卡通游戏CG循环素材", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/game-cg.mp4?v=20260616-500k" },
       ],
       problemCards: [
         { title: "角色稳定", description: "人物形象、服装、姿态和状态在不同镜头中容易变化。" },
@@ -722,11 +722,11 @@ const casesData: Record<Locale, CaseCardData[]> = {
         },
       ],
       videoDirections: [
-        { title: "Campus Promo Video", keywords: ["Real footage", "Timelapse", "Brand packaging"], description: "For campus marketing and event packaging, giving real footage stronger rhythm and distribution quality.", placeholder: "Campus video loop" },
-        { title: "Product Video", keywords: ["Scene immersion", "Product expression", "Commercial short"], description: "For product showcase and marketing, letting products enter scenes naturally without forced placement.", placeholder: "Product video loop" },
-        { title: "3D Animation Short", keywords: ["Storyboard control", "Character consistency", "Narrative rhythm"], description: "For narrative visual content, focusing on character, space, action causality and camera rhythm control.", placeholder: "3D animation loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260607" },
-        { title: "Autonomous Driving", keywords: ["Tech visuals", "Scene logic", "Future transport"], description: "For intelligent driving and tech product expression, building clear scene logic and futuristic visuals.", placeholder: "Autonomous driving loop" },
-        { title: "Cartoon Game CG", keywords: ["Character style", "Fun narrative", "Game feel"], description: "For gamified and anime-style content, unifying character style, action performance, and entertainment emotion.", placeholder: "Game CG loop" },
+        { title: "Campus Promo Video", keywords: ["Real footage", "Timelapse", "Brand packaging"], description: "For campus marketing and event packaging, giving real footage stronger rhythm and distribution quality.", placeholder: "Campus video loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/campus.mp4?v=20260616-500k" },
+        { title: "Product Video", keywords: ["Scene immersion", "Product expression", "Commercial short"], description: "For product showcase and marketing, letting products enter scenes naturally without forced placement.", placeholder: "Product video loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/product.mp4?v=20260616-500k" },
+        { title: "3D Animation Short", keywords: ["Storyboard control", "Character consistency", "Narrative rhythm"], description: "For narrative visual content, focusing on character, space, action causality and camera rhythm control.", placeholder: "3D animation loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/animation.mp4?v=20260616-500k" },
+        { title: "Autonomous Driving", keywords: ["Tech visuals", "Scene logic", "Future transport"], description: "For intelligent driving and tech product expression, building clear scene logic and futuristic visuals.", placeholder: "Autonomous driving loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/autonomous.mp4?v=20260616-500k" },
+        { title: "Cartoon Game CG", keywords: ["Character style", "Fun narrative", "Game feel"], description: "For gamified and anime-style content, unifying character style, action performance, and entertainment emotion.", placeholder: "Game CG loop", videoUrl: "https://portfolio-gaoxinming-1305428454.cos.ap-beijing.myqcloud.com/site/cases/aigc/game-cg.mp4?v=20260616-500k" },
       ],
       problemCards: [
         { title: "Character Stability", description: "Character appearance, clothing, posture, and state easily change across different shots." },

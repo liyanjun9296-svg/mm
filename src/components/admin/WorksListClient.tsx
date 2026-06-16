@@ -5,10 +5,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import type { WorkItem } from "@/features/portfolio/types";
-import {
-  FEATURED_COMPACT_MAX,
-  FEATURED_LARGE_MAX,
-} from "@/features/portfolio/constants";
 import VideoCategoryManager from "@/components/admin/VideoCategoryManager";
 import SortableList from "@/components/admin/SortableList";
 import {
@@ -171,11 +167,6 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
     return works;
   }, [works, activeTab]);
 
-  const featuredSummary = useMemo(() => {
-    const large = works.filter((w) => w.featured && w.featuredLayout !== "compact").length;
-    const compact = works.filter((w) => w.featured && w.featuredLayout === "compact").length;
-    return { large, compact };
-  }, [works]);
 
   function openDeleteDialog(work: WorkItem) {
     setDeleteMediaFromCos(false);
@@ -258,17 +249,6 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
           <div>
             <div className="admin-works-title-row">
               <strong>{work.title}</strong>
-              {work.featured ? (
-                <span
-                  className={`admin-featured-badge${
-                    work.featuredLayout === "compact"
-                      ? " admin-featured-badge--compact"
-                      : " admin-featured-badge--large"
-                  }`}
-                >
-                  {work.featuredLayout === "compact" ? "精品·小卡" : "精品·大卡"}
-                </span>
-              ) : null}
             </div>
             <span className="admin-works-meta">
               {work.category === "video"
@@ -366,11 +346,6 @@ export default function WorksListClient({ locale }: WorksListClientProps) {
           </button>
         ))}
       </div>
-
-      <p className="admin-featured-summary">
-        首页精品：大卡 {featuredSummary.large}/{FEATURED_LARGE_MAX} · 小卡{" "}
-        {featuredSummary.compact}/{FEATURED_COMPACT_MAX}
-      </p>
 
       {status ? <p className="admin-status">{status}</p> : null}
       {activeTab === "摄影" && filteredWorks.length > 0 ? (

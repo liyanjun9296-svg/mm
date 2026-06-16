@@ -458,30 +458,6 @@ export default function WorkEditForm({
             </select>
           </label>
         ) : null}
-        <label className="admin-field admin-field-full">
-          <span>
-            <input
-              type="checkbox"
-              checked={work.featured ?? false}
-              onChange={(e) => updateField("featured", e.target.checked)}
-            />{" "}
-            首页精品展示
-          </span>
-        </label>
-        {work.featured ? (
-          <label className="admin-field">
-            <span>精品卡片尺寸</span>
-            <select
-              value={work.featuredLayout ?? "large"}
-              onChange={(e) =>
-                updateField("featuredLayout", e.target.value as "large" | "compact")
-              }
-            >
-              <option value="large">大卡（首行 2 个）</option>
-              <option value="compact">小卡（次行 4 个）</option>
-            </select>
-          </label>
-        ) : null}
         {isVideoWork ? (
           <>
             <label className="admin-field">
