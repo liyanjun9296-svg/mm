@@ -231,6 +231,9 @@
 .photo-item {
   display: block;
   text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease);
 }
 
 .photo-item-img-wrap {
@@ -356,11 +359,11 @@
 
 /* 作品详情页 */
 .detail-wrap {
-  padding-top: 12px;
+  padding-top: 72px;
 }
 
 .detail-top {
-  margin-bottom: 14px;
+  margin-bottom: 20px;
 }
 
 .detail-title {
@@ -379,7 +382,7 @@
 }
 
 .detail-desc {
-  margin: 0 0 24px;
+  margin: 24px 0 24px;
   color: var(--muted);
   font-size: 15px;
   line-height: 1.7;
@@ -441,7 +444,10 @@
   border-radius: 999px;
   cursor: pointer;
   backdrop-filter: blur(6px);
-  transition: background var(--motion-fast) var(--motion-ease),
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease),
     border-color var(--motion-fast) var(--motion-ease);
 }
 
@@ -739,6 +745,10 @@
   background: #1a1a1a;
   border-radius: 8px;
   overflow: hidden;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
 }
 
 .featured-card-thumb {
@@ -924,6 +934,9 @@
   gap: 28px;
   padding-bottom: 32px;
   border-bottom: 1px solid var(--line);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease);
 }
 
 .article-card-cover {

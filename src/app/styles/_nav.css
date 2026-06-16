@@ -268,10 +268,15 @@
 
   .nav-mobile-links a {
     display: block;
-    padding: 14px 0;
+    margin: 0 calc(var(--content-mobile-pad) * -0.5);
+    padding: 14px calc(var(--content-mobile-pad) * 0.5);
+    border-radius: 4px;
     color: var(--muted);
     font-size: 15px;
     border-bottom: 1px solid var(--line);
+    transition:
+      background-color var(--motion-fast) var(--motion-ease),
+      color var(--motion-fast) var(--motion-ease);
   }
 
   .nav-mobile-links li:last-child a {

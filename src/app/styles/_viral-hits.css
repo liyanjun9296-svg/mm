@@ -354,7 +354,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color var(--motion-fast), border-color var(--motion-fast);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast),
+    border-color var(--motion-fast);
   z-index: 10;
 }
 
@@ -1645,7 +1649,11 @@
   font-size: 0.85rem;
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    background 0.2s,
+    color 0.2s;
   white-space: nowrap;
 }
 
@@ -1691,6 +1699,12 @@
     padding: 24px 20px;
   }
 
+  .viral-case-card.has-detail:hover,
+  .viral-case-card.has-detail:active {
+    border-color: var(--line);
+    box-shadow: none;
+  }
+
   /* Modal mobile */
   .case-modal-wrapper {
     padding: 16px;
@@ -1702,9 +1716,9 @@
   }
 
   .case-modal-close {
-    margin-top: -28px;
-    margin-right: -8px;
-    margin-bottom: -36px;
+    top: 28px;
+    right: 20px;
+    margin: 0;
   }
 
   .case-modal-title {

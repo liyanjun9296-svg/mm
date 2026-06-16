@@ -193,38 +193,83 @@ main {
   }
 }
 
-/* ── 触屏设备：禁用 hover 粘连 + 统一按压态 ──── */
+/* ── 触屏设备：禁用 hover 粘连 + 分层按压态 ──── */
 @media (hover: none) and (pointer: coarse) {
-  /* 禁用所有 hover 位移/变色（防止 iOS 点击后粘住） */
+  a,
+  button,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 禁用桌面 hover 位移/描边，防止 iOS 点击后粘住 */
   a:hover,
   button:hover,
   [role="button"]:hover,
   .btn:hover,
   .nav-cta:hover,
   .nav-mobile-links a:hover,
-  .featured-card:hover .featured-card-img,
   .featured-card:hover,
+  .featured-card:hover .featured-card-img,
+  .video-card:hover,
+  .video-card:hover .video-card-img,
+  .photo-item:hover .photo-item-img,
+  .portfolio-hub-tab:hover,
+  .detail-video-quality:hover,
   .cap-gravity-card:hover,
   .viral-case-card.has-detail:hover,
-  .contact-platform-item:hover,
+  .contact-platform-row.hover-row:hover,
   .faq-question:hover {
     transform: none;
-    border-color: inherit;
     box-shadow: none;
   }
 
-  /* 统一按压态：所有可点击热区 */
-  a:active,
-  button:active,
-  [role="button"]:active,
+  .viral-case-card.has-detail:hover,
+  .viral-case-card.has-detail:active {
+    border-color: var(--line);
+  }
+
+  .faq-question:focus-visible,
+  .nav-mobile-links a:focus-visible {
+    outline: none;
+  }
+
+  /* 按钮/卡片：微缩小 + 压暗 */
   .btn:active,
-  .nav-cta:active,
+  .nav-menu-toggle:active,
+  .contact-cta:active,
+  .contact-modal-close:active,
+  .contact-modal-action:active,
+  .detail-video-quality:active,
+  .portfolio-hub-tab:active,
   .featured-card:active,
-  .viral-case-card:active,
+  .video-card:active,
+  .photo-item:active,
+  .article-card:active,
+  .related .info-card:active,
   .cap-gravity-card:active,
-  .contact-platform-item:active,
-  .faq-question:active {
-    opacity: 0.65;
-    transition: opacity 0.08s ease;
+  .viral-case-card.has-detail:active,
+  .case-modal-close:active,
+  .case-video-link-btn:active {
+    transform: scale(0.98);
+    filter: brightness(0.88);
+    transition:
+      transform 0.08s ease,
+      filter 0.08s ease,
+      background-color 0.08s ease;
+  }
+
+  /* 列表文字热区：整条灰底 */
+  .nav-mobile-links a:active,
+  .faq-question:active,
+  .contact-platform-row:active,
+  .contact-page-copy:active,
+  .work-link:active {
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    transform: none;
+    filter: none;
+    transition:
+      background-color 0.08s ease,
+      color 0.08s ease;
   }
 }

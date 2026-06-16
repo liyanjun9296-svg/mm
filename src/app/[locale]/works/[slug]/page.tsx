@@ -56,8 +56,6 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
         {work.category === "article" && work.subtitle ? (
           <p className="detail-subtitle">{work.subtitle}</p>
         ) : null}
-        <p className="detail-desc">{work.description}</p>
-        <div className="section-divider" />
 
         {work.category === "article" ? (
           work.coverImage ? (
@@ -100,6 +98,9 @@ export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
             )}
           </div>
         )}
+
+        <p className="detail-desc">{work.description}</p>
+        <div className="section-divider" />
 
         {work.category === "video" && work.detailImages && work.detailImages.length > 0 ? (
           <VideoDetailGallery images={work.detailImages} altPrefix={displayTitle} />

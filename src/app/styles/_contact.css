@@ -50,9 +50,14 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  padding: 20px 0;
+  margin: 0 -8px;
+  padding: 20px 8px;
+  border-radius: 4px;
   color: inherit;
   text-decoration: none;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
 }
 
 .contact-platform-left {
@@ -188,6 +193,10 @@
   font-size: 13px;
   cursor: pointer;
   flex-shrink: 0;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
 }
 
 .contact-modal-divider {
@@ -250,6 +259,10 @@
   cursor: pointer;
   text-decoration: none;
   flex-shrink: 0;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    filter var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
 }
 
 .contact-modal-action svg {
