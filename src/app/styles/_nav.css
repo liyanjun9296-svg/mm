@@ -217,7 +217,7 @@
   .nav {
     left: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
     right: calc(var(--nav-progress, 0) * var(--nav-capsule-inset-max));
-    top: calc(var(--nav-progress, 0) * (env(safe-area-inset-top, 0px) + 40px));
+    top: calc(var(--nav-progress, 0) * (env(safe-area-inset-top, 0px) + 18px));
     overflow: visible;
   }
 

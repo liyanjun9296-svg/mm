@@ -20,7 +20,20 @@ type Props = {
 
 export default function ViralCaseCards({ cases }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [isMobileSheet, setIsMobileSheet] = useState(false);
   const activeCase = cases.find((c) => c.id === activeId);
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const syncMobileSheet = () => setIsMobileSheet(media.matches);
+
+    syncMobileSheet();
+    media.addEventListener("change", syncMobileSheet);
+
+    return () => {
+      media.removeEventListener("change", syncMobileSheet);
+    };
+  }, []);
 
   useEffect(() => {
     if (activeId) {
@@ -39,7 +52,7 @@ export default function ViralCaseCards({ cases }: Props) {
         {cases.map((c) => (
           <motion.div
             key={c.id}
-            layoutId={`case-card-${c.id}`}
+            layoutId={isMobileSheet ? undefined : `case-card-${c.id}`}
             className={`viral-case-card${c.modules.length > 0 ? " has-detail" : ""}`}
             onClick={() => c.modules.length > 0 && setActiveId(c.id)}
             role={c.modules.length > 0 ? "button" : undefined}
@@ -89,7 +102,7 @@ export default function ViralCaseCards({ cases }: Props) {
             />
             <div className="case-modal-wrapper">
               <motion.div
-                layoutId={`case-card-${activeCase.id}`}
+                layoutId={isMobileSheet ? undefined : `case-card-${activeCase.id}`}
                 className="case-modal"
               >
                 {/* Close button - sticky inside modal */}
@@ -121,6 +134,14 @@ export default function ViralCaseCards({ cases }: Props) {
 
                 {/* Content */}
                 <div className="case-modal-body">
+                  <div className="case-modal-mobile-intro">
+                    <p className="case-modal-subtitle" dangerouslySetInnerHTML={{ __html: activeCase.subtitle }} />
+                    {activeCase.projectInfo && (
+                      <p className="case-modal-project">
+                        {activeCase.projectInfo}
+                      </p>
+                    )}
+                  </div>
                   <CaseModalContent caseData={activeCase} />
                 </div>
               </motion.div>
