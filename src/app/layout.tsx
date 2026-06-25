@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description: defaultSeo.description,
   verification: {
     other: {
-      "baidu-site-verification": "codeva-ZV6z8TUR2y",
+      "baidu-site-verification": "codeva-zV6z8TUR2y",
     },
   },
   keywords: [
