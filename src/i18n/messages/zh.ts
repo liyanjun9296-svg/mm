@@ -1,6 +1,6 @@
 const zh = {
-  siteTitle: "YU ZIJIE 作品集",
-  siteDescription: "高级简约风格的个人作品集网站，包含视频与图片项目。",
+  siteTitle: "高欣明作品集",
+  siteDescription: "高欣明个人作品集，聚焦新媒体运营、AIGC内容增长、短视频运营、矩阵运营、视觉拍摄与商业转化案例。",
   nav: {
     home: "关于我",
     homePage: "首页",

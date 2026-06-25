@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -8,6 +9,7 @@ import { fetchWorksIndexFromCos } from "@/features/portfolio/data/works-store";
 import { SUPPORTED_LOCALES } from "@/lib/i18n";
 import { getWorkDisplayTitle } from "@/features/portfolio/utils/work-display-title";
 import { getMessages } from "@/i18n/messages";
+import { buildPageMetadata, truncateDescription } from "@/lib/seo";
 import { isLocale } from "@/lib/i18n";
 
 export const revalidate = 3600;
@@ -27,6 +29,43 @@ export async function generateStaticParams() {
 type WorkDetailPageProps = {
   params: Promise<{ locale: string; slug: string }>;
 };
+
+export async function generateMetadata({ params }: WorkDetailPageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isLocale(locale)) {
+    return {};
+  }
+
+  const messages = getMessages(locale);
+  const { work } = await getWorkWithRelated(slug);
+  if (!work) {
+    return buildPageMetadata({
+      locale,
+      path: `/works/${slug}`,
+      title: locale === "zh" ? "作品未找到｜高欣明作品集" : "Work Not Found | Gao Xinming Portfolio",
+      description:
+        locale === "zh"
+          ? "高欣明新媒体运营、AIGC内容增长与视频摄影作品集。"
+          : "Gao Xinming's portfolio for new media operations, AIGC content growth, and visual production.",
+    });
+  }
+
+  const displayTitle = getWorkDisplayTitle(work, locale, messages);
+  return buildPageMetadata({
+    locale,
+    path: `/works/${slug}`,
+    title:
+      locale === "zh"
+        ? `${displayTitle}｜高欣明新媒体运营与AIGC作品集`
+        : `${displayTitle} | Gao Xinming AIGC and New Media Portfolio`,
+    description: truncateDescription(
+      work.description ||
+        (locale === "zh"
+          ? "高欣明新媒体运营、AIGC内容增长、短视频运营与视觉拍摄作品案例。"
+          : "A Gao Xinming case across new media operations, AIGC content growth, short-video strategy, and visual production."),
+    ),
+  });
+}
 
 export default async function WorkDetailPage({ params }: WorkDetailPageProps) {
   const { locale, slug } = await params;

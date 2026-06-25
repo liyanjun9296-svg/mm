@@ -1,7 +1,7 @@
 const en = {
-  siteTitle: "YU ZIJIE Portfolio",
+  siteTitle: "Gao Xinming Portfolio",
   siteDescription:
-    "A premium minimalist portfolio featuring video and photography projects.",
+    "Gao Xinming's portfolio for new media operations, AIGC workflows, content growth, short-video strategy, visual production, and conversion-focused cases.",
   nav: {
     home: "About",
     homePage: "Home",
